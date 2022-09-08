@@ -145,6 +145,7 @@ class AccountInvoice(models.Model):
 				dian_obj.write({'exp_accepted_file': b64encode(dian_obj._get_acp_zipped_file(accepted_xml_with_signature)).decode("utf-8", "ignore")})
 				dian_obj.action_sent_accepted_file()
 				self.invoice_rating = 'auto_approve'
+				self.bs_acceptation()
 
 	def action_view_credit_notes(self):
 		self.ensure_one()

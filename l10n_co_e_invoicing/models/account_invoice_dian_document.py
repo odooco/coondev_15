@@ -854,8 +854,22 @@ class AccountInvoiceDianDocument(models.Model):
         self.action_set_files()
         self.action_sent_zipped_file()
 
+    def bs_acceptation(self):
+        accepted_xml_without_signature = global_functions.get_template_xml(self._get_accepted_values(), 'ReciboBS')
+        accepted_xml_with_signature = global_functions.get_xml_with_signature(accepted_xml_without_signature, self.company_id.signature_policy_url, self.company_id.signature_policy_description, self.company_id.certificate_file, self.company_id.certificate_password)
+        self.write({'exp_accepted_file': b64encode(self._get_acp_zipped_file(accepted_xml_with_signature)).decode(
+            "utf-8", "ignore")})
+        self.action_sent_accepted_file(self.exp_accepted_file)
+
     def express_acceptation(self):
         accepted_xml_without_signature = global_functions.get_template_xml(self._get_accepted_values(),'AceptacionExpresa')
+        accepted_xml_with_signature = global_functions.get_xml_with_signature(accepted_xml_without_signature, self.company_id.signature_policy_url, self.company_id.signature_policy_description, self.company_id.certificate_file, self.company_id.certificate_password)
+        self.write({'exp_accepted_file': b64encode(self._get_acp_zipped_file(accepted_xml_with_signature)).decode("utf-8", "ignore")})
+        self.action_sent_accepted_file(self.exp_accepted_file)
+        self.bs_acceptation()
+
+    def refund_acceptation(self):
+        accepted_xml_without_signature = global_functions.get_template_xml(self._get_accepted_values(), 'ReclamoEI')
         accepted_xml_with_signature = global_functions.get_xml_with_signature(accepted_xml_without_signature, self.company_id.signature_policy_url, self.company_id.signature_policy_description, self.company_id.certificate_file, self.company_id.certificate_password)
         self.write({'exp_accepted_file': b64encode(self._get_acp_zipped_file(accepted_xml_with_signature)).decode("utf-8", "ignore")})
         self.action_sent_accepted_file(self.exp_accepted_file)
