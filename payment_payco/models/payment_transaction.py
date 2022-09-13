@@ -34,7 +34,16 @@ class PaymentTransaction(models.Model):
 
         base_url = self.acquirer_id.get_base_url()
         partner_first_name, partner_last_name = payment_utils.split_partner_name(self.partner_name)
-        test = 'false' if self.state == 'enabled' else 'true'
+        sqlTestMethod = """select state from payment_acquirer where provider = '%s'
+                        """ % ('payco')
+        http.request.cr.execute(sqlTestMethod)
+        resultTestMethod = http.request.cr.fetchall() or []
+        if resultTestMethod:
+            (state) = resultTestMethod[0]
+        for testMethod in state:
+            test = testMethod
+        testPayment = 'true' if test == 'test' \
+            else 'false'
         lang = 'es' if self.partner_lang == 'es_CO' else 'en'
         external = 'true' if self.acquirer_id.payco_checkout_type == 'standard' else 'false'
         split_reference = self.reference.split('-')
@@ -71,10 +80,10 @@ class PaymentTransaction(models.Model):
             'email': self.partner_email,
             'first_name': partner_first_name,
             'last_name': partner_last_name,
-            "phone_number": tx.partner_id.phone.replace(' ', ''),
+            "phone_number":'',
             'lang': lang,
             'checkout_external': external,
-            "test": test,
+            "test": testPayment,
             'confirmation_url': urls.url_join(base_url, '/payco/confirmation/backend'),
             'response_url': urls.url_join(base_url,'/payco/redirect/backend'),
             'api_url': urls.url_join(base_url, '/payment/payco/checkout'),
@@ -131,7 +140,7 @@ class PaymentTransaction(models.Model):
                 (state) = result[0]
             for testMethod in state:
                 tx = testMethod
-            cod_response = int(data.get('x_cod_response'))
+            cod_response = int(data.get('x_cod_response')) if int(data.get('x_cod_response')) else int(data.get('x_cod_respuesta'))
             if tx not in ['draft']:
                 if cod_response not in [1, 3]:
                     self.manage_status_order(data.get('x_extra3'), 'sale_order')
@@ -144,7 +153,7 @@ class PaymentTransaction(models.Model):
                 if cod_response == 1:
                     self.payco_payment_ref = data.get('x_extra2')
                     self._set_done()
-                    self._finalize_post_processing()
+                    #self._finalize_post_processing()
                 elif cod_response == 3:
                     self._set_pending()
                 else:
