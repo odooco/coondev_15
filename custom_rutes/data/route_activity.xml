@@ -1,0 +1,56 @@
+<odoo>
+    <data noupdate="1">
+        <record id="route_activity_1" model="route.activity">
+            <field name="name">Entregar Toner (NUEVO)</field>
+            <field name="active_model_ids" eval="[(4, ref('sale.model_sale_order'))]"/>
+        </record>
+        <record id="route_activity_2" model="route.activity">
+            <field name="name">Entregar Toner (GARANTIA)</field>
+            <field name="active_model_ids" eval="[(4, ref('sale.model_sale_order'))]"/>
+        </record>
+        <record id="route_activity_3" model="route.activity">
+            <field name="name">Entregar Toner (DEVOLUCION)</field>
+            <field name="active_model_ids" eval="[(4, ref('sale.model_sale_order'))]"/>
+        </record>
+        <record id="route_activity_4" model="route.activity">
+            <field name="name">Entregar Impresora</field>
+            <field name="active_model_ids" eval="[(4, ref('sale.model_sale_order'))]"/>
+        </record>
+        <record id="route_activity_5" model="route.activity">
+            <field name="name">Entregar Factura</field>
+            <field name="active_model_ids" eval="[(4, ref('sale.model_sale_order'))]"/>
+        </record>
+        <record id="route_activity_6" model="route.activity">
+            <field name="name">Recoger Toner Vacio (PARA RECARGAR)</field>
+            <field name="active_model_ids" eval="[(4, ref('sale.model_sale_order'))]"/>
+        </record>
+        <record id="route_activity_7" model="route.activity">
+            <field name="name">Recoger Toner Vacio (PARA DESHECHAR)</field>
+            <field name="active_model_ids" eval="[(4, ref('sale.model_sale_order'))]"/>
+        </record>
+        <record id="route_activity_8" model="route.activity">
+            <field name="name">Recoger Pago</field>
+            <field name="active_model_ids" eval="[(4, ref('sale.model_sale_order'))]"/>
+        </record>
+        <record id="route_activity_9" model="route.activity">
+            <field name="name">Realizar Compra</field>
+            <field name="active_model_ids" eval="[(4, ref('sale.model_sale_order'))]"/>
+        </record>
+        <record id="route_activity_10" model="route.activity">
+            <field name="name">Revisar Toner</field>
+            <field name="active_model_ids" eval="[(4, ref('sale.model_sale_order'))]"/>
+        </record>
+        <record id="route_activity_11" model="route.activity">
+            <field name="name">Envasar Toner</field>
+            <field name="active_model_ids" eval="[(4, ref('sale.model_sale_order'))]"/>
+        </record>
+        <record id="route_activity_12" model="route.activity">
+            <field name="name">IMPORTANTE</field>
+            <field name="active_model_ids" eval="[(4, ref('sale.model_sale_order'))]"/>
+        </record>
+        <record id="route_activity_13" model="route.activity">
+            <field name="name">Enviar Factura por Correo</field>
+            <field name="active_model_ids" eval="[(4, ref('sale.model_sale_order'))]"/>
+        </record>
+    </data>
+</odoo>
