@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<odoo>
+
+    <record id="product_template_only_form_view" model="ir.ui.view">
+        <field name="name">product.template.form</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_only_form_view"/>
+        <field name="arch" type="xml">
+            <field name="default_code" position="before">
+                <field name="manual_template_code"/>
+                <div>
+                    <button name="action_retrieve_code_parts"
+                            type="object"
+                            icon="fa-arrow-right"
+                            class="btn-link"
+                            string="Update references"
+                            attrs="{'invisible': [('manual_template_code', '=', True)]}"
+                    />
+                </div>
+            </field>
+            <field name="default_code" position="attributes">
+                <attribute name="attrs">
+                    {'invisible': [('product_variant_count', '>', 1)], 'readonly': [("manual_template_code", "=", False)]}
+                </attribute>
+            </field>
+        </field>
+    </record>
+
+</odoo>

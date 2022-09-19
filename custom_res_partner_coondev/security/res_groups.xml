@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<odoo>
+    <record model="res.groups" id="type_contacts">
+        <field name="name">Edicion tipo de Contactos</field>
+    </record>
+</odoo>

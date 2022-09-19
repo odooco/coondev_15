@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="pos_session_report_template">
+            <t t-call="web.html_container">
+                <t t-call="web.basic_layout">
+                    <div class="page">
+                        <t t-foreach="docs" t-as="o">
+                            <div style="font-size:9px;width:100%;" class="text-left">
+                                <span >Fecha :</span><span t-esc="o.start_date.strftime('%d')"/> de <span t-if="o.start_date.strftime('%m')=='01'">Enero</span><span t-if="o.start_date.strftime('%m')=='02'">Febrero</span><span t-if="o.start_date.strftime('%m')=='03'">Marzo</span><span t-if="o.start_date.strftime('%m')=='04'">Abril</span><span t-if="o.start_date.strftime('%m')=='05'">Mayo</span><span t-if="o.start_date.strftime('%m')=='06'">Junio</span><span t-if="o.start_date.strftime('%m')=='07'">Julio</span><span t-if="o.start_date.strftime('%m')=='08'">Agosto</span><span t-if="o.start_date.strftime('%m')=='09'">Septiembre</span><span t-if="o.start_date.strftime('%m')=='10'">Octubre</span><span t-if="o.start_date.strftime('%m')=='11'">Noviembre</span><span t-if="o.start_date.strftime('%m')=='12'">Diciembre</span> de <span t-esc="o.start_date.strftime('%Y')"/> 18:<span t-esc="datetime.datetime.now().strftime('%M:%S')"/>
+                            </div>
+                            <div style="font-size:11px;width:100%;" class="text-center">
+                                <h4>COMPROBANTE INFORME DIARIO Z</h4>
+                                <t t-if="o.company_id.name">
+                                    <t t-esc="o.company_id.name" /><br />
+                                </t>
+                                <t t-if="o.company_id.street">
+                                    <t t-esc="o.company_id.street" /><br />
+                                </t>
+                                <t t-if="o.company_id.city">
+                                    <t t-esc="o.company_id.city" />
+                                </t>
+                                <t t-if="o.company_id.state_id.name">
+                                    <t t-esc="o.company_id.state_id.name" />
+                                </t>
+                                <t t-if="o.company_id.country_id.name">
+                                    <t t-esc="o.company_id.country_id.name" />
+                                </t><br />
+                                <t t-if="o.company_id.phone">
+                                    Tel: <t t-esc="o.company_id.phone" /><br />
+                                </t>
+                                <t t-if="o.company_id.email">
+                                    Email: <t t-esc="o.company_id.email" /><br />
+                                </t>
+                                <t t-if="o.company_id.website">
+                                    Website: <t t-esc="o.company_id.website" /><br />
+                                </t>
+                                <t t-if="o.name">
+                                    <t t-esc="o.name" />
+                                </t><br />
+                                <t t-if="o.company_id.vat">
+                                    NIT: <t t-esc="o.company_id.vat" /><br />
+                                </t>
+                           </div><br />
+                           <div style="font-size:11px;border-bottom: 1px solid black;">
+                            <span >Usuarios:</span> <t t-foreach="o.point_sale_id.partner_ids" t-as="user">- <t t-esc="user.name" > </t></t>
+                           </div>
+                            <div style="font-size:11px;border-bottom: 1px solid black;">
+                            <span >Session :</span> <t t-esc="o.name" />
+                           </div>
+                            <div style="font-size:11px;border-bottom: 1px solid black;">
+                            <span >Factura Inicial :</span> <t t-esc="o.start_invoice" />
+                           </div>
+                            <div style="font-size:11px;border-bottom: 1px solid black;">
+                            <span >Factura Final :</span> <t t-esc="o.end_invoice" />
+                           </div>
+                            <div style="font-size:11px;border-bottom: 1px solid black;">
+                            <span >Cantidad de Facturas :</span> <t t-esc="o.invoice_qyt" />
+                           </div>
+                           <div style="font-size:11px;border-bottom: 1px solid black;">
+                            <span >Fecha :</span><span t-esc="o.start_date.strftime('%d')"/> de <span t-if="o.start_date.strftime('%m')=='01'">Enero</span><span t-if="o.start_date.strftime('%m')=='02'">Febrero</span><span t-if="o.start_date.strftime('%m')=='03'">Marzo</span><span t-if="o.start_date.strftime('%m')=='04'">Abril</span><span t-if="o.start_date.strftime('%m')=='05'">Mayo</span><span t-if="o.start_date.strftime('%m')=='06'">Junio</span><span t-if="o.start_date.strftime('%m')=='07'">Julio</span><span t-if="o.start_date.strftime('%m')=='08'">Agosto</span><span t-if="o.start_date.strftime('%m')=='09'">Septiembre</span><span t-if="o.start_date.strftime('%m')=='10'">Octubre</span><span t-if="o.start_date.strftime('%m')=='11'">Noviembre</span><span t-if="o.start_date.strftime('%m')=='12'">Diciembre</span> de <span t-esc="o.start_date.strftime('%Y')"/>
+                           </div>
+                           <table style="font-size:10px;width:100%;margin-top:15px;">
+                                <tr>
+                                    <td class="text-left">
+                                        <span>Total Ventas Brutas:</span>
+                                    </td>
+                                    <td class="text-right">
+                                        <span t-esc="o.get_net_gross_total()" t-options='{"widget": "monetary", "display_currency": res_company.currency_id}'/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-left">
+                                        <span>Total Impuestos:</span>
+                                    </td>
+                                    <td class="text-right">
+                                        <span t-esc="o.get_total_tax()" t-options='{"widget": "monetary", "display_currency": res_company.currency_id}'/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-left">
+                                        <span>Total Devoluciones:</span>
+                                    </td>
+                                    <td class="text-right">
+                                        <span t-esc="o.get_refund_total()" t-options='{"widget": "monetary", "display_currency": res_company.currency_id}'/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-left">
+                                        <span>Total Impuestos Devoluciones:</span>
+                                    </td>
+                                    <td class="text-right">
+                                        <span t-esc="o.get_total_refund_tax()" t-options='{"widget": "monetary", "display_currency": res_company.currency_id}'/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-left">
+                                        <span>Total Descuentos</span>
+                                    </td>
+                                    <td class="text-right">
+                                        <span t-esc="o.get_total_discount()" t-options='{"widget": "monetary", "display_currency": res_company.currency_id}'/>
+                                    </td>
+                                </tr>
+                                <tr style="border-top: 1px solid black;">
+                                    <td class="text-left">
+                                        <strong>Total Ventas Netas:</strong>
+                                    </td>
+                                    <td class="text-right">
+                                        <span t-esc="o.get_gross_total()" t-options='{"widget": "monetary", "display_currency": res_company.currency_id}'/>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <table style="font-size:10px;width:100%;margin-top:15px;">
+                                <tr style="border-bottom: 1px solid black;">
+                                    <td colspan="2" class="text-left">
+                                        <strong>Metodo de Pago</strong>
+                                    </td>
+                                </tr>
+                                <t t-foreach="o.compute_total_payments_amount()" t-as="pl">
+                                    <tr>
+                                        <td class="text-left">
+                                            <strong><span t-esc="pl.get('name')"/></strong>
+                                        </td>
+                                        <td class="text-right">
+                                            <span t-esc="pl.get('amount')" t-options='{"widget": "monetary", "display_currency": res_company.currency_id}'/>
+                                        </td>
+                                    </tr>
+                                </t>
+                                <tr style="border-top: 1px solid black;">
+                                    <td class="text-left">
+                                        <strong>Total Payment :</strong>
+                                    </td>
+                                    <td class="text-right">
+                                        <span t-esc="o.get_gross_total()" t-options='{"widget": "monetary", "display_currency": res_company.currency_id}'/>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <table t-if="o.get_service_category_product()" style="font-size:10px;width:100%;margin-top:15px;">
+                                <tr style="border-bottom: 1px solid black;">
+                                    <td colspan="3" class="text-left">
+                                        <strong>Categoria de Servicios</strong>
+                                    </td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid black;">
+                                    <td width="60%" class="text-left"><strong>Nombre</strong></td>
+                                    <td width="10%" class="text-center"><strong>Cantidad</strong></td>
+                                    <td width="30%" class="text-right"><strong>Subtotal</strong></td>
+                                </tr>
+                                <t t-foreach="o.get_service_category_product()" t-as="pl">
+                                    <tr>
+                                        <td width="60%" class="text-left">
+                                            <span t-esc="pl.get('name')"/>
+                                        </td>
+                                        <td width="10%" class="text-center">
+                                            <span t-esc="float(pl.get('qty'))" t-options='{"widget": "float", "decimal_precision": "Product Price"}'/>
+                                        </td>
+                                        <td width="30%" class="text-right">
+                                            <span t-esc="pl.get('amount')" t-options='{"widget": "monetary", "display_currency": res_company.currency_id}'/>
+                                        </td>
+                                    </tr>
+                                </t>
+                            </table>
+
+                            <table style="font-size:10px;width:100%;margin-top:15px;">
+                                <tr style="border-bottom: 1px solid black;">
+                                    <td colspan="4" class="text-left">
+                                        <strong>Total por Impuestos</strong>
+                                    </td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid black;">
+                                    <td width="50%" class="text-left"><strong>Nombre</strong></td>
+                                    <td width="10%" class="text-center"><strong>Cant.</strong></td>
+                                    <td width="10%" class="text-center"><strong>Impu.</strong></td>
+                                    <td width="30%" class="text-right"><strong>Subtotal</strong></td>
+                                </tr>
+                                <t t-foreach="o.get_other_tax_product()" t-as="pl">
+                                    <tr>
+                                        <td width="60%" class="text-left">
+                                            <span t-esc="pl.get('name')"/>
+                                        </td>
+                                        <td width="10%" class="text-center">
+                                            <span t-esc="int(pl.get('qty'))"/>
+                                        </td>
+                                        <td width="10%" class="text-center">
+                                            <span t-esc="float(pl.get('tax'))" t-options='{"widget": "float", "decimal_precision": "Product Price"}'/>
+                                        </td>
+                                        <td width="30%" class="text-right">
+                                            <span t-esc="pl.get('amount')" t-options='{"widget": "monetary", "display_currency": res_company.currency_id}'/>
+                                        </td>
+                                    </tr>
+                                </t>
+                            </table>
+
+                            <table style="font-size:10px;width:100%;margin-top:15px;">
+                                <tr style="border-bottom: 1px solid black;">
+                                    <td colspan="4" class="text-left">
+                                        <strong>Total Facturado Categoria</strong>
+                                    </td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid black;">
+                                    <td width="50%" class="text-left"><strong>Nombre</strong></td>
+                                    <td width="10%" class="text-center"><strong>Cant.</strong></td>
+                                    <td width="10%" class="text-center"><strong>Impu.</strong></td>
+                                    <td width="30%" class="text-right"><strong>Subtotal</strong></td>
+                                </tr>
+                                <t t-foreach="o.get_other_category_product()" t-as="pl">
+                                    <tr>
+                                        <td width="60%" class="text-left">
+                                            <span t-esc="pl.get('name')"/>
+                                        </td>
+                                        <td width="10%" class="text-center">
+                                            <span t-esc="int(pl.get('qty'))"/>
+                                        </td>
+                                        <td width="10%" class="text-center">
+                                            <span t-esc="float(pl.get('tax'))" t-options='{"widget": "float", "decimal_precision": "Product Price"}'/>
+                                        </td>
+                                        <td width="30%" class="text-right">
+                                            <span t-esc="pl.get('amount')" t-options='{"widget": "monetary", "display_currency": res_company.currency_id}'/>
+                                        </td>
+                                    </tr>
+                                </t>
+                            </table>
+                            
+                            <table style="font-size:10px;width:100%;margin-top:15px;">
+                                <tr style="border-top: 1px solid black;">
+                                    <td class="text-left">
+                                        <strong>Total de Impuestos :</strong>
+                                    </td>
+                                    <td class="text-right">
+                                        <span t-esc="o.get_total_tax()" t-options='{"widget": "monetary", "display_currency": res_company.currency_id}'/>
+                                    </td>
+                                </tr>
+                                <tr style="border-top: 1px solid black;">
+                                    <td class="text-left">
+                                        <strong>Total Bruto :</strong>
+                                    </td>
+                                    <td class="text-right">
+                                        <span t-esc="o.get_net_gross_total()" t-options='{"widget": "monetary", "display_currency": res_company.currency_id}'/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </t>
+                    </div>
+                </t>
+            </t>
+        </template>
+    </data>
+</odoo>

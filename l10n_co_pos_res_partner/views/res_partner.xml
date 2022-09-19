@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="inherit_view_res_partner_form_coondev" model="ir.ui.view">
+        <field name="name">res.partner.form.inherit</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="//form[1]/div[1]" position="before">
+                <header>
+                    <field name="partner_state" options="{'clickable': '1'}" widget="statusbar"/>
+                </header>
+            </xpath>
+
+
+
+
+        </field>
+    </record>
+</odoo>     

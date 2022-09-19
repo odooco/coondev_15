@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="inherit_view_res_partner_form_coondev" model="ir.ui.view">
+        <field name="name">res.partner.form.inherit</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form[1]/div[1]" position="before">
+                <header>
+                    <field name="state_partner" widget="statusbar" readonly="1"/>
+                </header>
+            </xpath>
+            <xpath expr="//field[@name='website']" position="after">
+                <field name="journal_id" string="Diario Ventas"/>
+            </xpath>
+            <xpath expr="//page[@name='internal_notes']" position="after">
+                <page name="fiscal_documents" string="Documentos Fiscales">
+                    <group name="container_rowg_1">
+                        <group name="group_1" priority="1">
+                            <field name="tax_identification" attrs="{'required': [('state_partner','=','accountant_third')]}"/>
+                        </group>
+                        <group name="group_2" priority="1">
+                            <field name="create_template_client"/>
+                        </group>
+                    </group>
+                    <group name="container_rowg_2">
+                        <group name="group_11" priority="1">
+                            <field name="tax_identification_store"/>
+                        </group>
+                        <group name="group_22" priority="1">
+                            <field name="bank_certification"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+    <record id="inherit_view_res_partner_form_coondev_group_1" model="ir.ui.view">
+        <field name="name">res.partner.group.1.form.inherit</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="custom_res_partner_coondev.inherit_view_res_partner_form_coondev"/>
+        <field name="groups_id" eval="[(4,ref('custom_res_partner_coondev.type_contacts'))]"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='state_partner']" position="attributes">>
+                <attribute name="readonly">False</attribute>
+                <attribute name="options">{'clickable': True}</attribute>
+            </xpath>
+        </field>
+    </record>
+</odoo>     

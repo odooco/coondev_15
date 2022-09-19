@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        <record id="payment_acquirer_credibanco" model="payment.acquirer">
+            <field name="name">Credibanco</field>
+            <field name="image_128" type="base64" file="payment_credibanco/static/src/img/credibanco_icon.png"/>
+            <field name="provider">credibanco</field>
+            <field name="company_id" ref="base.main_company"/>
+            <field name="view_template_id" ref="credibanco_form"/>
+            <field name="registration_view_template_id" ref="credibanco_s2s_form"/>
+        </record>
+    </data>
+</odoo>

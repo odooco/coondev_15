@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<odoo>
+     <record id="bi_duplicate_field_validationinherit_res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">field.validation.res.config.settings.inherit.form</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@data-key='sale_management']/div[3]" position="after">
+                <h2>Check Fields For Duplicate Value</h2>
+                <div class="row mt16 o_settings_container" id="duplicate_field_valdation">
+                    <div class="col-lg-12 col-lg-12 o_setting_box row">
+                        <div class="text-center o_setting_left_pane" style="width:20%;">
+                            <label for="fields_ids"/>
+                        </div>
+                        <div class="o_setting_right_pane" style="width:50%;">
+                            <field name="fields_ids" class="o_light_label" widget="many2many_tags"/>
+                        </div>
+                    </div>
+                </div>
+            </xpath>
+        </field>
+    </record>
+</odoo>

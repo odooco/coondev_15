@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <record id="construct_dynamic_codes" model="ir.cron">
+           <field name="name">Construct Dynamic Codes</field>
+           <field name="model_id" ref="product.model_product_product"/>
+           <field name="state">code</field>
+           <field name="code">model.action_update_dynamic_codes()</field>
+           <field name="nextcall" eval="(DateTime.now() + timedelta(hours=1)).strftime('%Y-%m-%d %H:%M:%S')" />
+           <field name="user_id" ref="base.user_root"/>
+           <field name="interval_number">1</field>
+           <field name="interval_type">hours</field>
+           <field name="numbercall">-1</field>
+           <field name="doall">False</field>
+        </record>
+
+    </data>
+</odoo>

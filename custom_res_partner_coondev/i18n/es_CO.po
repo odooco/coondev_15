@@ -1,0 +1,36 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+#	* custom_res_partner_coondev
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 15.0c\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-06-03 02:00+0000\n"
+"PO-Revision-Date: 2022-06-03 02:00+0000\n"
+"Last-Translator: <>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: custom_res_partner_coondev
+#: model:ir.model.fields,field_description:custom_res_partner_coondev.field_journal_id__journal_id
+msgid "Journal"
+msgstr "Diario"
+
+#. module: custom_res_partner_coondev
+#: model:ir.model.fields.selection,name:custom_res_partner_coondev.selection__res_partner__state_partner__point_of_sale
+msgid "sale_client"
+msgstr "POS"
+
+#. module: custom_res_partner_coondev
+#: model:ir.model.fields.selection,name:custom_res_partner_coondev.selection__res_partner__state_partner__sale_quotation
+msgid "sale_quotation"
+msgstr "Prospecto"
+
+#. module: custom_res_partner_coondev
+#: model:ir.model.fields.selection,name:custom_res_partner_coondev.selection__res_partner__state_partner__accountant_third
+msgid "Third accountant"
+msgstr "FAC-ELEC"
