@@ -1,0 +1,76 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+#	* custom_megatoner
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 15.0c\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-06-03 02:00+0000\n"
+"PO-Revision-Date: 2022-06-03 02:00+0000\n"
+"Last-Translator: <>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: custom_megatoner
+#: model:ir.model.fields,field_description:custom_megatoner.field_product_template__eom_reference
+msgid "Reference OEM"
+msgstr "Ref. OEM"
+
+#. module: custom_megatoner
+#: model:ir.model.fields,field_description:custom_megatoner.field_product_template__manufacturer_reference
+msgid "Manufacturer Reference"
+msgstr "Ref. de Fabricante"
+
+#. module: custom_megatoner
+#: model:ir.model.fields,field_description:custom_megatoner.field_product_template__product_brand_id
+msgid "Brand"
+msgstr "Marca Compatible"
+
+#. module: custom_megatoner
+#: model:ir.model.fields,field_description:custom_megatoner.field_product_template__product_color_id
+msgid "Color"
+msgstr "Color"
+
+#. module: custom_megatoner
+#: model:ir.model.fields,field_description:custom_megatoner.field_product_template__performance_ref
+msgid "Performance"
+msgstr "Rendimiento"
+
+#. module: custom_megatoner
+#: model:ir.model.fields,field_description:custom_megatoner.field_product_template__compatibility_ref
+msgid "Compatibility"
+msgstr "Contabilidad"
+
+#. module: custom_megatoner
+#: model:ir.model.fields,field_description:custom_megatoner.field_calendar_day_megatoner__name
+msgid "Name"
+msgstr "Nombre"
+
+#. module: custom_megatoner
+#: model:ir.model.fields,field_description:custom_megatoner.field_calendar_day_megatoner__hour_segment
+msgid "Hour Segment"
+msgstr "Segmento Horarios"
+
+#. module: custom_megatoner
+#: model:ir.model.fields,field_description:custom_megatoner.field_calendar_day_megatoner__weekly_schedule_am
+msgid "Weekly Schedule Am"
+msgstr "Horarios Semana Mañana"
+
+#. module: custom_megatoner
+#: model:ir.model.fields,field_description:custom_megatoner.field_calendar_day_megatoner__weekly_schedule_pm
+msgid "Weekly Schedule Pm"
+msgstr "Horario Semana Tarde"
+
+#. module: custom_megatoner
+#: model:ir.model.fields,field_description:custom_megatoner.field_calendar_day_megatoner__saturday_schedule_am
+msgid "Saturday Schedule Am"
+msgstr "Horario sabado Mañana"
+
+#. module: custom_megatoner
+#: model:ir.model.fields,field_description:custom_megatoner.field_calendar_day_megatoner__saturday_schedule_pm
+msgid "Saturday Schedule Pm"
+msgstr "Horario Sabado Tarde"

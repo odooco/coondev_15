@@ -1,0 +1,52 @@
+<odoo>
+    <data>
+        <!-- start:views -->
+        <record model="ir.ui.view" id="product_color_megatoner_tree_view">
+            <field name="name">product_color_megatoner_tree</field>
+            <field name="model">product.color.megatoner</field>
+            <field name="arch" type="xml">
+                <tree string="Color">
+                    <field name="name" string="Nombre"/>
+                </tree>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="product_color_megatoner_form_view">
+            <field name="name">product_color_megatoner_form</field>
+            <field name="model">product.color.megatoner</field>
+            <field name="arch" type="xml">
+                <form string="Color">
+                    <sheet>
+                        <group>
+                            <field name="name" string="Nombre"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <!-- end:views -->
+
+        <!-- start:actions -->
+        <record model="ir.actions.act_window"
+            id="product_color_megatoner_list_action">
+            <field name="name">Color de Productos</field>
+            <field name="res_model">product.color.megatoner</field>
+            <field name="view_mode">tree,form</field>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">Create the first product color
+                </p>
+            </field>
+        </record>
+        <!-- end:actions -->
+
+        <!-- start:menus -->
+
+        <menuitem id="product_color_megatoner_config_submenu"
+			name="Color de Producto"
+            parent="stock.menu_product_in_config_stock"
+			action="product_color_megatoner_list_action"
+            groups="base.group_no_one"
+        />
+        <!-- end:menus -->
+    </data>
+</odoo>

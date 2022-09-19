@@ -1,0 +1,52 @@
+<odoo>
+    <data>
+        <!-- start:views -->
+        <record model="ir.ui.view" id="product_brand_megatoner_tree_view">
+            <field name="name">product_brand_megatoner_tree</field>
+            <field name="model">product.brand.megatoner</field>
+            <field name="arch" type="xml">
+                <tree string="Marca">
+                    <field name="name" string="Nombre"/>
+                </tree>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="product_brand_megatoner_form_view">
+            <field name="name">product_brand_megatoner_form</field>
+            <field name="model">product.brand.megatoner</field>
+            <field name="arch" type="xml">
+                <form string="Marca">
+                    <sheet>
+                        <group>
+                            <field name="name" string="Nombre"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <!-- end:views -->
+
+        <!-- start:actions -->
+        <record model="ir.actions.act_window"
+            id="product_brand_megatoner_list_action">
+            <field name="name">Marca de Productos</field>
+            <field name="res_model">product.brand.megatoner</field>
+            <field name="view_mode">tree,form</field>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">Create the first product brand
+                </p>
+            </field>
+        </record>
+        <!-- end:actions -->
+
+        <!-- start:menus -->
+
+        <menuitem id="product_brand_megatoner_config_submenu"
+			name="Marca de Producto"
+            parent="stock.menu_product_in_config_stock"
+			action="product_brand_megatoner_list_action"
+            groups="base.group_no_one"
+        />
+        <!-- end:menus -->
+    </data>
+</odoo>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="custom_coondev_product_category_form_view" model="ir.ui.view">
+            <field name="name">custom.coondev.product.category.code.form</field>
+            <field name="model">product.category</field>
+            <field name="inherit_id" ref="product_category_codes.product_category_code_form_view"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='category_code']" position="after">
+                    <field name="sequence_code"/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>
