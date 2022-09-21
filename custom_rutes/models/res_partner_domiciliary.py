@@ -18,3 +18,4 @@ class ResPartnerDomiciliary(models.Model):
     latitude = fields.Float(string='Latitud', digits=(10, 7))
     longitude = fields.Float(string='Longitud', digits=(10, 7))
     active = fields.Boolean(string='Activo', default=True)
+    marker_color = fields.Char(string='Marker Color', default='red', required=True)

@@ -33,6 +33,15 @@
                             <field name="latitude"/>
                             <field name="longitude"/>
                         </group>
+                        <notebook>
+                            <page string="Internal Notes" name="internal_notes">
+                                <group>
+                                    <group>
+                                        <field name="marker_color" widget="google_marker_picker"/>
+                                    </group>
+                                </group>
+                            </page>
+                        </notebook>
                     </sheet>
                 </form>
             </field>

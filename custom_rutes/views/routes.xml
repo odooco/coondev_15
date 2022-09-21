@@ -155,6 +155,79 @@
             </field>
         </record>
 
+
+        <record id="view_routes_google_map" model="ir.ui.view">
+            <field name="name">view.routes.google_map</field>
+            <field name="model">routes</field>
+            <field name="arch" type="xml">
+                <google_map class="o_res_partner_map" string="Google Map" lat="partner_latitude" lng="partner_longitude" colors="blue:company_type=='person';green:company_type=='company';" sidebar_title="display_name" sidebar_subtitle="contact_address">
+                    <field name="sequence" widget="handle"/>
+                    <field name="domiciliary_id"/>
+                    <field name="activity_id"/>
+                    <field name="rute_comment"/>
+                    <field name="partner_id"/>
+                    <field name="street"/>
+                    <field name="street2"/>
+                    <templates>
+                        <t t-name="kanban-box">
+                            <div >
+                                <div class="o_dropdown_kanban dropdown">
+                                    <a class="dropdown-toggle o-no-caret btn" role="button" data-toggle="dropdown" data-display="static" href="#" aria-label="Dropdown menu" title="Dropdown menu">
+                                        <span class="fa fa-ellipsis-v"/>
+                                    </a>
+                                    <div class="dropdown-menu" role="menu">
+                                        <t t-if="widget.editable"><a role="menuitem" type="edit" class="dropdown-item">
+                                        <div>
+                                            <field name="activity_id" widget="many2many_tags"/>
+                                        </div>
+                                        <div>
+                                            <field name="rute_comment"/>
+                                        </div>
+                                        </a></t>
+                                        <t t-if="widget.deletable"><a role="menuitem" type="edit" class="dropdown-item">Registro
+                                        <div>
+                                            <field name="register_date"/>
+                                        </div>
+                                        </a></t>
+                                    </div>
+                                </div>
+                                <div class="oe_kanban_content flex-grow-1">
+                                    <div class="o_kanban_record_title oe_kanban_details">
+                                        <strong><field name="name"/></strong> ------------- Estado:          (<field name="state"/>)
+                                    </div>
+                                    <div class="o_kanban_record_subtitle">
+                                        <div>
+                                            <field name="partner_id"/>
+                                        </div>
+                                        <div>
+                                            <field name="street"/>
+                                        </div>
+                                        <div>
+                                            <field name="state_id"/>
+                                        </div>
+                                        <div>
+                                            <field name="activity_id" widget="many2many_tags"/>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="oe_kanban_footer">
+                                    <div class="o_kanban_record_bottom">
+                                        <div class="oe_kanban_bottom_left">
+                                            <field name="state" widget="many2many_tags"/>
+                                        </div>
+                                        <div class="oe_kanban_bottom_right">
+                                            <field name="create_uid" widget="many2one_avatar_user"/>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="oe_clear"/>
+                            </div>
+                        </t>
+                    </templates>
+                </google_map>
+            </field>
+        </record>
+
         <record id="view_routes_filter" model="ir.ui.view">
             <field name="name">routes.select</field>
             <field name="model">routes</field>
@@ -188,7 +261,7 @@
             id="custom_rutes_routes_list_action">
             <field name="name">Rutas</field>
             <field name="res_model">routes</field>
-            <field name="view_mode">kanban,tree,form</field>
+            <field name="view_mode">kanban,tree,google_map,form</field>
             <field name="search_view_id" ref="view_routes_filter"/>
             <field name="help" type="html">
                 <p class="oe_view_nocontent_create">Create the first Ruta
@@ -223,6 +296,13 @@
             parent="custom_rutes.custom_rutes_routes_parent_config_submenu"
 			groups=""
         />
+
+        <record id="action_routes_view_google_map" model="ir.actions.act_window.view">
+            <field name="sequence" eval="2"/>
+            <field name="view_mode">google_map</field>
+            <field name="view_id" ref="web_google_maps.view_routes_google_map"/>
+            <field name="act_window_id" ref="custom_rutes.custom_rutes_routes_list_action"/>
+        </record>
     </data>
 
     <!-- end:actions -->
