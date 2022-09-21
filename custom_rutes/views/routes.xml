@@ -300,7 +300,7 @@
         <record id="action_routes_view_google_map" model="ir.actions.act_window.view">
             <field name="sequence" eval="2"/>
             <field name="view_mode">google_map</field>
-            <field name="view_id" ref="web_google_maps.view_routes_google_map"/>
+            <field name="view_id" ref="custom_rutes.view_routes_google_map"/>
             <field name="act_window_id" ref="custom_rutes.custom_rutes_routes_list_action"/>
         </record>
     </data>
