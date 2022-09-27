@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="view_company_form" model="ir.ui.view">
+            <field name="model">res.company</field>
+            <field name="inherit_id" ref="base.view_company_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//notebook" position="inside">
+                    <page name="reclasification" string="Reclasificacion" groups="custom_account_segment.reclasifiction_users">
+                        <group>
+                            <group>
+                                <field name="percent_rec"/>
+                                <field name="tax_account_id"/>
+                            </group>
+                            <group>
+                                <field name="general_account_id"/>
+                                <field name="end_account_id"/>
+                            </group>
+                        </group>
+                    </page>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

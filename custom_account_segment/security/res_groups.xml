@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<odoo>
+    <record model="res.groups" id="reclasifiction_users">
+        <field name="name">Reclasificacion</field>
+    </record>
+</odoo>

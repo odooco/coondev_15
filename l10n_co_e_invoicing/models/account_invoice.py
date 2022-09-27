@@ -143,9 +143,9 @@ class AccountInvoice(models.Model):
 				accepted_xml_without_signature = global_functions.get_template_xml(dian_obj._get_accepted_values(), 'AceptacionTacita')
 				accepted_xml_with_signature = global_functions.get_xml_with_signature( accepted_xml_without_signature, self.company_id.signature_policy_url, self.company_id.signature_policy_description, self.company_id.certificate_file, self.company_id.certificate_password)
 				dian_obj.write({'exp_accepted_file': b64encode(dian_obj._get_acp_zipped_file(accepted_xml_with_signature)).decode("utf-8", "ignore")})
-				dian_obj.action_sent_accepted_file()
+				dian_obj.action_sent_accepted_file(dian_obj.exp_accepted_file)
 				self.invoice_rating = 'auto_approve'
-				self.bs_acceptation()
+				dian_obj.bs_acceptation()
 
 	def action_view_credit_notes(self):
 		self.ensure_one()
