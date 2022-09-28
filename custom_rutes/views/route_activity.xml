@@ -1,0 +1,52 @@
+<odoo>
+    <data>
+        <!-- start:views -->
+        <record model="ir.ui.view" id="route_activity_tree_view">
+            <field name="name">route_activity_tree</field>
+            <field name="model">route.activity</field>
+            <field name="arch" type="xml">
+                <tree string="Actividades de Rutas">
+                    <field name="name"/>
+                    <field name="active_model_ids" widget="many2many_tags"/>
+                </tree>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="route_activity_form_view">
+            <field name="name">route_activity_form</field>
+            <field name="model">route.activity</field>
+            <field name="arch" type="xml">
+                <form string="Actividades de Rutas">
+                    <sheet>
+                        <group>
+                            <field name="name"/>
+                            <field name="active_model_ids" widget="many2many_tags"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <!-- end:views -->
+
+        <!-- start:actions -->
+        <record model="ir.actions.act_window" id="route_activity_list_action">
+            <field name="name">Actividades de Rutas</field>
+            <field name="res_model">route.activity</field>
+            <field name="view_mode">tree,form</field>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">Create the first route activity
+                </p>
+            </field>
+        </record>
+        <!-- end:actions -->
+
+        <!-- start:menus -->
+
+        <menuitem id="custom_rutes.route_activity_config_submenu"
+			name="Actividades de Rutas"
+            parent="custom_rutes.custom_config_routs_submenu"
+			action="route_activity_list_action"
+        />
+        <!-- end:menus -->
+    </data>
+</odoo>

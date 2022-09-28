@@ -1,0 +1,24 @@
+<odoo>
+    <data>
+       <record model="ir.ui.view" id="enrutaje">
+            <field name="name">Enrutar</field>
+            <field name="model">enrutar</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <h3>
+                            Para continuar con el proceso Ingrese los siguientes datos:
+                        </h3>
+                        <group>
+                            <field name="activity_id" required="1" widget="many2many_tags"/>
+                            <field name="rute_comment"/>
+                        </group>
+                    </sheet>
+                    <footer>
+                        <button string="Enrutar" class="oe_highlight" type="object" name="action_generar_ruta"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+    </data>
+</odoo>

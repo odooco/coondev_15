@@ -1,0 +1,339 @@
+<odoo>
+    <data>
+        <!-- start:views -->
+        <record model="ir.ui.view" id="custom_rutes_routes_tree_view">
+            <field name="name">custom_rutes_routes_tree</field>
+            <field name="model">routes</field>
+            <field name="arch" type="xml">
+                <tree string="Rutas">
+                    <field name="sequence" widget="handle"/>
+                    <field name="create_date" string="Fecha Creacion"/>
+                    <field name="journal"/>
+                    <field name="domiciliary_id"/>
+                    <field name="state" />
+                    <field name="partner_id"/>
+                    <field name="street"/>
+                    <field name="city_id" />
+                    <field name="state_id" />
+                    <field name="delivery_date" />
+                    <field name="delivery_carrier_id" optional="hide"/>
+                    <field name="activity_id" widget="many2many_tags"/>
+                    <field name="rute_comment"/>
+                    <field name="street2" optional="hide"/>
+                    <field name="zip_id" optional="hide"/>
+                    <field name="latitude_client"/>
+                    <field name="longitude_client"/>
+                    <field name="latitude" optional="hide"/>
+                    <field name="longitude" optional="hide"/>
+                    <field name="weekly_schedule_am" widget="many2many_tags"/>
+                    <field name="weekly_schedule_pm" widget="many2many_tags"/>
+                    <field name="saturday_schedule_am" widget="many2many_tags"/>
+                    <field name="saturday_schedule_pm" widget="many2many_tags"/>
+                    <field name="origin" optional="hide"/>
+                    <field name="sale_origin_ref" attrs="{'invisible' : [('origin', '!=', 's_order'),('origin','!=','picking')]}" optional="hide"/>
+                    <field name="purchase_origin_ref" attrs="{'invisible' : [('origin', '!=', 'p_order'),('origin','!=','picking')]}" optional="hide"/>
+                    <field name="ticket_origin_ref" attrs="{'invisible' : [('origin', '!=', 'ticket')]}" optional="hide"/>
+                    <field name="delivery_origin_ref" attrs="{'invisible' : [('origin', '!=', 'picking')]}" optional="hide"/>
+                    <field name="partner_id" attrs="{'invisible' : [('origin', '!=', 'contact')]}" optional="hide"/>
+                    <field name="register_date"/>
+                </tree>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="custom_rutes_routes_form_view">
+            <field name="name">custom_rutes_routes_form</field>
+            <field name="model">routes</field>
+            <field name="arch" type="xml">
+                <form string="Rutas">
+                    <sheet>
+                        <group>
+                            <field name="create_uid" string="Usuario Creador"/>
+                            <field name="create_date" string="Fecha Creacion"/>
+                            <field name="delivery_date"/>
+                            <field name="journal"/>
+                            <field name="delivery_carrier_id"/>
+                            <field name="domiciliary_id"/>
+                            <field name="activity_id" widget="many2many_tags"/>
+                            <field name="rute_comment"/>
+                            <field name="state"/>
+                            <field name="street"/>
+                            <field name="street2"/>
+                            <field name="city_id"/>
+                            <field name="state_id"/>
+                            <field name="zip_id"/>
+                            <field name="latitude_client"/>
+                            <field name="longitude_client"/>
+                            <field name="latitude"/>
+                            <field name="longitude"/>
+                            <field name="weekly_schedule_am" widget="many2many_tags"/>
+                            <field name="weekly_schedule_pm" widget="many2many_tags"/>
+                            <field name="saturday_schedule_am" widget="many2many_tags"/>
+                            <field name="saturday_schedule_pm" widget="many2many_tags"/>
+                            <field name="origin"/>
+                            <field name="sale_origin_ref" attrs="{'invisible' : [('origin', '!=', 's_order'),('origin','!=','picking')]}"/>
+                            <field name="purchase_origin_ref" attrs="{'invisible' : [('origin', '!=', 'p_order'),('origin','!=','picking')]}"/>
+                            <field name="ticket_origin_ref" attrs="{'invisible' : [('origin', '!=', 'ticket')]}"/>
+                            <field name="delivery_origin_ref" attrs="{'invisible' : [('origin', '!=', 'piking')]}"/>
+                            <field name="invoice_origin_ref" attrs="{'invisible' : [('origin', '!=', 'invoice')]}"/>
+                            <field name="partner_id"/>
+                            <field name="register_date"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="custom_rutes_routes_kanban_view">
+            <field name="name">custom.rutes.routes.kanban</field>
+            <field name="model">routes</field>
+            <field name="arch" type="xml">
+                <kanban class="o_kanban_small_column" default_group_by="domiciliary_id" sample="1">
+                    <field name="sequence" widget="handle"/>
+                    <field name="domiciliary_id"/>
+                    <field name="activity_id"/>
+                    <field name="rute_comment"/>
+                    <field name="partner_id"/>
+                    <field name="street"/>
+                    <field name="street2"/>
+                    <templates>
+                        <t t-name="kanban-box">
+                            <div >
+                                <div class="o_dropdown_kanban dropdown">
+                                    <a class="dropdown-toggle o-no-caret btn" role="button" data-toggle="dropdown" data-display="static" href="#" aria-label="Dropdown menu" title="Dropdown menu">
+                                        <span class="fa fa-ellipsis-v"/>
+                                    </a>
+                                    <div class="dropdown-menu" role="menu">
+                                        <t t-if="widget.editable"><a role="menuitem" type="edit" class="dropdown-item">
+                                        <div>
+                                            <field name="activity_id" widget="many2many_tags"/>
+                                        </div>
+                                        <div>
+                                            <field name="rute_comment"/>
+                                        </div>
+                                        </a></t>
+                                        <t t-if="widget.deletable"><a role="menuitem" type="edit" class="dropdown-item">Registro
+                                        <div>
+                                            <field name="register_date"/>
+                                        </div>
+                                        </a></t>
+                                    </div>
+                                </div>
+                                <div class="oe_kanban_content flex-grow-1">
+                                    <div class="o_kanban_record_title oe_kanban_details">
+                                        <strong><field name="name"/></strong> ------------- Estado:          (<field name="state"/>)
+                                    </div>
+                                    <div class="o_kanban_record_subtitle">
+                                        <div>
+                                            <field name="partner_id"/>
+                                        </div>
+                                        <div>
+                                            <field name="street"/>
+                                        </div>
+                                        <div>
+                                            <field name="state_id"/>
+                                        </div>
+                                        <div>
+                                            <field name="activity_id" widget="many2many_tags"/>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="oe_kanban_footer">
+                                    <div class="o_kanban_record_bottom">
+                                        <div class="oe_kanban_bottom_left">
+                                            <field name="state" widget="many2many_tags"/>
+                                        </div>
+                                        <div class="oe_kanban_bottom_right">
+                                            <field name="create_uid" widget="many2one_avatar_user"/>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="oe_clear"/>
+                            </div>
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
+
+        <record id="view_routes_google_map" model="ir.ui.view">
+            <field name="name">view.routes.google_map</field>
+            <field name="model">routes</field>
+            <field name="arch" type="xml">
+                <google_map class="o_res_partner_map" string="Google Map" lat="partner_latitude" lng="partner_longitude" sidebar_title="display_name" sidebar_subtitle="contact_address">
+                    <field name="sequence" widget="handle"/>
+                    <field name="domiciliary_id"/>
+                    <field name="activity_id"/>
+                    <field name="rute_comment"/>
+                    <field name="partner_id"/>
+                    <field name="street"/>
+                    <field name="street2"/>
+                    <templates>
+                        <t t-name="kanban-box">
+                            <div >
+                                <div class="o_dropdown_kanban dropdown">
+                                    <a class="dropdown-toggle o-no-caret btn" role="button" data-toggle="dropdown" data-display="static" href="#" aria-label="Dropdown menu" title="Dropdown menu">
+                                        <span class="fa fa-ellipsis-v"/>
+                                    </a>
+                                    <div class="dropdown-menu" role="menu">
+                                        <t t-if="widget.editable"><a role="menuitem" type="edit" class="dropdown-item">
+                                        <div>
+                                            <field name="activity_id" widget="many2many_tags"/>
+                                        </div>
+                                        <div>
+                                            <field name="rute_comment"/>
+                                        </div>
+                                        </a></t>
+                                        <t t-if="widget.deletable"><a role="menuitem" type="edit" class="dropdown-item">Registro
+                                        <div>
+                                            <field name="register_date"/>
+                                        </div>
+                                        </a></t>
+                                    </div>
+                                </div>
+                                <div class="oe_kanban_content flex-grow-1">
+                                    <div class="o_kanban_record_title oe_kanban_details">
+                                        <strong><field name="name"/></strong> ------------- Estado:          (<field name="state"/>)
+                                    </div>
+                                    <div class="o_kanban_record_subtitle">
+                                        <div>
+                                            <field name="partner_id"/>
+                                        </div>
+                                        <div>
+                                            <field name="street"/>
+                                        </div>
+                                        <div>
+                                            <field name="state_id"/>
+                                        </div>
+                                        <div>
+                                            <field name="activity_id" widget="many2many_tags"/>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="oe_kanban_footer">
+                                    <div class="o_kanban_record_bottom">
+                                        <div class="oe_kanban_bottom_left">
+                                            <field name="state" widget="many2many_tags"/>
+                                        </div>
+                                        <div class="oe_kanban_bottom_right">
+                                            <field name="create_uid" widget="many2one_avatar_user"/>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="oe_clear"/>
+                            </div>
+                        </t>
+                    </templates>
+                </google_map>
+            </field>
+        </record>
+
+        <record id="view_routes_filter" model="ir.ui.view">
+            <field name="name">routes.select</field>
+            <field name="model">routes</field>
+            <field name="arch" type="xml">
+                <search string="Buscar en Rutas">
+                    <field name="name" string="Nombre" filter_domain="[('name','ilike',self)]"/>
+                    <field name="domiciliary_id" string="Domiciliario"/>
+                    <filter domain="[('create_uid','=',uid)]" name="myroutes" help="Mis Rutas"/>
+                    <separator/>
+                    <filter name="next" string="Jornada Proxima" domain="[('journal','=','next')]"/>
+                    <filter name="am" string="Jornada Mañana" domain="[('journal','=','am')]"/>
+                    <filter name="pm" string="Jornada Tarde" domain="[('journal','=','pm')]"/>
+                    <separator/>
+                    <filter name="create_date" string="Fecha de creacion" date="create_date" default_period="today"/>
+                    <filter name="delivery_date" string="Fecha de Entrega" date="delivery_date"/>
+                    <group expand="0" string="Group By">
+                        <filter name="group_by_domiciliary_id" string="Domiciliario" context="{'group_by':'domiciliary_id'}"/>
+                        <filter string="Jornada" name="journal" context="{'group_by':'journal'}"/>
+                        <filter name="Estado" string="Status" context="{'group_by':'state'}"/>
+                        <separator/>
+                        <filter string="Fecha Creacion" name="invoicedate" context="{'group_by':'create_date'}"/>
+                        <filter string="Fecha Entrega" name="duedate" context="{'group_by':'delivery_date'}"/>
+                    </group>
+               </search>
+            </field>
+        </record>
+        <!-- end:views -->
+
+        <!-- start:actions -->
+        <record model="ir.actions.act_window"
+            id="custom_rutes_routes_list_action">
+            <field name="name">Rutas</field>
+            <field name="res_model">routes</field>
+            <field name="view_mode">kanban,tree,form,google_map</field>
+            <field name="search_view_id" ref="view_routes_filter"/>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">Create the first Ruta
+                </p>
+            </field>
+        </record>
+        <!-- end:actions -->
+
+        <record id="routes_action_routes_google_view_map" model="ir.actions.act_window.view">
+            <field eval="3" name="sequence"/>
+            <field name="view_mode">google_map</field>
+            <field name="view_id" ref="view_routes_google_map"/>
+            <field name="act_window_id" ref="custom_rutes.custom_rutes_routes_list_action"/>
+        </record>
+
+        <record id="routes_view_map" model="ir.ui.view">
+            <field name="name">routes.view.map</field>
+            <field name="model">routes</field>
+            <field name="arch" type="xml">
+                <map res_partner="partner_id" default_order="sequence" routing="true" hide_name="true" limit ="25">
+                    <field name="name" string="EnrRuta"/>
+                    <field name="domiciliary_id" string="Domiciliario"/>
+                </map>
+            </field>
+        </record>
+        <record id="routes_action_routes_view_map" model="ir.actions.act_window.view">
+            <field name="sequence" eval="3"/>
+            <field name="view_mode">map</field>
+            <field name="view_id" ref="routes_view_map"/>
+            <field name="act_window_id" ref="custom_rutes.custom_rutes_routes_list_action"/>
+        </record>
+
+        <!-- start:menus -->
+
+        <menuitem id="custom_rutes.custom_rutes_routes_parent_config_submenu"
+            name="Rutas"
+            web_icon="custom_rutes,static/description/icon.png"
+            action="custom_rutes_routes_list_action"
+            active="True"
+            sequence="50"/>
+
+        <menuitem id="custom_rutes.custom_rutes_routes_config_submenu"
+			name="Rutas"
+            parent="custom_rutes.custom_rutes_routes_parent_config_submenu"
+			action="custom_rutes_routes_list_action"
+            groups=""
+        />
+        <menuitem id="custom_rutes.custom_report_routs_submenu"
+			name="Generador de Rutas"
+            parent="custom_rutes.custom_rutes_routes_parent_config_submenu"
+			action="custom_rutes_routes_list_action"
+            groups=""
+        />
+        <menuitem id="custom_rutes.custom_config_routs_submenu"
+			name="Configuraciones de Ruta"
+            parent="custom_rutes.custom_rutes_routes_parent_config_submenu"
+			groups=""
+        />
+    </data>
+
+    <!-- end:actions -->
+
+    <!-- start:report -->
+
+    <report
+            id="report_routes"
+            model="routes"
+            string="Rutas"
+            report_type="qweb-pdf"
+            name="custom_rutes.reports_routes"
+            file="custom_rutes.reports_routes"
+            attachment="(object.state != 'draft') and ((object.name or 'Routes').replace('/','_')+'.pdf')"
+    />
+
+    <!-- end:report -->
+</odoo>

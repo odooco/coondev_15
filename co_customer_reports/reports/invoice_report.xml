@@ -68,7 +68,10 @@
                           </div>
                         </div>
                     </div>
-                    <div class="article o_report_layout_standard">
+                    <div class="article o_report_layout_standard"
+                     t-att-data-oe-model="o and o._name"
+                     t-att-data-oe-id="o and o.id"
+                     t-att-data-oe-lang="o and o.env.context.get('lang')">
                         <div class="page">
                             <style type="text/css">
                                 .container {
@@ -309,50 +312,68 @@
                                                 </tr>
                                             </thead>
                                             <tbody class="invoice_tbody" style="inline-table; page-break-inside: avoid;">
-                                                <tr t-foreach="o.invoice_line_ids" t-as="l" style="page-break-inside:avoid; page-break-after:auto">
-                                                    <t t-set="total_lines" t-value="total_lines+1" />
-                                                    <td>
-                                                        <span t-esc="total_lines"/>
-                                                    </td>
-                                                    <td>
-                                                        <span t-field="l.name"/>
-                                                    </td>
-                                                    <td class="text-right">
-                                                        <t t-esc="'{:,}'.format(float(l.quantity))"/>
-                                                        <span t-field="l.uom_id" groups="product.group_uom"/>
-                                                    </td>
-                                                    <t t-if="l.product_uom_id.name">
-                                                        <td class="text-right">
-                                                            <span t-field="l.product_uom_id.name"/>
-                                                        </td>
-                                                    </t><t t-if="not l.product_uom_id.name">
-                                                        <td class="text-right">
-                                                            <span t-field="l.product_uom_id.name"/>
-                                                        </td>
-                                                    </t>
+                                                <t t-foreach="o.invoice_line_ids" t-as="l">
+                                                    <t t-if="l.product_id">
+                                                        <tr style="page-break-inside:avoid; page-break-after:auto">
+                                                            <t t-set="total_lines" t-value="total_lines+1" />
+                                                            <td>
+                                                                <span t-esc="total_lines"/>
+                                                            </td>
+                                                            <td>
+                                                                <span t-field="l.name"/>
+                                                            </td>
+                                                            <td class="text-right">
+                                                                <t t-esc="'{:,}'.format(float(l.quantity))"/>
+                                                                <span t-field="l.uom_id" groups="product.group_uom"/>
+                                                            </td>
+                                                            <t t-if="l.product_uom_id.name">
+                                                                <td class="text-right">
+                                                                    <span t-field="l.product_uom_id.name"/>
+                                                                </td>
+                                                            </t><t t-if="not l.product_uom_id.name">
+                                                                <td class="text-right">
+                                                                    <span t-field="l.product_uom_id.name"/>
+                                                                </td>
+                                                            </t>
 
-                                                    <td class="text-right">
-                                                        <t t-if="o.currency_id.name == 'COP'" t-esc="'$'"/>
-                                                        <t t-if="o.currency_id.name != 'COP'" t-esc="o.currency_id.name"/>
-                                                        <t t-esc="'{0:,.2f}'.format(l.price_unit)"/>
-                                                    </td>
-                                                    <td class="text-right">
-                                                        <t t-foreach="l.tax_ids" t-as="tx">
-                                                            <t t-if="tx.amount&gt;=0"
-                                                               t-esc="'{:,}'.format(int(tx.amount))"/>
-                                                        </t>
-                                                    </td>
-                                                    <td class="text-right">
-                                                        <t t-esc="'{0:,.2f}'.format(l.discount)"/>
-                                                        <t t-esc="'%'"/>
-                                                    </td>
-                                                    <td class="text-right">
-                                                        <t t-if="o.currency_id.name == 'COP'" t-esc="'$'"/>
-                                                        <t t-if="o.currency_id.name != 'COP'" t-esc="o.currency_id.name"/>
-                                                        <t t-esc="'{0:,.2f}'.format(l.price_subtotal)"/>
-                                                    </td>
-                                                </tr>
+                                                            <td class="text-right">
+                                                                <t t-if="o.currency_id.name == 'COP'" t-esc="'$'"/>
+                                                                <t t-if="o.currency_id.name != 'COP'" t-esc="o.currency_id.name"/>
+                                                                <t t-esc="'{0:,.2f}'.format(l.price_unit)"/>
+                                                            </td>
+                                                            <td class="text-right">
+                                                                <t t-foreach="l.tax_ids" t-as="tx">
+                                                                    <t t-if="tx.amount&gt;=0"
+                                                                       t-esc="'{:,}'.format(int(tx.amount))"/>
+                                                                </t>
+                                                            </td>
+                                                            <td class="text-right">
+                                                                <t t-esc="'{0:,.2f}'.format(l.discount)"/>
+                                                                <t t-esc="'%'"/>
+                                                            </td>
+                                                            <td class="text-right">
+                                                                <t t-if="o.currency_id.name == 'COP'" t-esc="'$'"/>
+                                                                <t t-if="o.currency_id.name != 'COP'" t-esc="o.currency_id.name"/>
+                                                                <t t-esc="'{0:,.2f}'.format(l.price_subtotal)"/>
+                                                            </td>
+                                                        </tr>
+                                                    </t>
+                                                </t>
                                             </tbody>
+                                        </table>
+                                    </div>
+
+                                    <div class="row" style="margin-top:5px; page-break-inside: avoid;">
+                                        <table t-attf-class="table" style="width:100%; page-break-inside: avoid;">
+                                            <t t-foreach="o.invoice_line_ids" t-as="l">
+                                                <t t-if="not l.product_id">
+                                                    <tr style="page-break-inside:avoid; page-break-after:auto">
+                                                        <td>
+                                                            <span t-field="l.name"/>
+                                                        </td>
+                                                    </tr>
+                                                </t>
+                                            </t>
                                         </table>
                                     </div>
 
@@ -389,7 +410,7 @@
                                                 <td></td>
                                                 <td></td>
                                                 <td>
-                                                    <strong>Total sin impuestos</strong>
+                                                    <strong>Subtotal</strong><!--<strong>Total sin impuestos</strong>-->
                                                 </td>
                                                 <td class="text-right">
                                                     <t t-if="o.currency_id.name == 'COP'" t-esc="'$'"/>
@@ -422,7 +443,7 @@
                                                 </td>
                                             </tr>
 
-                                            <tr style="text-align:left; border-bottom:1px solid black; page-break-inside: avoid;">
+                                            <!--<tr style="text-align:left; border-bottom:1px solid black; page-break-inside: avoid;">
                                                 <td>
                                                     <strong>Subtotal</strong>
                                                 </td>
@@ -454,7 +475,7 @@
                                                 <td></td>
                                                 <td></td>
                                                 <td></td>
-                                            </tr>
+                                            </tr>-->
 
                                             <tr style="text-align:left; border-bottom:1px solid black; page-break-inside: avoid;">
                                                 <td>
@@ -466,7 +487,7 @@
                                                 <td class="text-right" style="white-space: nowrap;">
                                                     <t t-if="o.currency_id.name == 'COP'" t-esc="'$'"/>
                                                     <t t-if="o.currency_id.name != 'COP'" t-esc="o.currency_id.name"/>
-                                                    <t t-esc="'{0:,.2f}'.format(o.amount_residual)"/>
+                                                    <t t-esc="'{0:,.2f}'.format(o.amount_total)"/>
                                                 </td>
                                                 <td></td>
                                                 <td></td>

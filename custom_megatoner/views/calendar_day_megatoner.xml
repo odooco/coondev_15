@@ -1,0 +1,54 @@
+<odoo>
+    <data>
+        <!-- start:views -->
+        <record model="ir.ui.view" id="calendar_day_megatoner_tree_view">
+            <field name="name">calendar_day_megatoner_tree</field>
+            <field name="model">calendar.day.megatoner</field>
+            <field name="arch" type="xml">
+                <tree string="Definiciones Horarias">
+                    <field name="name" widget="float_time"/>
+                    <field name="hour_segment"/>
+                </tree>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="calendar_day_megatoner_form_view">
+            <field name="name">calendar_day_megatoner_form</field>
+            <field name="model">calendar.day.megatoner</field>
+            <field name="arch" type="xml">
+                <form string="Definiciones Horarias">
+                    <sheet>
+                        <group>
+                            <field name="name" widget="float_time"/>
+                            <field name="hour_segment"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <!-- end:views -->
+
+        <!-- start:actions -->
+        <record model="ir.actions.act_window"
+            id="calendar_day_megatoner_list_action">
+            <field name="name">Horarios de Contactos</field>
+            <field name="res_model">calendar.day.megatoner</field>
+            <field name="view_mode">tree,form</field>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">Create the first calendar hours control
+                </p>
+            </field>
+        </record>
+        <!-- end:actions -->
+
+        <!-- start:menus -->
+
+        <menuitem id="calendar_day_megatoner_config_submenu"
+			name="Horarios de Contacto"
+            parent="contacts.res_partner_menu_config"
+			action="calendar_day_megatoner_list_action"
+            groups="base.group_no_one"
+        />
+        <!-- end:menus -->
+    </data>
+</odoo>

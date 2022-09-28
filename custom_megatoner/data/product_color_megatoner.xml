@@ -1,0 +1,28 @@
+<odoo>
+    <data noupdate="1">
+        <record id="product_color_megatoner_1" model="product.color.megatoner">
+            <field name="name">Black</field>
+        </record>
+        <record id="product_color_megatoner_2" model="product.color.megatoner">
+            <field name="name">Cyan</field>
+        </record>
+        <record id="product_color_megatoner_3" model="product.color.megatoner">
+            <field name="name">Cyan Ligth</field>
+        </record>
+        <record id="product_color_megatoner_4" model="product.color.megatoner">
+            <field name="name">Magenta</field>
+        </record>
+        <record id="product_color_megatoner_5" model="product.color.megatoner">
+            <field name="name">Magenta Ligth</field>
+        </record>
+        <record id="product_color_megatoner_6" model="product.color.megatoner">
+            <field name="name">Yellow</field>
+        </record>
+        <record id="product_color_megatoner_7" model="product.color.megatoner">
+            <field name="name">Yellow Ligth</field>
+        </record>
+        <record id="product_color_megatoner_8" model="product.color.megatoner">
+            <field name="name">Tricolor</field>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_point_sale,point_sale,model_point_sale,,1,1,1,1
+access_pos_sale_session,pos.sale.session,model_pos_sale_session,,1,1,1,1

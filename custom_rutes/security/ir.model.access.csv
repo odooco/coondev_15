@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_res_partner_domiciliary,res.partner.domiciliary,model_res_partner_domiciliary,,1,1,1,1
+access_route_activity,route.activity,model_route_activity,,1,1,1,1
+access_routes,routes,model_routes,,1,1,1,1
+access_enroutes,enroutes,model_enrutar,,1,1,1,1

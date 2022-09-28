@@ -1,0 +1,71 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+#	* pos_sale_report
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 15.0c\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-07-11 02:00+0000\n"
+"PO-Revision-Date: 2022-07-11 02:00+0000\n"
+"Last-Translator: <>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: pos_sale_report
+#: model:ir.model.fields,field_description:pos_sale_report.field_res_partner__point_sale_id
+msgid "Point of Sale"
+msgstr "Punto de Venta"
+
+#. module: pos_sale_report
+#: model:ir.model.fields,field_description:pos_sale_report.field_point_sale__name
+msgid "Name Point"
+msgstr "Punto de Venta"
+
+#. module: pos_sale_report
+#: model:ir.model.fields,field_description:pos_sale_report.field_point_sale__sequence_id
+msgid "Sequence of point"
+msgstr "Secuencia"
+
+#. module: pos_sale_report
+#: model:ir.model.fields,field_description:pos_sale_report.field_point_sale__session_ids
+msgid "Session Sales"
+msgstr "Sesiones de venta"
+
+#. module: pos_sale_report
+#: model:ir.model.fields,field_description:pos_sale_report.field_point_sale__partner_ids
+msgid "Vendors"
+msgstr "Vendedores"
+
+#. module: pos_sale_report
+#: model:ir.model.fields,field_description:pos_sale_report.field_sale_order__pos_session_id
+msgid "Session Pos"
+msgstr "Sesion de Pos"
+
+#. module: pos_sale_report
+#: model:ir.model.fields,field_description:pos_sale_report.field_pos_sale_session__name
+msgid "Pos Session Name"
+msgstr "Nombre de la Sesion POS"
+
+#. module: pos_sale_report
+#: model:ir.model.fields,field_description:pos_sale_report.field_pos_sale_session__sale_ids
+msgid "Sale Orders"
+msgstr "Ordenes de Venta
+
+#. module: pos_sale_report
+#: model:ir.model.fields,field_description:pos_sale_report.field_pos_sale_session__point_sale_id
+msgid "Point of Sale"
+msgstr "Punto de Venta"
+
+#. module: pos_sale_report
+#: model:ir.model.fields,field_description:pos_sale_report.field_pos_sale_session__company_id
+msgid "Company"
+msgstr "Compañia"
+
+#. module: pos_sale_report
+#: model:ir.model.fields,field_description:pos_sale_report.field_pos_sale_session__state
+msgid "Status"
+msgstr "Estado de Sesion"

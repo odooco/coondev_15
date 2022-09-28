@@ -400,7 +400,9 @@ class AccountInvoiceDianDocument(models.Model):
         elif self.invoice_id.move_type == 'in_invoice':
             xml_filename_prefix = 'ds'
             dddddddd = str(out_invoice_sent + 1).zfill(8)
-
+        elif self.invoice_id.move_type == 'in_refund':
+            xml_filename_prefix = 'rds'
+            dddddddd = str(out_invoice_sent + 1).zfill(8)
 
         # elif self.invoice_id.type == 'out_refund':
         #     xml_filename_prefix = 'nc'
@@ -902,6 +904,8 @@ class AccountInvoiceDianDocument(models.Model):
                 'DebitNote')
         elif self.invoice_id.move_type == "in_invoice":
             xml_without_signature = global_functions.get_template_xml(self._get_support_values(), 'SupportDocument')
+        elif self.invoice_id.move_type == "in_refund":
+            xml_without_signature = global_functions.get_template_xml(self._get_support_values(), 'SupportDocumentCredit')
 
         xml_with_signature = global_functions.get_xml_with_signature(
             xml_without_signature,

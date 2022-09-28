@@ -31,11 +31,10 @@
                         <div class="row text-center" style="font-size:12px;">
                             <div class="col-12 text-center" style="font-size:13px;">
                                 <!-- Logo -->
-                                <img t-if="o.company_id.logo" t-att-src="image_data_uri(o.company_id.logo)"
-                                     style="max-height: 120px; max-width: 300px;" class="img-fluid text-center" alt="Logo"/>
+                                <img t-if="o.company_id.logo" t-att-src="image_data_uri(o.company_id.logo)" style="max-height: 100px; max-width: 200px;" class="img-fluid text-center" alt="Logo"/>
                                 <br/>
                                 <b>
-                                    <span t-field="o.company_id.partner_id" t-field-options='{"widget": "contact", "fields": ["name"], "no_marker": true}'/>
+                                    <span t-field="o.company_id.partner_id" t-field-options="{&quot;widget&quot;: &quot;contact&quot;, &quot;fields&quot;: [&quot;name&quot;], &quot;no_marker&quot;: true}"/>
                                 </b>
                                 <span>NIT: </span>
                                 <span t-esc="o.company_id.partner_id.identification_document"/>
@@ -89,7 +88,7 @@
                                             </t>
                                         </span>
                                     </p>
-                                    <hr style ="border-top: 1px solid black;"></hr>
+                                    <hr style="border-top: 1px solid black;"/>
                                     <div class="row">
                                         <div class="col-12">
                                             <p>
@@ -188,7 +187,7 @@
 
                                     <div class="row" style="margin-top:5px; page-break-inside: avoid;">
                                         <table t-attf-class="table-sm" style="border-bottom: 1px solid black; width:100%; page-break-inside: avoid;">
-                                            <t t-set="discount_total" t-value="0"></t>
+                                            <t t-set="discount_total" t-value="0"/>
                                             <tr style="page-break-inside:avoid;">
                                                 <th width="11%" class="text-center">Cantidad</th>
                                                 <th width="25%" class="text-center">Valor Unidad</th>
@@ -252,7 +251,7 @@
                                     <div class="row" style="margin-top:5px; page-break-inside: avoid;">
                                         <table t-attf-class="table table-sm" style="width:100%; page-break-inside: avoid;">
                                             <tr style="border-top:1px solid black; page-break-inside: avoid;">
-                                                <td width="50%" >
+                                                <td width="50%">
                                                     <div id="tletras">
                                                        <t t-set="total_letras" t-value="o.currency_id.amount_to_text(o.amount_total)"/>
                                                        <t t-if="o.currency_id.name == 'COP' and 'Peso' in total_letras and int(o.amount_total) != 1"><t t-set="total_letras" t-value="total_letras.replace('Peso', 'Pesos')"/></t>
@@ -262,22 +261,29 @@
                                                        <t t-elif="o.currency_id.name in ('USD','EUR') and 'Cent' in total_letras"><t t-set="total_letras" t-value="total_letras.replace('Cent', 'Centavo')"/></t>
                                                        <p class="text-justify"><strong>Total en letras: </strong> <span t-if="o.currency_id" t-esc="total_letras"/></p>
                                                         <br/>
-                                                        <p class="text-justify" style="font-family: sans-serif; font-size:9px;"><span t-esc="o.company_id.tributary_information"/></p>
 
                                                         <p t-if="o.move_type == 'out_refund' and o.refund_type=='credit'">  Reversion de Factura : <span t-field="o.reversed_entry_id"> </span></p>
                                                     </div>
                                                 </td>
-                                                <td width="25%" >
+                                                <td width="25%">
                                                     <strong>Total sin impuestos</strong>
                                                 </td>
-                                                <td class="text-right" width="25%" >
+                                                <td class="text-right" width="25%">
                                                     <t t-if="o.currency_id.name == 'COP'" t-esc="'$'"/>
                                                     <t t-if="o.currency_id.name != 'COP'" t-esc="o.currency_id.name"/>
                                                     <t t-esc="'{0:,.2f}'.format(o.amount_untaxed)"/>
                                                 </td>
                                             </tr>
-
-                                            <tr style="text-align:left; border-bottom:1px solid black page-break-inside: avoid;" t-foreach="o.line_ids.filtered(lambda line: line.tax_line_id)" t-as="t" >
+                                        </table>
+                                        <table t-attf-class="table table-sm" style="width:100%; page-break-inside: avoid;">
+                                            <tr style="border-top:1px solid black; page-break-inside: avoid;">
+                                                <td>
+                                                    <p class="text-justify" style="font-family: sans-serif; font-size:9px;"><span t-esc="o.company_id.tributary_information"/></p>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                        <table t-attf-class="table table-sm" style="width:100%; page-break-inside: avoid;">
+                                            <tr style="text-align:left; border-bottom:1px solid black page-break-inside: avoid;" t-foreach="o.line_ids.filtered(lambda line: line.tax_line_id)" t-as="t">
                                                 <td>
                                                     <t t-if="t.tax_line_id.description">
                                                         <span t-field="t.tax_line_id.description"/>
@@ -286,7 +292,7 @@
                                                         <span t-field="t.tax_line_id.name"/>
                                                     </t>
                                                 </td>
-                                                <td></td>
+                                                <td/>
                                                 <td class="text-right">
                                                     <t t-if="o.currency_id.name == 'COP'" t-esc="'$'"/>
                                                     <t t-if="o.currency_id.name != 'COP'" t-esc="o.currency_id.name"/>
@@ -303,7 +309,7 @@
                                                 <td>
                                                     <strong>Subtotal</strong>
                                                 </td>
-                                                <td></td>
+                                                <td/>
                                                 <td class="text-right" style="white-space: nowrap;">
                                                     <t t-if="o.currency_id.name == 'COP'" t-esc="'$'"/>
                                                     <t t-if="o.currency_id.name != 'COP'" t-esc="o.currency_id.name"/>
@@ -315,7 +321,7 @@
                                                 <td>
                                                     <strong>Anticipos</strong>
                                                 </td>
-                                                <td></td>
+                                                <td/>
                                                 <td class="text-right" style="white-space: nowrap;">
                                                     <t t-if="o.currency_id.name == 'COP'" t-esc="'$'"/>
                                                     <t t-if="o.currency_id.name != 'COP'" t-esc="o.currency_id.name"/>
@@ -326,7 +332,7 @@
                                                 <td>
                                                     <strong>Descuentos</strong>
                                                 </td>
-                                                <td></td>
+                                                <td/>
                                                 <td class="text-right" style="white-space: nowrap;">
                                                     <t t-if="o.currency_id.name == 'COP'" t-esc="'$'"/>
                                                     <t t-if="o.currency_id.name != 'COP'" t-esc="o.currency_id.name"/>
@@ -338,7 +344,7 @@
                                     <div class="row" style="margin-top:5px; page-break-inside: avoid;">
                                         <table t-attf-class="table table-sm" style="width:100%; page-break-inside: avoid;">
                                             <tr style="border-top:1px solid black; page-break-inside: avoid;">
-                                                <td class="text-center" width="100%" >
+                                                <td class="text-center" width="100%">
                                                     <strong>Total a pagar</strong>
                                                 </td>
                                             </tr>
@@ -350,16 +356,30 @@
                                                 <td class="text-center" style="white-space: nowrap; font-size:35px;" width="100%">
                                                     <t t-if="o.currency_id.name == 'COP'" t-esc="'$'"/>
                                                     <t t-if="o.currency_id.name != 'COP'" t-esc="o.currency_id.name"/>
-                                                    <t t-esc="'{0:,.0f}'.format(o.amount_residual)"/>
+                                                    <t t-esc="'{0:,.0f}'.format(o.amount_total)"/>
                                                 </td>
                                             </tr>
                                         </table>
                                     </div>
 
+                                    <br/>
+                                    <div>
+                                      <div class="col-12 text-center">
+                                        <t t-if="o.company_id.einvoicing_enabled == True">
+                                          <t t-foreach="o.dian_document_lines" t-as="dd">
+                                            <t t-if="dd.state == 'done' or dd.state == 'sent'">
+                                              <img class="image" t-attf-src="data:image/png;base64,{{dd.qr_image}}" style="width:150px;height:150px;margin-bottom:1px"/>
+                                            </t>
+                                          </t>
+                                        </t>
+                                      </div>
+                                    </div>
+                                    <br/>
+
                                     <div class="row mb-4" style="margin-top: 5px; page-break-inside: avoid;">
                                         <div class="col">
                                             <div class="row">
-                                                <div class="col text-justify"  style="page-break-inside: avoid;">
+                                                <div class="col text-justify" style="page-break-inside: avoid;">
                                                     <span style="width:30%">
                                                         <br/>
                                                         <strong>Observaciones:</strong>
@@ -377,7 +397,7 @@
                                     <div class="row mb-4" style="margin-top: 5px; page-break-inside: avoid;">
                                         <div class="col">
                                             <div class="row">
-                                                <div class="col text-left"  style="page-break-inside: avoid;">
+                                                <div class="col text-left" style="page-break-inside: avoid;">
                                                     <span style="width:30%">
                                                         <br/>
                                                         <span>Firmo en Señal de aceptación.</span>
@@ -392,10 +412,10 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="row-xs" >
+                                    <div class="row-xs">
                                         <div class=" text-center" style="font-size:12px;" name="footer_company">
                                             <span>Software propio de factura electrónica </span>
-                                            <span t-field="o.company_id.partner_id" t-field-options='{"widget": "contact", "fields": ["name"], "no_marker": true}'/>
+                                            <span t-field="o.company_id.partner_id" t-field-options="{&quot;widget&quot;: &quot;contact&quot;, &quot;fields&quot;: [&quot;name&quot;], &quot;no_marker&quot;: true}"/>
                                             <span>NIT: </span>
                                             <span t-esc="o.company_id.partner_id.identification_document"/>
                                             <t t-if="o.company_id.partner_id.check_digit != False">
@@ -404,7 +424,7 @@
                                             </t>
                                             <span> - </span>
                                             <span> Odoo </span>
-                                            <span t-field="o.company_id.partner_id" t-field-options='{"widget": "contact", "fields": ["name"], "no_marker": true}'/>
+                                            <span t-field="o.company_id.partner_id" t-field-options="{&quot;widget&quot;: &quot;contact&quot;, &quot;fields&quot;: [&quot;name&quot;], &quot;no_marker&quot;: true}"/>
                                         </div>
                                     </div>
                                 </div>

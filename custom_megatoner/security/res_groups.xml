@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<odoo>
+    <record model="res.groups" id="product_cost">
+        <field name="name">Ocultar Costos en Productos</field>
+    </record>
+</odoo>

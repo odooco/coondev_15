@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<odoo>
+    <record id="view_notify_user" model="ir.ui.view">
+        <field name="name">hide.menu</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_users_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[2]" position="after">
+                <page string="Hide Menu for Users">
+                    <field name="menu_id" options="{'no_create': True, 'no_edit': True}"/>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,119 @@
+<?xml version="1.0"?>
+<odoo>
+
+    <record id="product_code_position_view_search" model="ir.ui.view">
+        <field name="name">product.code.position.search</field>
+        <field name="model">product.code.position</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <separator/>
+                <filter string="Archived" name="inactive" domain="[('active', '=', False)]"/>
+                <group expand="0" string="Group By"></group>
+            </search>
+        </field>
+    </record>
+    <record id="product_code_position_view_form" model="ir.ui.view">
+        <field name="name">product.code.position.form</field>
+        <field name="model">product.code.position</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" placeholder="Reference" class="oe_inline"/></h1>
+                    </div>
+                    <group>
+                        <field name="sequence"/>
+                        <field name="active" invisible="1"/>
+                    </group>
+                    <notebook>
+                        <page string="Rules">
+                            <field name="rule_ids">
+                                <tree>
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="name"/>
+                                    <field name="domain"/>
+                                </tree>
+                                <form>
+                                    <sheet>
+                                        <div class="oe_title">
+                                            <h1>
+                                                <field name="name" placeholder="Rule" class="oe_inline"/>
+                                            </h1>
+                                        </div>
+                                        <group>
+                                            <field name="sequence"/>
+                                            <field name="code_method"/>
+                                            <field name="code_value"
+                                                   attrs="{'invisible': [('code_method', '=', 'dynamic')], 'required': [('code_method', '=', 'static')]}"
+                                            />
+                                            <label for="field_id"
+                                                   attrs="{'invisible': [('code_method', '=', 'static')]}"
+                                            />
+                                            <div attrs="{'invisible': [('code_method', '=', 'static')]}">
+                                                <field name="field_id"
+                                                       class="oe_inline"
+                                                       options="{'no_create_edit': 1, 'no_quick_create': 1}"
+                                                       attrs="{'required': [('code_method', '=', 'dynamic')]}"
+                                                />
+                                                <span attrs="{'invisible': [('model_from_field_id', '=', False)]}" class="fa fa-arrow-right"> </span>
+                                                <field name="model_from_field_id" invisible="1"/>
+                                                <field name="related_field_id"
+                                                       class="oe_inline"
+                                                       domain="[
+                                                            ('model_id', '=', model_from_field_id),
+                                                            ('ttype', 'in', ['char', 'date', 'datetime', 'float', 'integer', 'monetory', 'selection'])
+                                                       ]"
+                                                       options="{'no_create_edit': 1, 'no_quick_create': 1}"
+                                                       attrs="{'invisible': [('model_from_field_id', '=', False)], 'required': [('model_from_field_id', '!=', False)]}"
+                                                />
+                                            </div>
+                                            <label for="symbol_start" attrs="{'invisible': [('code_method', '=', 'static')]}"/>
+                                            <div attrs="{'invisible': [('code_method', '=', 'static')]}">
+                                                <field name="symbol_start" class="oe_inline"/> -
+                                                <field name="symbol_end" class="oe_inline"/>
+                                            </div>
+                                        </group>
+                                        <notebook>
+                                            <page string="Criteria">
+                                                <field name="domain"
+                                                       widget="domain"
+                                                       options="{'model': 'product.product'}"
+                                                       style="min-height:200px !important;"
+                                                />
+                                            </page>
+                                        </notebook>
+                                    </sheet>
+                                </form>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="product_code_position_view_tree" model="ir.ui.view">
+        <field name="name">product.code.position.tree</field>
+        <field name="model">product.code.position</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="sequence"/>
+                <field name="name"/>
+                <field name="active" invisible="1"/>
+            </tree>
+        </field>
+    </record>
+    <record id="product_code_position_action" model="ir.actions.act_window">
+        <field name="name">Product Codes</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">product.code.position</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" eval="product_code_position_view_search"/>
+        <field name="help" type="html">
+            <p class="oe_view_nocontent_create">
+                Click to add a new product code position. Each position is used to generate a part of product code.
+            </p>
+        </field>
+    </record>
+
+</odoo>

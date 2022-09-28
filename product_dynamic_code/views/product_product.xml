@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<odoo>
+
+    <record id="product_normal_form_view" model="ir.ui.view">
+        <field name="name">product.product.form</field>
+        <field name="model">product.product</field>
+        <field name="inherit_id" ref="product.product_normal_form_view"/>
+        <field name="arch" type="xml">
+            <field name="default_code" position="before">
+                <field name="manual_template_code" invisible="1"/>
+                <field name="manual_code" attrs="{'invisible': [('manual_template_code', '=', True)]}"/>
+                <div>
+                    <button name="action_retrieve_code_parts"
+                            type="object"
+                            class="btn-link"
+                            string="Update reference"
+                            icon="fa-arrow-right"
+                            attrs="{'invisible': ['|', ('manual_code', '=', True), ('manual_template_code', '=', True)]}"
+                    />
+                </div>
+            </field>
+            <field name="default_code" position="attributes">
+                <attribute name="attrs">
+                    {'readonly': [("manual_code", "=", False), ('manual_template_code', '=', False)]}
+                </attribute>
+            </field>
+        </field>
+    </record>
+    <record id="product_variant_easy_edit_view" model="ir.ui.view">
+        <field name="name">product.product.view.form.easy</field>
+        <field name="model">product.product</field>
+        <field name="inherit_id" ref="product.product_variant_easy_edit_view"/>
+        <field name="arch" type="xml">
+            <field name="default_code" position="before">
+                <field name="manual_template_code" invisible="1"/>
+                <field name="manual_code" attrs="{'invisible': [('manual_template_code', '=', True)]}"/>
+                <div colspan="6" col="6">
+                    <button name="action_retrieve_code_parts"
+                            type="object"
+                            class="btn-link"
+                            string="Update codes"
+                            icon="fa-arrow-right"
+                            attrs="{'invisible': ['|', ('manual_code', '=', True), ('manual_template_code', '=', True)]}"
+                    />
+                </div>
+            </field>
+            <field name="default_code" position="attributes">
+                <attribute name="attrs">{'readonly': [("manual_code", "=", False), ('manual_template_code', '=', False)]}</attribute>
+            </field>
+        </field>
+    </record>
+
+
+</odoo>

@@ -1,0 +1,31 @@
+<odoo>
+    <data noupdate="1">
+        <record id="product_brand_megatoner_1" model="product.brand.megatoner">
+            <field name="name">HP</field>
+        </record>
+        <record id="product_brand_megatoner_2" model="product.brand.megatoner">
+            <field name="name">Samsung</field>
+        </record>
+        <record id="product_brand_megatoner_3" model="product.brand.megatoner">
+            <field name="name">Kyocera</field>
+        </record>
+        <record id="product_brand_megatoner_4" model="product.brand.megatoner">
+            <field name="name">Ricoh</field>
+        </record>
+        <record id="product_brand_megatoner_5" model="product.brand.megatoner">
+            <field name="name">Canon</field>
+        </record>
+        <record id="product_brand_megatoner_6" model="product.brand.megatoner">
+            <field name="name">Epson</field>
+        </record>
+        <record id="product_brand_megatoner_7" model="product.brand.megatoner">
+            <field name="name">Lexmark</field>
+        </record>
+        <record id="product_brand_megatoner_8" model="product.brand.megatoner">
+            <field name="name">Xerox</field>
+        </record>
+        <record id="product_brand_megatoner_9" model="product.brand.megatoner">
+            <field name="name">Otras</field>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,89 @@
+<odoo>
+    <data>
+        <!-- start:views -->
+        <record model="ir.ui.view" id="pos_sale_session_tree_view">
+            <field name="name">pos_sale_session_tree</field>
+            <field name="model">pos.sale.session</field>
+            <field name="arch" type="xml">
+                <tree string="Sesiones de Puntos de Ventas">
+                    <field name="name"/>
+                    <field name="point_sale_id"/>
+                    <field name="start_date"/>
+                    <field name="start_invoice"/>
+                    <field name="end_invoice"/>
+                    <field name="invoice_qyt"/>
+                    <field name="state" widget="badge" decoration-info="state == 'open'" decoration-danger="state == 'close'" />
+                </tree>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="pos_sale_session_form_view">
+            <field name="name">pos_sale_session_form</field>
+            <field name="model">pos.sale.session</field>
+            <field name="arch" type="xml">
+                <form string="Sesiones de Puntos de Ventas">
+                    <header>
+                        <button name="close_session" string="Cerrar Sesion" states="open" type="object" class="oe_highlight"/>
+                        <button name="print_x_report" string="Imprimir Informe X" states="open" type="object" class="oe_highlight"/>
+                        <field name="state" nolabel="1" colspan="2" widget="statusbar" options="{'clickable': '1'}" readonly="True"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                            <div class="oe_edit_only">
+                                <label for="name"/>
+                            </div>
+                            <h1>
+                                <field name="name" attrs="{'readonly': True}" required="True"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="point_sale_id" attrs="{'readonly': True, 'required': True}"/>
+                                <field name="invoice_qyt" attrs="{'readonly': True}"/>
+                                <field name="company_id" readonly="True"/>
+                            </group>
+                            <group>
+                                <field name="start_date" attrs="{'readonly': True}"/>
+                                <field name="start_invoice" readonly="True"/>
+                                <field name="end_invoice" readonly="True"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Facturas" name="sale_orders">
+                                <field name="invoice_ids" readonly="True"/>
+                            </page>
+                        </notebook>
+                        <div class="oe_chatter">
+                            <field name="message_follower_ids"/>
+                            <field name="activity_ids"/>
+                            <field name="message_ids"/>
+                        </div>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <!-- end:views -->
+
+        <!-- start:actions -->
+        <record model="ir.actions.act_window"
+            id="pos_sale_session_list_action">
+            <field name="name">Sesiones de Puntos de Ventas</field>
+            <field name="res_model">pos.sale.session</field>
+            <field name="view_mode">tree,form</field>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">Create the first session pos sale
+                </p>
+            </field>
+        </record>
+        <!-- end:actions -->
+
+        <!-- start:menus -->
+
+        <menuitem id="pos_sale_session_config_submenu"
+			name="Sesiones de Puntos de Ventas"
+            parent="sale.menu_sale_config"
+			action="pos_sale_session_list_action"
+        />
+        <!-- end:menus -->
+    </data>
+</odoo>

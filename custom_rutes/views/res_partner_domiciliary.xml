@@ -1,0 +1,73 @@
+<odoo>
+    <data>
+        <!-- start:views -->
+        <record model="ir.ui.view" id="res_partner_domiciliary_tree_view">
+            <field name="name">res_partner_domiciliary_tree</field>
+            <field name="model">res.partner.domiciliary</field>
+            <field name="arch" type="xml">
+                <tree string="Color">
+                    <field name="sequence" widget="handle"/>
+                    <field name="name"/>
+                    <field name="mobile"/>
+                    <field name="date_processing"/>
+                    <field name="latitude"/>
+                    <field name="longitude"/>
+                    <field name="active"/>
+                </tree>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="res_partner_domiciliary_form_view">
+            <field name="name">res_partner_domiciliary_form</field>
+            <field name="model">res.partner.domiciliary</field>
+            <field name="arch" type="xml">
+                <form string="Color">
+                    <sheet>
+                        <group>
+                            <field name="name"/>
+                            <field name="mobile"/>
+                            <field name="active"/>
+                        </group>
+                        <group>
+                            <field name="date_processing"/>
+                            <field name="latitude"/>
+                            <field name="longitude"/>
+                        </group>
+                        <notebook>
+                            <page string="Internal Notes" name="internal_notes">
+                                <group>
+                                    <group>
+                                        <field name="marker_color" widget="google_marker_picker"/>
+                                    </group>
+                                </group>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <!-- end:views -->
+
+        <!-- start:actions -->
+        <record model="ir.actions.act_window"
+            id="res_partner_domiciliary_list_action">
+            <field name="name">Domiciliario</field>
+            <field name="res_model">res.partner.domiciliary</field>
+            <field name="view_mode">tree,form</field>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">Create the first domiciliary
+                </p>
+            </field>
+        </record>
+        <!-- end:actions -->
+
+        <!-- start:menus -->
+
+        <menuitem id="custom_rutes.partner_domiciliary_config_submenu"
+			name="Domiciliario"
+            parent="custom_rutes.custom_config_routs_submenu"
+			action="res_partner_domiciliary_list_action"
+        />
+        <!-- end:menus -->
+    </data>
+</odoo>

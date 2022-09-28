@@ -143,9 +143,9 @@ class AccountInvoice(models.Model):
 				accepted_xml_without_signature = global_functions.get_template_xml(dian_obj._get_accepted_values(), 'AceptacionTacita')
 				accepted_xml_with_signature = global_functions.get_xml_with_signature( accepted_xml_without_signature, self.company_id.signature_policy_url, self.company_id.signature_policy_description, self.company_id.certificate_file, self.company_id.certificate_password)
 				dian_obj.write({'exp_accepted_file': b64encode(dian_obj._get_acp_zipped_file(accepted_xml_with_signature)).decode("utf-8", "ignore")})
-				dian_obj.action_sent_accepted_file()
+				dian_obj.action_sent_accepted_file(dian_obj.exp_accepted_file)
 				self.invoice_rating = 'auto_approve'
-				self.bs_acceptation()
+				dian_obj.bs_acceptation()
 
 	def action_view_credit_notes(self):
 		self.ensure_one()
@@ -658,8 +658,113 @@ class AccountInvoice(models.Model):
 
 		invoice_lines = {}
 		count = 1
+		id_exclude = []
+		for invoice_ln in self.invoice_line_ids.filtered(lambda x: not x.display_type and x.price_subtotal < 0):
+			id_exclude.append(invoice_ln.id)
+			discount_line = self.invoice_line_ids.filtered(lambda x: not x.display_type and x.price_subtotal == abs(invoice_ln.price_subtotal) and x.product_id == invoice_ln.product_id)
+			disc_amount = 0
+			total_wo_disc = 0
+			brand_name = False
+			model_name = False
 
-		for invoice_line in self.invoice_line_ids.filtered(lambda x: not x.display_type):
+			if discount_line.price_subtotal != 0 and discount_line.discount != 0:
+				disc_amount = (discount_line.price_subtotal * discount_line.discount) / 100
+
+			if discount_line.price_unit != 0 and discount_line.quantity != 0:
+				total_wo_disc = discount_line.price_unit * discount_line.quantity
+
+			if discount_line.price_unit == 0 or discount_line.quantity == 0:
+				raise ValidationError(_('Para facturación electrónica no está permitido lineas de producto con precio o cantidad en 0.'))
+
+			if not discount_line.product_id or not discount_line.product_id.default_code:
+				raise UserError(msg2 % discount_line.name)
+
+			if discount_line.product_id.margin_percentage > 0:
+				reference_price = discount_line.product_id.margin_percentage
+			else:
+				reference_price = discount_line.product_id.margin_percentage * discount_line.product_id.with_company(self.company_id).standard_price
+
+			if discount_line.price_subtotal <= 0 and reference_price <= 0:
+				raise UserError(msg3 % discount_line.product_id.default_code)
+
+			brand_name = discount_line.product_id.brand_name or ''
+			model_name = discount_line.product_id.model_name or ''
+			product_scheme_id = discount_line.product_id.product_scheme_id or self.env['product.scheme'].search([('code', '=', '999')])
+
+			nota_ref = ''
+			if self.operation_type == '09':
+				nota_ref = 'Contrato de servicios AIU por concepto de: ' + self.aiu
+
+			invoice_lines[count] = {}
+			invoice_lines[count]['Note'] = nota_ref or ''
+			invoice_lines[count]['unitCode'] = discount_line.product_uom_id.product_uom_code_id.code
+			invoice_lines[count]['Quantity'] = '{:.2f}'.format(discount_line.quantity)
+			invoice_lines[count]['PriceAmount'] = '{:.2f}'.format(reference_price)
+			invoice_lines[count]['LineExtensionAmount'] = '{:.2f}'.format(discount_line.price_subtotal)
+			invoice_lines[count]['PricingReference'] = '{:.2f}'.format(discount_line.product_id.with_company(self.company_id).standard_price or 0.0)
+			invoice_lines[count]['MultiplierFactorNumeric'] = '{:.2f}'.format(100)
+			invoice_lines[count]['AllowanceChargeAmount'] = '{:.2f}'.format(discount_line.price_subtotal)
+			invoice_lines[count]['AllowanceChargeBaseAmount'] = '{:.2f}'.format(discount_line.price_subtotal)
+			invoice_lines[count]['TaxesTotal'] = {}
+			invoice_lines[count]['WithholdingTaxesTotal'] = {}
+			invoice_lines[count]['SellersItemIdentification'] = discount_line.product_id.default_code
+			invoice_lines[count]['StandardItemIdentification'] = discount_line.product_id.product_scheme_code or ''
+			invoice_lines[count]['StandardschemeID'] = product_scheme_id.code or ''
+			invoice_lines[count]['StandardschemeName'] = product_scheme_id.name or ''
+			invoice_lines[count]['StandardschemeAgencyID'] = product_scheme_id.scheme_agency_id or ''
+
+			for tax in discount_line.tax_ids:
+				if tax.amount_type == 'group':
+					tax_ids = tax.children_tax_ids
+				else:
+					tax_ids = tax
+
+				for tax_id in tax_ids:
+					if tax_id.tax_group_id.is_einvoicing:
+						if not tax_id.tax_group_id.tax_group_type_id:
+							raise UserError(msg4 % tax.name)
+
+						tax_type = tax_id.tax_group_id.tax_group_type_id.type
+
+						if tax_type == 'withholding_tax' and tax_id.amount == 0:
+							raise UserError(msg5 % tax_id.name)
+						elif tax_type == 'tax' and tax_id.amount < 0:
+							raise UserError(msg6 % tax_id.name)
+						elif tax_type == 'tax' and tax_id.amount == 0:
+							pass
+
+						elif tax_type == 'withholding_tax' and tax_id.amount < 0:
+							invoice_lines[count]['WithholdingTaxesTotal'] = (
+								discount_line._get_invoice_lines_taxes(
+									tax_id,
+									abs(tax_id.amount),
+									invoice_lines[count]['WithholdingTaxesTotal']))
+						elif tax_type == 'withholding_tax' and tax_id.amount > 0:
+							pass
+						else:
+							invoice_lines[count]['TaxesTotal'] = (
+								discount_line._get_invoice_lines_taxes(
+									tax_id,
+									tax_id.amount,
+									invoice_lines[count]['TaxesTotal']))
+
+			if '01' not in invoice_lines[count]['TaxesTotal']:
+				invoice_lines[count]['TaxesTotal']['01'] = {}
+				invoice_lines[count]['TaxesTotal']['01']['total'] = 0
+				invoice_lines[count]['TaxesTotal']['01']['name'] = 'IVA'
+				invoice_lines[count]['TaxesTotal']['01']['taxes'] = {}
+				invoice_lines[count]['TaxesTotal']['01']['taxes']['0.00'] = {}
+				invoice_lines[count]['TaxesTotal']['01']['taxes']['0.00']['base'] = discount_line.price_subtotal
+				invoice_lines[count]['TaxesTotal']['01']['taxes']['0.00']['amount'] = 0
+
+			invoice_lines[count]['BrandName'] = brand_name
+			invoice_lines[count]['ModelName'] = model_name
+			invoice_lines[count]['ItemDescription'] = str(discount_line.name) if discount_line.name != discount_line.product_id.display_name else discount_line.product_id.name or ''
+			invoice_lines[count]['InformationContentProviderParty'] = (discount_line._get_information_content_provider_party_values())
+			invoice_lines[count]['PriceAmount'] = '{:.2f}'.format(discount_line.price_unit)
+
+			count += 1
+		for invoice_line in self.invoice_line_ids.filtered(lambda x: not x.display_type and x.id not in id_exclude):
 			if not invoice_line.product_uom_id.product_uom_code_id:
 				raise UserError(msg1 % invoice_line.product_uom_id.name)
 

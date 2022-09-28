@@ -1,0 +1,20 @@
+<odoo>
+    <data>
+        <record id="custom_rutes_invoice_form" model="ir.ui.view">
+            <field name="name">account.move.form</field>
+            <field name="model">account.move</field>
+            <field name="inherit_id" ref="account.view_move_form"/>
+            <field name="arch" type="xml">
+                <data>
+                    <xpath expr="//button[@name='button_draft']" position="before">
+                        <field name="route_id" invisible="1"/>
+                        <button name="action_generar_ruta" type="object" string="Enrutar" attrs="{'invisible' : [('route_id', '!=', False)]}"/>
+                    </xpath>
+                    <xpath expr="//field[@name='payment_reference']" position="after">
+                        <field name="route_id" readonly="1"/>
+                    </xpath>
+                </data>
+            </field>
+        </record>
+    </data>
+</odoo>

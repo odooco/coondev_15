@@ -1,0 +1,6 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_product_brand_megatoner,product.brand.megatoner,model_product_brand_megatoner,,1,1,1,1
+access_product_color_megatoner,product.color.megatoner,model_product_color_megatoner,,1,1,1,1
+access_calendar_day_megatoner,calendar.day.megatoner,model_calendar_day_megatoner,,1,1,1,1
+access_account_bank_statement_group_vendors,account.bank.statement.group.invoice.write,account_online_synchronization.model_account_bank_statement,,1,1,0,0
+access_account_bank_statement_line_group_vendors,account.bank.statement.line.group.invoice.write,account_online_synchronization.model_account_bank_statement_line,,1,1,0,0

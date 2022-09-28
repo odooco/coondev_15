@@ -1,0 +1,100 @@
+<odoo>
+    <data noupdate="1">
+        <record id="calendar_day_megatoner_1_am" model="calendar.day.megatoner">
+            <field name="name">1</field>
+            <field name="hour_segment">am</field>
+        </record>
+        <record id="calendar_day_megatoner_2_am" model="calendar.day.megatoner">
+            <field name="name">2</field>
+            <field name="hour_segment">am</field>
+        </record>
+        <record id="calendar_day_megatoner_3_am" model="calendar.day.megatoner">
+            <field name="name">3</field>
+            <field name="hour_segment">am</field>
+        </record>
+        <record id="calendar_day_megatoner_4_am" model="calendar.day.megatoner">
+            <field name="name">4</field>
+            <field name="hour_segment">am</field>
+        </record>
+        <record id="calendar_day_megatoner_5_am" model="calendar.day.megatoner">
+            <field name="name">5</field>
+            <field name="hour_segment">am</field>
+        </record>
+        <record id="calendar_day_megatoner_6_am" model="calendar.day.megatoner">
+            <field name="name">6</field>
+            <field name="hour_segment">am</field>
+        </record>
+        <record id="calendar_day_megatoner_7_am" model="calendar.day.megatoner">
+            <field name="name">7</field>
+            <field name="hour_segment">am</field>
+        </record>
+        <record id="calendar_day_megatoner_8_am" model="calendar.day.megatoner">
+            <field name="name">8</field>
+            <field name="hour_segment">am</field>
+        </record>
+        <record id="calendar_day_megatoner_9_am" model="calendar.day.megatoner">
+            <field name="name">9</field>
+            <field name="hour_segment">am</field>
+        </record>
+        <record id="calendar_day_megatoner_10_am" model="calendar.day.megatoner">
+            <field name="name">10</field>
+            <field name="hour_segment">am</field>
+        </record>
+        <record id="calendar_day_megatoner_11_am" model="calendar.day.megatoner">
+            <field name="name">11</field>
+            <field name="hour_segment">am</field>
+        </record>
+        <record id="calendar_day_megatoner_12_am" model="calendar.day.megatoner">
+            <field name="name">12</field>
+            <field name="hour_segment">am</field>
+        </record>
+        <record id="calendar_day_megatoner_1_pm" model="calendar.day.megatoner">
+            <field name="name">1</field>
+            <field name="hour_segment">pm</field>
+        </record>
+        <record id="calendar_day_megatoner_2_pm" model="calendar.day.megatoner">
+            <field name="name">2</field>
+            <field name="hour_segment">pm</field>
+        </record>
+        <record id="calendar_day_megatoner_3_pm" model="calendar.day.megatoner">
+            <field name="name">3</field>
+            <field name="hour_segment">pm</field>
+        </record>
+        <record id="calendar_day_megatoner_4_pm" model="calendar.day.megatoner">
+            <field name="name">4</field>
+            <field name="hour_segment">pm</field>
+        </record>
+        <record id="calendar_day_megatoner_5_pm" model="calendar.day.megatoner">
+            <field name="name">5</field>
+            <field name="hour_segment">pm</field>
+        </record>
+        <record id="calendar_day_megatoner_6_pm" model="calendar.day.megatoner">
+            <field name="name">6</field>
+            <field name="hour_segment">pm</field>
+        </record>
+        <record id="calendar_day_megatoner_7_pm" model="calendar.day.megatoner">
+            <field name="name">7</field>
+            <field name="hour_segment">pm</field>
+        </record>
+        <record id="calendar_day_megatoner_8_pm" model="calendar.day.megatoner">
+            <field name="name">8</field>
+            <field name="hour_segment">pm</field>
+        </record>
+        <record id="calendar_day_megatoner_9_pm" model="calendar.day.megatoner">
+            <field name="name">9</field>
+            <field name="hour_segment">pm</field>
+        </record>
+        <record id="calendar_day_megatoner_10_pm" model="calendar.day.megatoner">
+            <field name="name">10</field>
+            <field name="hour_segment">pm</field>
+        </record>
+        <record id="calendar_day_megatoner_11_pm" model="calendar.day.megatoner">
+            <field name="name">11</field>
+            <field name="hour_segment">pm</field>
+        </record>
+        <record id="calendar_day_megatoner_12_pm" model="calendar.day.megatoner">
+            <field name="name">12</field>
+            <field name="hour_segment">pm</field>
+        </record>
+    </data>
+</odoo>

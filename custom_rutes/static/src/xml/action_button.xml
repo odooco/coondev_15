@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="import_template">
+    <t t-extend="ListView.buttons" t-name="ListView.buttons">
+        <t t-jquery="button.o_list_button_add" t-operation="after">
+            <button t-if="widget.modelName == 'routes'" class="btn btn-secondary" type="button">Ver mapa</button>
+        </t>
+    </t>
+    <t t-extend="KanbanView.buttons" t-name="kanbanView.buttons">
+        <t t-jquery="button" t-operation="after">
+            <button t-if="widget.modelName == 'routes'" class="btn btn-secondary" type="button">Ver mapa</button>
+        </t>
+    </t>
+</templates>
