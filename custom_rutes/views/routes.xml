@@ -218,16 +218,46 @@
             id="custom_rutes_routes_list_action">
             <field name="name">Rutas</field>
             <field name="res_model">routes</field>
-            <field name="view_mode">google_map,kanban,tree,form</field>
+            <field name="view_mode">kanban,tree,form,google_map</field>
             <field name="search_view_id" ref="view_routes_filter"/>
             <field name="help" type="html">
                 <p class="oe_view_nocontent_create">Create the first Ruta
                 </p>
             </field>
         </record>
+
+        <record model="ir.ui.view" id="routes_maps_wizard">
+            <field name="name">Rutas de Mapas</field>
+            <field name="model">maps.routes</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <h3>
+                            Para continuar con el proceso Ingrese los siguientes datos:
+                        </h3>
+                        <group>
+                            <field name="domiciliary_ids" widget="many2many_tags" required="1"/>
+                            <field name="delivery_date" required="1"/>
+                            <field name="delivery_date_due" required="1"/>
+                        </group>
+                    </sheet>
+                    <footer>
+                        <button string="Generar Mapa de Rutas" class="oe_highlight" type="object" name="action_generar_rutas"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="custom_rutes_maps_routes_list_action">
+            <field name="name">Rutas</field>
+            <field name="res_model">maps.routes</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+
         <!-- end:actions -->
 
-        <record id="routes_action_routes_google_view_map" model="ir.actions.act_window.view">
+        <!-- <record id="routes_action_routes_google_view_map" model="ir.actions.act_window.view">
             <field eval="3" name="sequence"/>
             <field name="view_mode">google_map</field>
             <field name="view_id" ref="view_routes_google_map"/>
@@ -249,7 +279,7 @@
             <field name="view_mode">map</field>
             <field name="view_id" ref="routes_view_map"/>
             <field name="act_window_id" ref="custom_rutes.custom_rutes_routes_list_action"/>
-        </record>
+        </record> -->
 
         <!-- start:menus -->
 
@@ -269,7 +299,7 @@
         <menuitem id="custom_rutes.custom_report_routs_submenu"
 			name="Generador de Rutas"
             parent="custom_rutes.custom_rutes_routes_parent_config_submenu"
-			action="custom_rutes_routes_list_action"
+			action="custom_rutes_maps_routes_list_action"
             groups=""
         />
         <menuitem id="custom_rutes.custom_config_routs_submenu"
