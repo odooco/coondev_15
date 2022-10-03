@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="assets_gmaps" name="Google Maps Assets">
+        <t t-set="google_maps_api_key"
+           t-value="request.env['ir.config_parameter'].sudo().get_param('google_map_route.api_key')"/>
+        <t t-set="google_maps_lang_localization"
+           t-value="request.env['ir.config_parameter'].sudo().get_param('google_map_route.lang_localization')"/>
+        <t t-set="google_maps_libraries"
+           t-value="request.env['ir.config_parameter'].sudo().get_param('google_map_route.libraries')"/>
+        <t t-set="google_maps_region_localization"
+           t-value="request.env['ir.config_parameter'].sudo().get_param('google_map_route.region_localization', default='')"/>
+        <script src="/google_map_route/static/lib/markercluster/markerclusterer.min.js"></script>
+        <t t-if="google_maps_api_key">
+            <script t-attf-src="https://maps.googleapis.com/maps/api/js?v=quarterly&amp;key=#{google_maps_api_key}&amp;libraries=#{google_maps_libraries}#{google_maps_lang_localization and '&amp;language=' + google_maps_lang_localization or ''}#{google_maps_region_localization and '&amp;region=' + google_maps_region_localization or ''}"></script>
+        </t>
+        <t t-else="">
+            <script t-attf-src="https://maps.googleapis.com/maps/api/js?v=quarterly&amp;libraries=#{google_maps_libraries}#{google_maps_lang_localization and '&amp;language=' + google_maps_lang_localization or ''}#{google_maps_region_localization and '&amp;region=' + google_maps_region_localization or ''}"></script>
+        </t>
+    </template>
+
+    <template id="webclient_bootstrap" name="webclient_bootstrap gmaps" inherit_id="web.webclient_bootstrap">
+        <xpath expr="//t[@t-call-assets='web.assets_common']" position="before">
+            <t t-call="google_map_route.assets_gmaps"/>
+        </xpath>
+    </template>
+
+
+</odoo>

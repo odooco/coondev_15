@@ -3,3 +3,4 @@ access_res_partner_domiciliary,res.partner.domiciliary,model_res_partner_domicil
 access_route_activity,route.activity,model_route_activity,,1,1,1,1
 access_routes,routes,model_routes,,1,1,1,1
 access_enroutes,enroutes,model_enrutar,,1,1,1,1
+access_maps_routes,maps_routes,model_maps_routes,,1,1,1,1

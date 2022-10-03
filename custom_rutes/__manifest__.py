@@ -11,7 +11,7 @@
 Coondev megatoner rutas
 ======================
   """,
-    'depends': ['base','sale','web','helpdesk','purchase','custom_megatoner','delivery','base_geolocalize','web_google_maps','google_marker_icon_picker'],
+    'depends': ['base','sale','web','helpdesk','purchase','custom_megatoner','delivery','base_geolocalize','google_map_route'],
     'data': [
         'security/ir.model.access.csv',
         'security/res_groups.xml',
