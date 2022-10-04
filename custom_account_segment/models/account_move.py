@@ -6,29 +6,17 @@ import logging
 
 _logger = logging.getLogger(__name__)
 
-
-class AccountJournal(models.Model):
-    _inherit = 'account.journal'
-
-    st_dt = fields.Boolean(default=False)
-
-
-class AccountMoveLine(models.Model):
-    _inherit = 'account.move.line'
-
-    st_dt = fields.Boolean(default=False)
-
-
 class AccountMove(models.Model):
     _inherit = 'account.move'
 
-    def write(self, vals):
+    def action_post(self, vals):
         for record in self:
-            res = super(AccountMove, self).write(vals)
+            res = super(AccountMove, self).action_post(vals)
             if record.journal_id.st_dt:
                 rc_lines = record.line_ids.filtered(lambda line: line.st_dt)
                 if not rc_lines:
                     lines = []
+                    new_lines = []
                     old_lines = record.line_ids
                     for line in record.line_ids:
                         if line.name:
@@ -51,7 +39,7 @@ class AccountMove(models.Model):
                             'st_dt': True,
                             'quantity': line.quantity,
                         })
-                        lines.append({
+                        new_lines.append({
                             'name': line.name,
                             'account_id': line.account_id.id,
                             'product_id': line.product_id.id,
@@ -70,10 +58,13 @@ class AccountMove(models.Model):
                             'quantity': line.quantity,
                         })
                     old_lines.unlink()
-                    """
-                        if line.debit:
-                            line.write({'debit': line.credit * (100 - self.env.user.company_id.percent_rec) / 100})
-                        else:
-                            line.write({'credit': line.debit * (100 - self.env.user.company_id.percent_rec) / 100})"""
-                    self.env['account.move.line'].create(lines)
+                    self.env['account.move.line'].create(new_lines)
+                    self.create({
+                        'move_type': 'entry',
+                        'partner_id': self.env.user.company_id.partner_rec.id,
+                        'currency_id': self.currency_id.id,
+                        'invoice_date': self.invoice_date,
+                        'date': self.date,
+                        'invoice_line_ids': [(0, 0, lines)]
+                    })
         return res

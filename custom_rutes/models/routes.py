@@ -7,6 +7,7 @@ from dateutil.relativedelta import relativedelta
 
 _logger = logging.getLogger(__name__)
 
+
 class Routes(models.TransientModel):
     _name = 'enrutar'
 
@@ -130,9 +131,11 @@ class Routes(models.Model):
 class MapsRoutes(models.TransientModel):
     _name = "maps.routes"
 
-    domiciliary_ids = fields.Many2many('res.partner.domiciliary', 'partner_domiciliary_id', 'maps_id', string='Domiciliarios', tracking=True)
+    domiciliary_ids = fields.Many2many('res.partner.domiciliary', 'partner_domiciliary_id', 'maps_id',
+                                       string='Domiciliarios', tracking=True)
     delivery_date = fields.Datetime(string='Fecha inicial de Entrega', default=lambda self: fields.Datetime.now())
-    delivery_date_due = fields.Datetime(string='Fecha final de Entrega', default=lambda self: fields.Datetime.now() + relativedelta(days=1))
+    delivery_date_due = fields.Datetime(string='Fecha final de Entrega',
+                                        default=lambda self: fields.Datetime.now() + relativedelta(days=1))
 
     def action_generar_rutas(self):
         frm_address = ''
@@ -160,6 +163,26 @@ class MapsRoutes(models.TransientModel):
                 [('domiciliary_id', '=', domiciliary_id.id), ('delivery_date', '>=', self.delivery_date),
                  ('delivery_date', '<=', self.delivery_date_due)])
             for item in routes_ids:
+                domiciliary_address += str(item.latitude_client).replace(',', '.') + ',' + str(
+                    item.longitude_client).replace(',', '.') + '/'
+            domiciliary_address += frm_address + '/'
+
+        url = "https://www.google.co.in/maps/dir/{}/{}".format(frm_address, domiciliary_address)
+        return {
+            'name': ("map_route"),
+            'type': 'ir.actions.act_url',
+            'url': url,
+            'target': 'new',
+        }
+
+    """
+    Prueba 0 
+
+    for domiciliary_id in self.domiciliary_ids:
+            routes_ids = self.env['routes'].search(
+                [('domiciliary_id', '=', domiciliary_id.id), ('delivery_date', '>=', self.delivery_date),
+                 ('delivery_date', '<=', self.delivery_date_due)])
+            for item in routes_ids:
                 to_address = ''
                 if item.partner_id.street:
                     to_address += item.partner_id.street.replace(' ', '+')
@@ -181,15 +204,8 @@ class MapsRoutes(models.TransientModel):
                 domiciliary_address += to_address + '/'
             domiciliary_address += frm_address + '/'
 
-        url = "https://www.google.co.in/maps/dir/{}/{}".format(frm_address, domiciliary_address)
-        return {
-            'name': ("map_route"),
-            'type': 'ir.actions.act_url',
-            'url': url,
-            'target': 'new',
-        }
+    Prueba 1
 
-    """
     def action_generar_rutas(self):
         frm_address = ''
         domiciliary_address = ''

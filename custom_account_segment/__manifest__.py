@@ -13,6 +13,7 @@
     'data': [
         #'security/ir.model.access.csv',
         'security/res_groups.xml',
+        'views/account_journal.xml',
         'views/res_company.xml',
     ],
     'qweb': ['static/src/xml/*.xml'],
