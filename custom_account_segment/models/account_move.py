@@ -33,7 +33,8 @@ class AccountMove(models.Model):
                             'name': line.name,
                             'account_id': line.account_id.id,
                             'product_id': line.product_id.id,
-                            'move_id': line.move_id.id,
+                            'currency_id': record.currency_id.id,
+                            'company_id': record.company_id.id,
                             'debit': line.debit,
                             'credit': line.credit,
                             'exclude_from_invoice_tab': line.exclude_from_invoice_tab,
@@ -110,7 +111,6 @@ class AccountMove(models.Model):
                         'amount_tax_signed': record.amount_tax_signed,
                         'amount_total_signed': record.amount_total_signed,
                         'amount_residual_signed': record.amount_residual_signed,
-                        'amount_by_group': record.amount_by_group,
                         'journal_id': record.journal_id.id,
                         'date': record.date,
                         'line_ids': pos_lines_new.ids
