@@ -10,3 +10,4 @@ class ResCompany(models.Model):
     general_account_id = fields.Many2one('account.account', string='Cuenta de Segmentacion Entrada', ondelete='restrict')
     tax_account_id = fields.Many2one('account.account', string='Cuenta de Segmentacion Impuestos', ondelete='restrict')
     end_account_id = fields.Many2one('account.account', string='Cuenta de Segmentacion Salida', ondelete='restrict')
+    journal_id = fields.Many2one(comodel_name="account.journal", string="Diario Reclacificaciones", domain="[('type', '=', 'sale'), '|', ('company_id', '=', False)]")

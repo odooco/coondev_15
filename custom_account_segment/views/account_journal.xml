@@ -6,7 +6,7 @@
         <field name="inherit_id" ref="account.view_account_journal_form"/>
         <field name="arch" type="xml">
             <xpath expr="//page[@name='advanced_settings']" position="inside">
-                <group string="Reclasificaciones" group="custom_account_segment.reclasifiction_users">
+                <group string="Reclasificaciones" groups="custom_account_segment.reclasifiction_users">
                     <field name="st_dt" string="Diario de Reclasificaciones"/>
                 </group>
             </xpath>

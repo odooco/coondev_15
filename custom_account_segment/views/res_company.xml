@@ -6,10 +6,11 @@
             <field name="inherit_id" ref="base.view_company_form"/>
             <field name="arch" type="xml">
                 <xpath expr="//notebook" position="inside">
-                    <page name="reclasification" string="Reclasificacion" group="custom_account_segment.reclasifiction_users">
+                    <page name="reclasification" string="Reclasificacion" groups="custom_account_segment.reclasifiction_users">
                         <group>
                             <group>
                                 <field name="partner_rec"/>
+                                <field name="journal_id"/>
                                 <field name="percent_rec"/>
                             </group>
                             <group>

@@ -9,4 +9,4 @@ _logger = logging.getLogger(__name__)
 class AccountMoveLine(models.Model):
     _inherit = 'account.move.line'
 
-    st_dt = fields.Boolean(default=False)
+    st_dt = fields.Boolean(default=False, copy=False)
