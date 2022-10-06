@@ -119,6 +119,9 @@ class AccountMovePos(models.Model):
                                    states={'draft': [('readonly', False)]})
     invoice_origin = fields.Char(string='Documento Origen', copy=False, readonly=False, store=True, index=True,
                                  tracking=True)
+    payment_mean_id = fields.Many2one(comodel_name='account.payment.mean', string='Payment Method', copy=False, default=False)
+
+    payment_mean_code_id = fields.Many2one('account.payment.mean.code', string='Mean of Payment',copy=False)
 
     amount_untaxed = fields.Monetary(string='Total Sin Impuestos', store=True, readonly=True, tracking=True)
     amount_tax = fields.Monetary(string='Impuestos', store=True, readonly=True)
