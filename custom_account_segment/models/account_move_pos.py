@@ -23,7 +23,7 @@ class AccountMovePos(models.Model):
 
     def action_post(self):
         self.move_id.action_post()
-        self.write({'state': 'posted'})
+        self.write({'state': 'posted','name': self.move_id.name})
 
     def preview_invoice(self):
         self.ensure_one()
