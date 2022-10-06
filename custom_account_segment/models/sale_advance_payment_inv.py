@@ -20,3 +20,9 @@ class SaleAdvancePaymentInv(models.TransientModel):
                     invoice.create_pos()
                     invoice.journal_id = record.journal_id
         return res
+
+    def _prepare_invoice_values(self, order, name, amount, so_line):
+        res = super(SaleAdvancePaymentInv, self).create_invoices()
+        sale_orders = self.env['sale.order'].browse(self._context.get('active_ids', []))
+        res["journal_id"] = sale_orders.id
+        return res
