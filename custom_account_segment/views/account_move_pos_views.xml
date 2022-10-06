@@ -277,8 +277,8 @@
                     <header>
                         <!-- Post -->
                         <button name="action_post" string="Post" class="oe_highlight"
-                                type="object" groups="account.group_account_invoice"
-                                attrs="{'invisible': ['|',('state', '!=', 'draft'), ('move_type', '!=', 'entry')]}"/>
+                                type="object"
+                                attrs="{'invisible': [('state', '!=', 'draft')]}"/>
                         <button name="preview_invoice" type="object" string="Preview"
                                 attrs="{'invisible': [('move_type', 'not in', ('out_invoice', 'out_refund'))]}"/>
                         <!-- Reverse -->
