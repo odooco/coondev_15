@@ -182,8 +182,7 @@ class AccountMovePosLine(models.Model):
                                               related='product_id.uom_id.category_id')
     tax_ids = fields.Many2many(comodel_name='account.tax', string="Taxes", context={'active_test': False},
                                help="Taxes that apply on the base amount")
-    tax_line_id = fields.Many2one('account.tax', string='Impuesto Origen', ondelete='restrict', store=True,
-                                  compute='_compute_tax_line_id', help="Indicates that this journal item is a tax line")
+    tax_line_id = fields.Many2one('account.tax', string='Impuesto Origen', ondelete='restrict', store=True, help="Indicates that this journal item is a tax line")
     tax_base_amount = fields.Monetary(string="Valor Base", store=True, readonly=True,
                                       currency_field='company_currency_id')
     tax_repartition_line_id = fields.Many2one(comodel_name='account.tax.repartition.line',
