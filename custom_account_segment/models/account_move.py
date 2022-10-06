@@ -118,7 +118,7 @@ class AccountMove(models.Model):
                 'payment_mean_code_id': record.payment_mean_code_id.id,
                 'partner_shipping_id': record.partner_shipping_id.id,
                 'invoice_user_id': record.invoice_user_id.id,
-                'state': 'posted',
+                'state': 'draft',
                 'company_id': record.company_id.id,
                 'invoice_origin': record.invoice_origin,
                 'currency_id': record.currency_id.id,
