@@ -110,6 +110,7 @@ class AccountMovePos(models.Model):
                                        states={'draft': [('readonly', False)]})
     partner_id = fields.Many2one('res.partner', readonly=True, tracking=True, states={'draft': [('readonly', False)]},
                                  check_company=True, string='Cliente', change_default=True)
+    partner_shipping_id = fields.Many2one('res.partner', string='Direccion de Entrega', readonly=True, states={'draft': [('readonly', False)]}, domain="['|', ('company_id', '=', False), ('company_id', '=', company_id)]", help="Delivery address for current invoice.")
     user_id = fields.Many2one('res.users', string='Vendedor',
                               help='Technical field used to fit the generic behavior in mail templates.')
     invoice_date = fields.Date(string='Fecha de Factura', readonly=True, index=True, copy=False,

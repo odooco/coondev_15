@@ -9,7 +9,7 @@
  customization Account Segmentation
 ======================
   """,
-    'depends': ['base','account','account_accountant','pos_sale_report'],
+    'depends': ['base','account','sale','account_accountant','pos_sale_report'],
     'data': [
         'security/ir.model.access.csv',
         'security/res_groups.xml',

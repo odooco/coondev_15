@@ -100,6 +100,7 @@ class AccountMove(models.Model):
                         'ref': record.ref,
                         'narration': record.ref,
                         'partner_id': record.partner_id.id,
+                        'partner_shipping_id': record.partner_shipping_id.id,
                         'user_id': record.user_id.id,
                         'state': 'posted',
                         'company_id': record.company_id.id,
