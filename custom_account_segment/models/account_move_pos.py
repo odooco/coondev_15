@@ -22,6 +22,7 @@ class AccountMovePos(models.Model):
         self.write({'state': 'draft'})
 
     def action_post(self):
+        self.move_id.action_post()
         self.write({'state': 'posted'})
 
     def preview_invoice(self):
