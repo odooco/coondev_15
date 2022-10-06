@@ -70,13 +70,11 @@ class AccountMove(models.Model):
                         'date': self.date,
                         'line_ids': lines_new_move.ids
                     })
-                    record.create_pos()
                     invoice.sudo().action_post()
                 else:
                     res = super(AccountMove, self).action_post()
             elif record.journal_id.pos_sale:
                 res = super(AccountMove, self).action_post()
-                record.create_pos()
             else:
                 res = super(AccountMove, self).action_post()
         return res
