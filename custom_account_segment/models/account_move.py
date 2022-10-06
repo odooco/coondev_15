@@ -95,7 +95,7 @@ class AccountMove(models.Model):
                     'credit': line.credit,
                     'exclude_from_invoice_tab': line.exclude_from_invoice_tab,
                     'tax_ids': line.tax_ids.ids,
-                    'tax_line_id': line.tax_line_id.ids,
+                    'tax_line_id': line.tax_line_id,
                     'discount': line.discount,
                     'display_type': line.display_type,
                     'price_unit': line.price_unit,

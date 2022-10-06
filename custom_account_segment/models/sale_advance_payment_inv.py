@@ -18,4 +18,5 @@ class SaleAdvancePaymentInv(models.TransientModel):
             for invoice in invoices:
                 if invoice.journal_id.pos_sale:
                     invoice.create_pos()
+                    invoice.journal_id = record.journal_id
         return res
