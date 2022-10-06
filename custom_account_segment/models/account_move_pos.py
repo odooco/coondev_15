@@ -15,6 +15,23 @@ class AccountMovePos(models.Model):
     _check_company_auto = True
     _sequence_index = "journal_id"
 
+    def button_cancel(self):
+        self.write({'state': 'cancel'})
+
+    def button_draft(self):
+        self.write({'state': 'draft'})
+
+    def action_post(self):
+        self.write({'state': 'posted'})
+
+    def preview_invoice(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_url',
+            'target': 'self',
+            'url': self.move_id.get_portal_url(),
+        }
+
     @api.model
     def get_sale_types(self, include_receipts=False):
         return ['out_invoice', 'out_refund'] + (include_receipts and ['out_receipt'] or [])
@@ -56,6 +73,17 @@ class AccountMovePos(models.Model):
         journal = self._get_default_journal()
         return journal.currency_id or journal.company_id.currency_id
 
+    move_type = fields.Selection(selection=[
+        ('entry', 'Journal Entry'),
+        ('out_invoice', 'Customer Invoice'),
+        ('out_refund', 'Customer Credit Note'),
+        ('in_invoice', 'Vendor Bill'),
+        ('in_refund', 'Vendor Credit Note'),
+        ('out_receipt', 'Sales Receipt'),
+        ('in_receipt', 'Purchase Receipt'),
+    ], string='Tipo de Movimiento', required=True, store=True, index=True, readonly=True, tracking=True,
+        default="entry", change_default=True)
+
     name = fields.Char(string='Numero', copy=False, compute='_compute_name', readonly=False, store=True, index=True,
                        tracking=True)
     move_id = fields.Many2one('account.move', string='Asiento Contable', index=True, required=True, readonly=True,
@@ -69,7 +97,7 @@ class AccountMovePos(models.Model):
                              string='Estado', required=True, readonly=True, copy=False, tracking=True, default='draft')
     journal_id = fields.Many2one('account.journal', string='Journal', required=True, readonly=True,
                                  states={'draft': [('readonly', False)]}, check_company=True,
-                                 domain="[('id', 'in', suitable_journal_ids)]", default=_get_default_journal)
+                                 domain="[('type', '=', 'sale')]", default=_get_default_journal)
     company_id = fields.Many2one(comodel_name='res.company', string='Compañia', store=True, readonly=True,
                                  compute='_compute_company_id')
     currency_id = fields.Many2one('res.currency', store=True, readonly=True, tracking=True, required=True,
@@ -82,10 +110,14 @@ class AccountMovePos(models.Model):
                                        states={'draft': [('readonly', False)]})
     partner_id = fields.Many2one('res.partner', readonly=True, tracking=True, states={'draft': [('readonly', False)]},
                                  check_company=True, string='Cliente', change_default=True)
-    user_id = fields.Many2one(string='Vendedor',
+    user_id = fields.Many2one('res.users', string='Vendedor',
                               help='Technical field used to fit the generic behavior in mail templates.')
     invoice_date = fields.Date(string='Fecha de Factura', readonly=True, index=True, copy=False,
                                states={'draft': [('readonly', False)]})
+    invoice_date_due = fields.Date(string='Fecha de Vencimiento', readonly=True, index=True, copy=False,
+                                   states={'draft': [('readonly', False)]})
+    invoice_origin = fields.Char(string='Documento Origen', copy=False, readonly=False, store=True, index=True,
+                                 tracking=True)
 
     amount_untaxed = fields.Monetary(string='Total Sin Impuestos', store=True, readonly=True, tracking=True)
     amount_tax = fields.Monetary(string='Impuestos', store=True, readonly=True)
@@ -119,6 +151,10 @@ class AccountMovePosLine(models.Model):
                                  tracking=True)
     sequence = fields.Integer(default=10)
     name = fields.Char(string='Nombre', tracking=True)
+    display_type = fields.Selection([
+        ('line_section', 'Section'),
+        ('line_note', 'Note'),
+    ], default=False, help="Technical field for UX purpose.")
     quantity = fields.Float(string='Cantidad', default=1.0, digits='Product Unit of Measure',
                             help="The optional quantity expressed by this line, eg: number of product sold. The quantity is not a legal requirement but is very useful for some reports.")
     price_unit = fields.Float(string='Precio Unitario', digits='Product Price')

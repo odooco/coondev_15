@@ -27,6 +27,8 @@ class AccountJournal(models.Model):
 
     @api.model
     def _create_sequence(self, vals, refund=False):
+        if 'code' not in vals:
+            vals['code'] = 'N/A'
         prefix = self._get_sequence_prefix(vals['code'], refund)
         seq_name = refund and vals['code'] + _(': Refund') or vals['code']
         seq = {
