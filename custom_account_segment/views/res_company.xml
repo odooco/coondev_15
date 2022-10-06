@@ -9,11 +9,13 @@
                     <page name="reclasification" string="Reclasificacion" groups="custom_account_segment.reclasifiction_users">
                         <group>
                             <group>
+                                <field name="partner_rec"/>
+                                <field name="journal_id"/>
                                 <field name="percent_rec"/>
-                                <field name="tax_account_id"/>
                             </group>
                             <group>
                                 <field name="general_account_id"/>
+                                <field name="tax_account_id"/>
                                 <field name="end_account_id"/>
                             </group>
                         </group>
