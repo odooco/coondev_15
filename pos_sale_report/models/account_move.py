@@ -17,7 +17,7 @@ class AccountMove(models.Model):
             if not item.user_id.partner_id.point_sale_id:
                 raise ValidationError('El Vendedor ' + item.user_id.name + ' no tiene un Punto de venta seleccionado \n Favor validar la informacion del dicho contacto')
             else:
-                session = item.journal_id.pos_sale_id.create_session(item.invoice_date.strftime('%Y-%m-%d'))
+                session = item.journal_id.pos_sale_id.create_session(item.create_date.strftime('%Y-%m-%d'))
                 item.pos_session_id = session
         return res
 
