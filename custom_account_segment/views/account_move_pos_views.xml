@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-
         <!-- VIEWS -->
-
         <!-- account.move.line (Journal items) -->
         <record id="view_move_pos_line_form" model="ir.ui.view">
             <field name="name">account.move.pos.line.form</field>

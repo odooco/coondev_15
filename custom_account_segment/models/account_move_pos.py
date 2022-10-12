@@ -132,6 +132,7 @@ class AccountMovePos(models.Model):
     amount_tax_signed = fields.Monetary(string='Impuesto Signo', store=True, readonly=True)
     amount_total_signed = fields.Monetary(string='Total Signo', store=True, readonly=True)
     amount_residual_signed = fields.Monetary(string='Amount Due Signed', store=True)
+    sale_id = fields.Many2one(string="Sales Order", store=True, readonly=False)
 
 
 class AccountMovePosLine(models.Model):

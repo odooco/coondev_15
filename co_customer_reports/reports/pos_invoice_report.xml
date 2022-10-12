@@ -253,7 +253,7 @@
                                             <tr style="border-top:1px solid black; page-break-inside: avoid;">
                                                 <td width="50%">
                                                     <div id="tletras">
-                                                       <t t-set="total_letras" t-value="o.currency_id.amount_to_text(o.amount_total)"/>
+                                                       <t t-set="total_letras" t-value="o.currency_id.amount_to_text(o.amount_total-o.amount_advance)"/>
                                                        <t t-if="o.currency_id.name == 'COP' and 'Peso' in total_letras and int(o.amount_total) != 1"><t t-set="total_letras" t-value="total_letras.replace('Peso', 'Pesos')"/></t>
                                                        <t t-if="o.currency_id.name == 'USD' and 'Dollars' in total_letras"><t t-set="total_letras" t-value="total_letras.replace('Dollars', 'Dolares')"/></t>
                                                        <t t-if="o.currency_id.name == 'USD' and 'Dollar' in total_letras"><t t-set="total_letras" t-value="total_letras.replace('Dollar', 'Dolar')"/></t>
