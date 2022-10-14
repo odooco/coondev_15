@@ -224,7 +224,7 @@
                                                     <strong>Orden de referencia:</strong>
                                                 </div>
                                                 <div class="col-7">
-                                                    <span t-field="o.invoice_origin"/>
+                                                    <span t-field="o.order_reference"/>
                                                 </div>
                                             </div>
                                              </t>

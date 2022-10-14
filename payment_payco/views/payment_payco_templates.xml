@@ -40,17 +40,17 @@
     <data noupdate="1">
         <template id="proccess">
               <t t-call="website.layout">
-                <div id="wrap">
-                    <div class="oe_structure oe_empty">
-                        <div class="container">
-                            <p style="margin-top: 10px;">Cargando medios de pago de ePayco...</p>
-                            <p>Si no se cargan automáticamente, de clic en el botón "Pagar con ePayco".</p>
-                            <div class="loader">
-                                <span class="sr-only">Loading...</span>
-                            </div>
-                            <div id="form-button-container">
-                                <form>
-                                    <script
+                  <div id="wrap">
+                      <div class="oe_structure oe_empty">
+                          <div class="container">
+                              <p style="margin-top: 10px;">Cargando medios de pago de ePayco...</p>
+                              <p>Si no se cargan automáticamente, de clic en el botón "Pagar con ePayco".</p>
+                              <div class="loader">
+                                  <span class="sr-only">Loading...</span>
+                              </div>
+                              <div id="form-button-container">
+                                  <form>
+                                      <script
                                         src="https://checkout.epayco.co/checkout.js"
                                         class="epayco-button"
                                         t-att-data-epayco-key="public_key"
@@ -76,7 +76,7 @@
                                         t-att-data-epayco-phone-billing="phone_number"
                                         data-epayco-button="https://multimedia.epayco.co/epayco-landing/btns/Boton-epayco-color1.png"
                                         data-epayco-autoclick="true"
-                                        >
+                                      >
                                     </script>
                                     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
                                     <script xmlns="http://www.w3.org/1999/xhtml">

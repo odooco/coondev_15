@@ -17,8 +17,9 @@ class SaleAdvancePaymentInv(models.TransientModel):
             invoices = record.mapped('invoice_ids')
             for invoice in invoices:
                 if invoice.journal_id.pos_sale:
-                    invoice.create_pos()
+                    invoice.create_pos(record.id)
                     invoice.journal_id = record.journal_id
+            record.invoice_status = 'invoiced'
         return res
 
     def _prepare_invoice_values(self, order, name, amount, so_line):

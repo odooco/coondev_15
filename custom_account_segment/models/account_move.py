@@ -79,7 +79,7 @@ class AccountMove(models.Model):
                 res = super(AccountMove, self).action_post()
         return res
 
-    def create_pos(self):
+    def create_pos(self, sale_id=False):
         for record in self:
             pos_lines = []
             for line in record.line_ids:
@@ -107,6 +107,7 @@ class AccountMove(models.Model):
             pos_lines_new = self.env['account.move.pos.line'].sudo().create(pos_lines)
             self.env['account.move.pos'].sudo().create({
                 'name': record.name,
+                'sale_id': sale_id,
                 'move_id': record.id,
                 'move_type': 'out_invoice',
                 'ref': record.ref,
