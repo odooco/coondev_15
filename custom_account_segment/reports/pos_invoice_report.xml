@@ -213,10 +213,15 @@
                                                         <t t-esc="'{:,.0f}'.format(float(l.quantity))"/>
                                                         <span t-field="l.uom_id" groups="product.group_uom"/>
                                                     </td>
-                                                    <td width="25%" class="text-right">
+                                                    <td width="25%" class="text-right" t-if="o.print==1">
                                                         <t t-if="o.currency_id.name == 'COP'" t-esc="'$'"/>
                                                         <t t-if="o.currency_id.name != 'COP'" t-esc="o.currency_id.name"/>
                                                         <t t-esc="'{0:,.0f}'.format(l.price_unit)"/>
+                                                    </td>
+                                                    <td width="25%" class="text-right" t-if="o.print!=1">
+                                                        <t t-if="o.currency_id.name == 'COP'" t-esc="'$'"/>
+                                                        <t t-if="o.currency_id.name != 'COP'" t-esc="o.currency_id.name"/>
+                                                        <t t-esc="'{0:,.0f}'.format(l.price_unit * (o.company_id.percent_rec / 100))"/>
                                                     </td>
                                                     <td width="11%" class="text-right">
                                                         <t t-if="l.discount" t-esc="'{0:,.0f}'.format(l.discount)"/>
@@ -227,10 +232,15 @@
                                                         <t t-if="l.discount and o.currency_id.name != 'COP'" t-esc="o.currency_id.name"/>
                                                         <t t-if="l.discount" t-esc="'{0:,.2f}'.format((l.discount*l.price_subtotal)/100)"/>
                                                     </td>
-                                                    <td width="32%" class="text-right">
+                                                    <td width="32%" class="text-right" t-if="o.print==1">
                                                         <t t-if="o.currency_id.name == 'COP'" t-esc="'$'"/>
                                                         <t t-if="o.currency_id.name != 'COP'" t-esc="o.currency_id.name"/>
                                                         <t t-esc="'{0:,.2f}'.format(l.price_subtotal)"/>
+                                                    </td>
+                                                    <td width="32%" class="text-right" t-if="o.print!=1">
+                                                        <t t-if="o.currency_id.name == 'COP'" t-esc="'$'"/>
+                                                        <t t-if="o.currency_id.name != 'COP'" t-esc="o.currency_id.name"/>
+                                                        <t t-esc="'{0:,.2f}'.format(l.price_subtotal* (o.company_id.percent_rec / 100))"/>
                                                     </td>
                                                 </tr>
                                             </table>
@@ -253,7 +263,8 @@
                                             <tr style="border-top:1px solid black; page-break-inside: avoid;">
                                                 <td width="50%">
                                                     <div id="tletras">
-                                                       <t t-set="total_letras" t-value="o.currency_id.amount_to_text(o.amount_total)"/>
+                                                       <t t-if="o.print==1" t-set="total_letras" t-value="o.currency_id.amount_to_text(o.amount_total)"/>
+                                                       <t t-if="o.print!=1" t-set="total_letras" t-value="o.currency_id.amount_to_text(o.amount_total* (o.company_id.percent_rec / 100))"/>
                                                        <t t-if="o.currency_id.name == 'COP' and 'Peso' in total_letras and int(o.amount_total) != 1"><t t-set="total_letras" t-value="total_letras.replace('Peso', 'Pesos')"/></t>
                                                        <t t-if="o.currency_id.name == 'USD' and 'Dollars' in total_letras"><t t-set="total_letras" t-value="total_letras.replace('Dollars', 'Dolares')"/></t>
                                                        <t t-if="o.currency_id.name == 'USD' and 'Dollar' in total_letras"><t t-set="total_letras" t-value="total_letras.replace('Dollar', 'Dolar')"/></t>
@@ -268,10 +279,15 @@
                                                 <td width="25%">
                                                     <strong>Total sin impuestos</strong>
                                                 </td>
-                                                <td class="text-right" width="25%">
+                                                <td class="text-right" width="25%" t-if="o.print==1">
                                                     <t t-if="o.currency_id.name == 'COP'" t-esc="'$'"/>
                                                     <t t-if="o.currency_id.name != 'COP'" t-esc="o.currency_id.name"/>
                                                     <t t-esc="'{0:,.2f}'.format(o.amount_untaxed)"/>
+                                                </td>
+                                                <td class="text-right" width="25%" t-if="o.print!=1">
+                                                    <t t-if="o.currency_id.name == 'COP'" t-esc="'$'"/>
+                                                    <t t-if="o.currency_id.name != 'COP'" t-esc="o.currency_id.name"/>
+                                                    <t t-esc="'{0:,.2f}'.format(o.amount_untaxed* (o.company_id.percent_rec / 100))"/>
                                                 </td>
                                             </tr>
                                         </table>
@@ -293,7 +309,7 @@
                                                     </t>
                                                 </td>
                                                 <td/>
-                                                <td class="text-right">
+                                                <td class="text-right" t-if="o.print==1">
                                                     <t t-if="o.currency_id.name == 'COP'" t-esc="'$'"/>
                                                     <t t-if="o.currency_id.name != 'COP'" t-esc="o.currency_id.name"/>
                                                     <t t-if="o.currency_id.name == 'COP'">
@@ -303,6 +319,16 @@
                                                         <span t-esc="'{0:,.2f}'.format(abs(t.amount_currency))"/>
                                                     </t>
                                                 </td>
+                                                <td class="text-right" t-if="o.print!=1">
+                                                    <t t-if="o.currency_id.name == 'COP'" t-esc="'$'"/>
+                                                    <t t-if="o.currency_id.name != 'COP'" t-esc="o.currency_id.name"/>
+                                                    <t t-if="o.currency_id.name == 'COP'">
+                                                        <span t-esc="'{0:,.2f}'.format(abs(t.credit-t.debit)* (o.company_id.percent_rec / 100))"/>
+                                                    </t>
+                                                    <t t-if="o.currency_id.name != 'COP'">
+                                                        <span t-esc="'{0:,.2f}'.format(abs(t.amount_currency)* (o.company_id.percent_rec / 100))"/>
+                                                    </t>
+                                                </td>
                                             </tr>
 
                                             <tr style="text-align:left; border-bottom:1px solid black; page-break-inside: avoid;">
@@ -310,10 +336,15 @@
                                                     <strong>Subtotal</strong>
                                                 </td>
                                                 <td/>
-                                                <td class="text-right" style="white-space: nowrap;">
+                                                <td class="text-right" style="white-space: nowrap;" t-if="o.print==1">
                                                     <t t-if="o.currency_id.name == 'COP'" t-esc="'$'"/>
                                                     <t t-if="o.currency_id.name != 'COP'" t-esc="o.currency_id.name"/>
                                                     <t t-esc="'{0:,.2f}'.format(o.amount_total)"/>
+                                                </td>
+                                                <td class="text-right" style="white-space: nowrap;" t-if="o.print!=1">
+                                                    <t t-if="o.currency_id.name == 'COP'" t-esc="'$'"/>
+                                                    <t t-if="o.currency_id.name != 'COP'" t-esc="o.currency_id.name"/>
+                                                    <t t-esc="'{0:,.2f}'.format(o.amount_total* (o.company_id.percent_rec / 100))"/>
                                                 </td>
                                             </tr>
 
@@ -353,10 +384,15 @@
                                     <div class="row" style="margin-top:5px; page-break-inside: avoid;">
                                         <table t-attf-class="table table-sm" style="width:100%; page-break-inside: avoid;">
                                             <tr style="text-align:left; border-bottom:1px solid black; page-break-inside: avoid;">
-                                                <td class="text-center" style="white-space: nowrap; font-size:35px;" width="100%">
+                                                <td class="text-center" style="white-space: nowrap; font-size:35px;" width="100%" t-if="o.print==1">
                                                     <t t-if="o.currency_id.name == 'COP'" t-esc="'$'"/>
                                                     <t t-if="o.currency_id.name != 'COP'" t-esc="o.currency_id.name"/>
                                                     <t t-esc="'{0:,.0f}'.format(o.amount_total)"/>
+                                                </td>
+                                                <td class="text-center" style="white-space: nowrap; font-size:35px;" width="100%" t-if="o.print!=1">
+                                                    <t t-if="o.currency_id.name == 'COP'" t-esc="'$'"/>
+                                                    <t t-if="o.currency_id.name != 'COP'" t-esc="o.currency_id.name"/>
+                                                    <t t-esc="'{0:,.0f}'.format(o.amount_total* (o.company_id.percent_rec / 100))"/>
                                                 </td>
                                             </tr>
                                         </table>
@@ -444,7 +480,7 @@
                 name="custom_account_segment.pos_report_invoice"
                 file="custom_account_segment.pos_report_invoice"
                 print_report_name="object.name"
-                menu="True"
+                menu="False"
         />
         <record id="id_template_pos_co_invoice_report" model="ir.actions.report">
             <field name="paperformat_id" ref="custom_account_segment.paperformat_custom_pos"/>
