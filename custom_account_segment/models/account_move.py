@@ -11,7 +11,7 @@ class AccountMove(models.Model):
 
     def action_post(self):
         for record in self:
-            if record.journal_id.st_dt:
+            if record.journal_id.st_dt and record.partner_id.property_payment_term_id.st_dt:
                 rc_lines = record.line_ids.filtered(lambda line: line.st_dt)
                 if not rc_lines:
                     lines = []
@@ -73,8 +73,6 @@ class AccountMove(models.Model):
                     invoice.sudo().action_post()
                 else:
                     res = super(AccountMove, self).action_post()
-            elif record.journal_id.pos_sale:
-                res = super(AccountMove, self).action_post()
             else:
                 res = super(AccountMove, self).action_post()
         return res

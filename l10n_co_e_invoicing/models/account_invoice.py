@@ -5,6 +5,7 @@ from pytz import timezone
 import zipfile
 from io import BytesIO
 
+import datetime as dt
 from odoo import api, models, fields, _
 from odoo.exceptions import UserError, ValidationError
 from odoo.tools.misc import formatLang, format_date, get_lang
@@ -133,19 +134,22 @@ class AccountInvoice(models.Model):
 			inv.credit_note_count = data_map.get(inv.id, 0.0)
 
 	def tacit_acceptation(self):
-		if self.invoice_rating == 'not_rating' and self.dian_document_lines:
-			cufe_cude_cuds = self.env['account.invoice.dian.document'].search([('invoice_id', '=', self.id)], order='invoice_id desc', limit=1)
-			hora_comparar = cufe_cude_cuds.create_date + datetime.timedelta(hours=72)
-			hora = hora_comparar - datetime.datetime.now()
-			horas = int(hora.total_seconds())
-			if horas <= 0 and cufe_cude_cuds.get_status_zip_status_code == '00':
-				dian_obj = cufe_cude_cuds
-				accepted_xml_without_signature = global_functions.get_template_xml(dian_obj._get_accepted_values(), 'AceptacionTacita')
-				accepted_xml_with_signature = global_functions.get_xml_with_signature( accepted_xml_without_signature, self.company_id.signature_policy_url, self.company_id.signature_policy_description, self.company_id.certificate_file, self.company_id.certificate_password)
-				dian_obj.write({'exp_accepted_file': b64encode(dian_obj._get_acp_zipped_file(accepted_xml_with_signature)).decode("utf-8", "ignore")})
-				dian_obj.action_sent_accepted_file(dian_obj.exp_accepted_file)
-				self.invoice_rating = 'auto_approve'
-				dian_obj.bs_acceptation()
+		invoice = self.search([('invoice_rating', '=', 'not_rating'), ('move_type', 'in', ('out_invoice', 'in_invoice'))], limit=50)
+		for record in invoice:
+			if record.invoice_rating == 'not_rating' and record.dian_document_lines:
+				cufe_cude_cuds = self.env['account.invoice.dian.document'].search([('invoice_id', '=', record.id)], order='invoice_id desc', limit=1)
+				hora_comparar = cufe_cude_cuds.create_date + dt.timedelta(hours=72)
+				hora = hora_comparar - dt.datetime.now()
+				horas = int(hora.total_seconds())
+
+				if horas <= 0 and cufe_cude_cuds.get_status_zip_status_code == '00':
+					dian_obj = cufe_cude_cuds
+					accepted_xml_without_signature = global_functions.get_template_xml(dian_obj._get_accepted_values(), 'AceptacionTacita')
+					accepted_xml_with_signature = global_functions.get_xml_with_signature(accepted_xml_without_signature, record.company_id.signature_policy_url, record.company_id.signature_policy_description, record.company_id.certificate_file, record.company_id.certificate_password)
+					dian_obj.write({'exp_accepted_file': b64encode(dian_obj._get_acp_zipped_file(accepted_xml_with_signature)).decode("utf-8", "ignore")})
+					dian_obj.action_sent_accepted_file(dian_obj.exp_accepted_file)
+					record.invoice_rating = 'auto_approve'
+					dian_obj.bs_acceptation()
 
 	def action_view_credit_notes(self):
 		self.ensure_one()

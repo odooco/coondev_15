@@ -3,4 +3,7 @@
     <record model="res.groups" id="reclasifiction_users">
         <field name="name">Reclasificacion</field>
     </record>
+    <record model="res.groups" id="reclasifiction_users">
+        <field name="name">Cuentas de Reclasificacion</field>
+    </record>
 </odoo>
