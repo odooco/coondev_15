@@ -56,8 +56,7 @@ class PaymentPortal(payment_portal.PaymentPortal):
                 'partner_country_id': invoice_id.partner_id.country_id.id,
                 'partner_phone': invoice_id.partner_id.phone,
             })
-            return request.redirect('/payco/payment/transaction/'+invoice_id+'/'+invoice_id.access_token)
-            """return {
+            return {
                 'public_key': acquirer_id.payco_public_key,
                 'address1': invoice_id.partner_id.street,
                 'amount': invoice_id.amount_total,
@@ -79,14 +78,14 @@ class PaymentPortal(payment_portal.PaymentPortal):
                 'extra1': str(tx.id),
                 'extra2': invoice_id.partner_id.vat,
                 'reference': str(invoice_id.name)
-            }"""
+            }
         elif tx_paid:
             raise ValidationError('Ya hay Una Transaccion de Pago aprobada para esta factura')
         else:
             raise ValidationError('Hay Una Transaccion de Pago por Epayco en Proceso')
 
     @http.route(
-        '/payco/payment/transaction/<int:invoice_id>/<string:token_id>', type='json', auth='public', website=True
+        '/payco/payment/transaction/<int:invoice_id>/<string:access_token>', type='json', auth='public', website=True
     )
     def payco_payment_transaction(self, invoice_id, access_token, **kwargs):
         """ Create a draft transaction and return its processing values.
