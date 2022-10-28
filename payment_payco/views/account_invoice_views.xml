@@ -8,7 +8,8 @@
             <field name="arch" type="xml">
                 <data>
                     <xpath expr="//button[@name='button_draft']" position="before">
-                        <button name="email_payment" type="object" string="Enviar Correo de Pago"/>
+                        <field name="check_payco_button" attrs="{'invisible': True}"/>
+                        <button name="email_payment" type="object" string="Enviar Correo de Pago" attrs="{'invisible':[('check_payco_button','=',True)]}"/>
                     </xpath>
                 </data>
             </field>
