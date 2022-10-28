@@ -14,6 +14,7 @@
         'views/payment_views.xml',
         'views/payment_payco_templates.xml',
         'data/payment_acquirer_data.xml',
+        'data/account_invoice_views.xml',
     ],
     'images': ['static/images/screen_image.png'],
     'application': True,

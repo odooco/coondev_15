@@ -10,8 +10,9 @@ from requests.exceptions import ConnectionError, HTTPError
 from werkzeug import urls
 import requests
 from odoo import _, http
-from odoo.exceptions import ValidationError
+from odoo.exceptions import ValidationError, MissingError, AccessError
 from odoo.http import request, Response
+from odoo.addons.payment import utils as payment_utils
 from odoo.addons.payment.controllers import portal as payment_portal
 from odoo.addons.payment.controllers.post_processing import PaymentPostProcessing
 
@@ -19,6 +20,59 @@ import json
 _logger = logging.getLogger(__name__)
 
 class PaymentPortal(payment_portal.PaymentPortal):
+
+    @http.route('/payment_epayco/<string:token_id>/<string:rating>', type='http', auth='none')
+    def payment_epayco(self, token_id, rating, **kwargs):
+        invoice_id = request.env['account.move'].sudo().search([('approve_token', '=', token_id), ], limit=1)
+        if not invoice_id:
+            return request.not_found()
+        acquirer_id = self.env['payment.acquirer'].search([('provider','=','payco')], limit=1)
+        partner_first_name, partner_last_name = payment_utils.split_partner_name(self.partner_name)
+        base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
+        external = 'true' if acquirer_id.payco_checkout_type == 'standard' else 'false'
+        testPayment = 'true'
+        tx = self.env['payment.transaction'].search([('token_id','=',invoice_id.token_id),('state','!=','done'),('state','!=','cancel')])
+        if not tx:
+            tx = self.env['payment.transaction'].create({'amount': invoice_id.amount_total,
+                'acquirer_id': invoice_id.name,
+                'token_id': invoice_id.token_id,
+                'reference': invoice_id.name,
+                'partner_id': invoice_id.partner_id.id,
+                'partner_name': invoice_id.partner_id.name,
+                'partner_lang': invoice_id.partner_id.lang,
+                'partner_email': invoice_id.partner_id.email,
+                'partner_address': invoice_id.partner_id.street,
+                'partner_zip': invoice_id.partner_id.zip,
+                'partner_city': invoice_id.partner_id.city,
+                'partner_state_id': invoice_id.partner_id.state_id.id,
+                'partner_country_id': invoice_id.partner_id.country_id.id,
+                'partner_phone': invoice_id.partner_id.phone,
+            })
+            return {
+                'public_key': self.acquirer_id.payco_public_key,
+                'address1': invoice_id.partner_id.street,
+                'amount': invoice_id.amount_total,
+                'tax': invoice_id.amount_tax,
+                'base_tax': invoice_id.amount_untaxed,
+                'city': invoice_id.partner_id.city,
+                'country': invoice_id.partner_id.country_id.code,
+                'currency_code': invoice_id.currency_id.name,
+                'email': invoice_id.partner_id.email,
+                'first_name': partner_first_name,
+                'last_name': partner_last_name,
+                "phone_number": invoice_id.partner_id.phone,
+                'lang': invoice_id.partner_id.lang,
+                'checkout_external': external,
+                "test": testPayment,
+                'confirmation_url': urls.url_join(base_url, '/payco/confirmation/backend'),
+                'response_url': urls.url_join(base_url, '/payco/redirect/backend'),
+                'api_url': urls.url_join(base_url, '/payment/payco/checkout'),
+                'extra1': str(tx.id),
+                'extra2': invoice_id.partner_id.vat,
+                'reference': str(invoice_id.name)
+            }
+        else:
+            raise ValidationError('Hay Una Transaccion de Pago por Epayco en Proceso')
 
     @http.route(
         '/payco/payment/transaction/<int:invoice_id>', type='json', auth='public', website=True
