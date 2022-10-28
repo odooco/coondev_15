@@ -32,6 +32,7 @@ class PaymentPortal(payment_portal.PaymentPortal):
         external = 'true' if acquirer_id.payco_checkout_type == 'standard' else 'false'
         testPayment = 'true'
         tx = self.env['payment.transaction'].search([('token_id','=',invoice_id.token_id),('state','!=','done'),('state','!=','cancel')])
+        tx_paid = self.env['payment.transaction'].search([('token_id', '=', invoice_id.token_id), ('state', '=', 'done')])
         if not tx:
             tx = self.env['payment.transaction'].create({'amount': invoice_id.amount_total,
                 'acquirer_id': invoice_id.name,
@@ -71,6 +72,8 @@ class PaymentPortal(payment_portal.PaymentPortal):
                 'extra2': invoice_id.partner_id.vat,
                 'reference': str(invoice_id.name)
             }
+        elif tx_paid:
+            raise ValidationError('Ya hay Una Transaccion de Pago aprobada para esta factura')
         else:
             raise ValidationError('Hay Una Transaccion de Pago por Epayco en Proceso')
 

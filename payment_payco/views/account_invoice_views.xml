@@ -1,5 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
+    <data>
+        <record id="l10n_co_cei_invoice_form" model="ir.ui.view">
+            <field name="name">account.move.form</field>
+            <field name="model">account.move</field>
+            <field name="inherit_id" ref="account.view_move_form"/>
+            <field name="arch" type="xml">
+                <data>
+                    <xpath expr="//button[@name='button_draft']" position="before">
+                        <button name="email_payment" type="object" string="Enviar Correo de Pago"/>
+                    </xpath>
+                </data>
+            </field>
+        </record>
+    </data>
+
     <record id="email_template_for_epayco" model="mail.template">
         <field name="name">Send by Payment</field>
         <field name="model_id" ref="account.model_account_move"/>
