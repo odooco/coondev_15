@@ -17,27 +17,34 @@ from odoo.addons.payment.controllers import portal as payment_portal
 from odoo.addons.payment.controllers.post_processing import PaymentPostProcessing
 
 import json
+
 _logger = logging.getLogger(__name__)
+
 
 class PaymentPortal(payment_portal.PaymentPortal):
 
-    @http.route('/payment_epayco/<string:token_id>/<string:rating>', type='http', auth='none')
+    @http.route('/payment_epayco/<string:invoice_id>/<string:token_id>', type='http', auth='none')
     def payment_epayco(self, token_id, **kwargs):
-        invoice_id = self.env['account.move'].sudo().search([('access_token', '=', token_id), ], limit=1)
+        invoice_id = request.env['account.move'].sudo().search([('access_token', '=', token_id), ], limit=1)
         if not invoice_id:
             return request.not_found()
-        acquirer_id = self.env['payment.acquirer'].search([('provider','=','payco')], limit=1)
-        partner_first_name, partner_last_name = payment_utils.split_partner_name(self.partner_name)
-        base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
+        acquirer_id = request.env['payment.acquirer'].sudo().search([('provider', '=', 'payco')], limit=1)
+        partner_first_name, partner_last_name = payment_utils.split_partner_name(invoice_id.partner_id.name)
+        base_url = request.env['ir.config_parameter'].sudo().sudo().get_param('web.base.url')
         external = 'true' if acquirer_id.payco_checkout_type == 'standard' else 'false'
         testPayment = 'true'
-        tx = self.env['payment.transaction'].search([('token_id','=',invoice_id.token_id),('state','!=','done'),('state','!=','cancel')])
-        tx_paid = self.env['payment.transaction'].search([('token_id', '=', invoice_id.token_id), ('state', '=', 'done')])
+
+        tx = request.env['payment.transaction'].sudo().search(
+            [('token_id', '=', invoice_id.access_token), ('state', '!=', 'done'), ('state', '!=', 'cancel')])
+        tx_paid = request.env['payment.transaction'].sudo().search(
+            [('token_id', '=', invoice_id.access_token), ('state', '=', 'done')])
         if not tx:
-            tx = self.env['payment.transaction'].create({'amount': invoice_id.amount_total,
-                'acquirer_id': invoice_id.name,
-                'token_id': invoice_id.token_id,
-                'reference': invoice_id.name,
+            tx = request.env['payment.transaction'].sudo().create({
+                'amount': invoice_id.amount_total,
+                'acquirer_id': acquirer_id.id,
+                # 'token_id': token_id.id,
+                'currency_id': invoice_id.currency_id.id,
+                'reference': invoice_id.invoice_origin,
                 'partner_id': invoice_id.partner_id.id,
                 'partner_name': invoice_id.partner_id.name,
                 'partner_lang': invoice_id.partner_id.lang,
@@ -49,8 +56,9 @@ class PaymentPortal(payment_portal.PaymentPortal):
                 'partner_country_id': invoice_id.partner_id.country_id.id,
                 'partner_phone': invoice_id.partner_id.phone,
             })
-            return {
-                'public_key': self.acquirer_id.payco_public_key,
+            return request.redirect('/payco/payment/transaction/'+invoice_id+'/'+invoice_id.access_token)
+            """return {
+                'public_key': acquirer_id.payco_public_key,
                 'address1': invoice_id.partner_id.street,
                 'amount': invoice_id.amount_total,
                 'tax': invoice_id.amount_tax,
@@ -71,14 +79,14 @@ class PaymentPortal(payment_portal.PaymentPortal):
                 'extra1': str(tx.id),
                 'extra2': invoice_id.partner_id.vat,
                 'reference': str(invoice_id.name)
-            }
+            }"""
         elif tx_paid:
             raise ValidationError('Ya hay Una Transaccion de Pago aprobada para esta factura')
         else:
             raise ValidationError('Hay Una Transaccion de Pago por Epayco en Proceso')
 
     @http.route(
-        '/payco/payment/transaction/<int:invoice_id>', type='json', auth='public', website=True
+        '/payco/payment/transaction/<int:invoice_id>/<string:token_id>', type='json', auth='public', website=True
     )
     def payco_payment_transaction(self, invoice_id, access_token, **kwargs):
         """ Create a draft transaction and return its processing values.
@@ -133,13 +141,13 @@ class PaymentPortal(payment_portal.PaymentPortal):
         else:
             return request.redirect('/shop/payment')
 
-
     @http.route(
-            '/payco/confirmation/backend', type='http', auth='public', website=True, csrf=False, save_session=False
-        )
+        '/payco/confirmation/backend', type='http', auth='public', website=True, csrf=False, save_session=False
+    )
     def payco_confirmation_redirec(self, **post):
         request.env['payment.transaction'].sudo()._handle_feedback_data('payco', post)
         return request.redirect('/payment/status')
+
 
 class PaycoController(http.Controller):
     _return_url = '/payment/payco/response/'
@@ -160,7 +168,7 @@ class PaycoController(http.Controller):
             tx_sudo = request.env['payment.transaction'].sudo().search([('reference', '=', data.get('reference'))])
             acquirer_sudo = request.env['payment.acquirer'].sudo().search([('id', '=', int(data.get('acquirer_id')))])
 
-            res = self.payco_create_indention(tx_sudo, acquirer_sudo , **data)
+            res = self.payco_create_indention(tx_sudo, acquirer_sudo, **data)
             if not res:
                 raise ValidationError("Payco: " + _("Transaction not Created"))
             datas = json.dumps(res)
@@ -178,7 +186,7 @@ class PaycoController(http.Controller):
             (name) = resultCurrency[0]
         for currencyName in name:
             currency = currencyName
-        
+
         sqlTestMethod = """select state from payment_acquirer where provider = '%s'
                         """ % ('payco')
         http.request.cr.execute(sqlTestMethod)
@@ -199,7 +207,7 @@ class PaycoController(http.Controller):
             (amount_tax) = result[0]
         for tax_amount in amount_tax:
             tax = tax_amount
-        base_tax = float(float(data.get('amount'))-float(tax))
+        base_tax = float(float(data.get('amount')) - float(tax))
         base_url = request.env['ir.config_parameter'].sudo().get_param('web.base.url')
         response_url = urls.url_join(base_url, '/payco/redirect/backend')
         confirmation_url = urls.url_join(base_url, '/payco/confirmation/backend')
