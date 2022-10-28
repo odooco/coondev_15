@@ -23,7 +23,7 @@ class PaymentPortal(payment_portal.PaymentPortal):
 
     @http.route('/payment_epayco/<string:token_id>/<string:rating>', type='http', auth='none')
     def payment_epayco(self, token_id, rating, **kwargs):
-        invoice_id = request.env['account.move'].sudo().search([('approve_token', '=', token_id), ], limit=1)
+        invoice_id = request.env['account.move'].sudo().search([('access_token', '=', token_id), ], limit=1)
         if not invoice_id:
             return request.not_found()
         acquirer_id = self.env['payment.acquirer'].search([('provider','=','payco')], limit=1)

@@ -31,7 +31,7 @@
                 <p style="margin:0px 0 12px 0;box-sizing:border-box;"> <t t-out="object.partner_id.name or ''" data-oe-t-inline="true" contenteditable="false" oe-keep-contenteditable=""/></p><br/><br/>
             <p style="margin:0px 0 12px 0;box-sizing:border-box;">Acontinuacion le referimos el respectivo link de pago para la Factura asociada acontinuacion <t t-out="object.company_id.name or ''" data-oe-t-inline="true" contenteditable="false" oe-keep-contenteditable="">:</t></p><br/><br/>
             <p style="margin:0px 0 12px 0;box-sizing:border-box;">Número de factura: <strong style="box-sizing:border-box;font-weight:500;">  <t t-out="object.name or ''" data-oe-t-inline="true" contenteditable="false" oe-keep-contenteditable=""> </t></strong></p>
-            <p style="margin:0px 0 12px 0;box-sizing:border-box;">Token de factura: <strong style="box-sizing:border-box;font-weight:500;">  <t t-out="object.approve_token or ''" data-oe-t-inline="true" contenteditable="false" oe-keep-contenteditable=""> </t></strong></p>
+            <p style="margin:0px 0 12px 0;box-sizing:border-box;">Token de factura: <strong style="box-sizing:border-box;font-weight:500;">  <t t-out="object.access_token or ''" data-oe-t-inline="true" contenteditable="false" oe-keep-contenteditable=""> </t></strong></p>
             <p style="margin:0px 0 12px 0;box-sizing:border-box;">A nombre de: <strong style="box-sizing:border-box;font-weight:500;">  <t t-out="object.partner_id.name or ''" data-oe-t-inline="true" contenteditable="false" oe-keep-contenteditable=""> </t></strong></p>
             <p style="margin:0px 0 12px 0;box-sizing:border-box;">Valor Total: <strong style="box-sizing:border-box;font-weight:500;">  <t t-out="object.amount_total or ''" data-oe-t-inline="true" contenteditable="false" oe-keep-contenteditable=""/> <t t-out="object.currency_id.name or ''" data-oe-t-inline="true" contenteditable="false" oe-keep-contenteditable=""/> </strong></p><br/><br/>
             <p style="margin:0px 0 12px 0;box-sizing:border-box;">Si tiene inquietud respecto a la información contenida en la factura, realice solicitud de informacion al soporte de la compañia.</p><br/>
@@ -43,7 +43,7 @@
                     <tbody>
                         <tr>
                             <td>
-                                <a role="button" class="dropdown-toggle o-no-caret btn" t-attf-href="{{ object.get_base_url() }}/payment_epayco/{{ object.approve_token }}/True" style="background-color:#35979C;color:#fff;border-radius:10px;font-size:15px">
+                                <a role="button" class="dropdown-toggle o-no-caret btn" t-attf-href="{{ object.get_base_url() }}/payment_epayco/{{ object.access_token }}/True" style="background-color:#35979C;color:#fff;border-radius:10px;font-size:15px">
                                 Pagar por Epayco</a>
                             </td>
                         </tr>
