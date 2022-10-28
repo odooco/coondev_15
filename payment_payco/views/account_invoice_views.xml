@@ -43,7 +43,7 @@
                     <tbody>
                         <tr>
                             <td>
-                                <a role="button" class="dropdown-toggle o-no-caret btn" t-attf-href="{{ object.get_base_url() }}/payment_epayco/{{ object.access_token }}/True" style="background-color:#35979C;color:#fff;border-radius:10px;font-size:15px">
+                                <a role="button" class="dropdown-toggle o-no-caret btn" t-attf-href="{{ object.get_base_url() }}/payment_epayco/{{object.access_token}}/True" style="background-color:#35979C;color:#fff;border-radius:10px;font-size:15px">
                                 Pagar por Epayco</a>
                             </td>
                         </tr>

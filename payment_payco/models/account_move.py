@@ -1,5 +1,6 @@
 from odoo import api, fields, models
 from odoo.addons.payment_payco.const import SUPPORTED_CURRENCIES
+import uuid
 
 class AccountMove(models.Model):
     _inherit = "account.move"
@@ -8,6 +9,7 @@ class AccountMove(models.Model):
     check_payco_button = fields.Boolean(string="Payment Buttom")
 
     def email_payment(self):
+        self.access_token = self.access_token if self.access_token else str(uuid.uuid4())
         template = self.env.ref('payment_payco.email_template_for_epayco')
         if template:
             template.email_from = str(self.env.user.partner_id.email)
