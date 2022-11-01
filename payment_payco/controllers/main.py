@@ -25,7 +25,7 @@ class PaymentPortal(payment_portal.PaymentPortal):
 
     @http.route('/payment_epayco/<string:invoice_id>/<string:token_id>', type='http', auth='none')
     def payment_epayco(self, token_id, **kwargs):
-        invoice_id = request.env['account.move'].sudo().search([('access_token', '=', token_id), ], limit=1)
+        """invoice_id = request.env['account.move'].sudo().search([('access_token', '=', token_id), ], limit=1)
         if not invoice_id:
             return request.not_found()
         acquirer_id = request.env['payment.acquirer'].sudo().search([('provider', '=', 'payco')], limit=1)
@@ -82,11 +82,9 @@ class PaymentPortal(payment_portal.PaymentPortal):
         elif tx_paid:
             raise ValidationError('Ya hay Una Transaccion de Pago aprobada para esta factura')
         else:
-            raise ValidationError('Hay Una Transaccion de Pago por Epayco en Proceso')
+            raise ValidationError('Hay Una Transaccion de Pago por Epayco en Proceso')"""
 
-    @http.route(
-        '/payco/payment/transaction/<int:invoice_id>/<string:access_token>', type='json', auth='public', website=True
-    )
+    @http.route('/payco/payment/transaction/<int:invoice_id>/<string:access_token>', type='json', auth='public', website=True)
     def payco_payment_transaction(self, invoice_id, access_token, **kwargs):
         """ Create a draft transaction and return its processing values.
 

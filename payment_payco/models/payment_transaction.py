@@ -52,6 +52,8 @@ class PaymentTransaction(models.Model):
                         """ % (reference)
         http.request.cr.execute(sql)
         result = http.request.cr.fetchall() or []
+        amount_tax = 0
+        tax = 0
         if not result:
             reference = self.reference
             sql = """select amount_tax from sale_order where name = '%s'
@@ -61,11 +63,14 @@ class PaymentTransaction(models.Model):
             if result:
                 (amount_tax) = result[0]
         else:
-            (amount_tax) = result[0]        
-        for tax_amount in amount_tax:
-            tax = tax_amount
-        base_tax = float(float(self.amount) - float(tax))
-
+            (amount_tax) = result[0]
+        if amount_tax:
+            for tax_amount in amount_tax:
+                tax = tax_amount
+        if tax:
+            base_tax = float(float(self.amount) - float(tax))
+        else:
+            base_tax = float(float(self.amount))
         tx = self.env['payment.transaction'].search([('reference', '=', self.reference)])
 
         return {
@@ -80,12 +85,12 @@ class PaymentTransaction(models.Model):
             'email': self.partner_email,
             'first_name': partner_first_name,
             'last_name': partner_last_name,
-            "phone_number":'',
+            "phone_number": '',
             'lang': lang,
             'checkout_external': external,
             "test": testPayment,
             'confirmation_url': urls.url_join(base_url, '/payco/confirmation/backend'),
-            'response_url': urls.url_join(base_url,'/payco/redirect/backend'),
+            'response_url': urls.url_join(base_url, '/payco/redirect/backend'),
             'api_url': urls.url_join(base_url, '/payment/payco/checkout'),
             'extra1': str(tx.id),
             'extra2': self.reference,
@@ -114,8 +119,8 @@ class PaymentTransaction(models.Model):
                 )
         except Exception as e:
             raise ValidationError(
-                    "ePayco: " + _("No transaction found")
-                )
+                "ePayco: " + _("No transaction found")
+            )
         return tx
 
     def _process_feedback_data(self, data):
@@ -138,12 +143,20 @@ class PaymentTransaction(models.Model):
             result = http.request.cr.fetchall() or []
             if result:
                 (state) = result[0]
+                model_name = 'sale_order'
+            else:
+                sql = """select state from account_move where name = '%s'""" % (data.get('x_extra3'))
+                http.request.cr.execute(sql)
+                result = http.request.cr.fetchall() or []
+                (state) = result[0]
+                model_name = 'account_move'
+
             for testMethod in state:
                 tx = testMethod
             cod_response = int(data.get('x_cod_response')) if int(data.get('x_cod_response')) else int(data.get('x_cod_respuesta'))
             if tx not in ['draft']:
                 if cod_response not in [1, 3]:
-                    self.manage_status_order(data.get('x_extra3'), 'sale_order')
+                    self.manage_status_order(data.get('x_extra3'), 'model_name')
                 else:
                     if cod_response == 1:
                         self.payco_payment_ref = data.get('x_extra2')
@@ -153,13 +166,12 @@ class PaymentTransaction(models.Model):
                 if cod_response == 1:
                     self.payco_payment_ref = data.get('x_extra2')
                     self._set_done()
-                    #self._finalize_post_processing()
+                    # self._finalize_post_processing()
                 elif cod_response == 3:
                     self._set_pending()
                 else:
-                    self.manage_status_order(data.get('x_extra3'),'sale_order')
+                    self.manage_status_order(data.get('x_extra3'), 'model_name')
                     self._set_canceled()
-
 
     def query_update_status(self, table, values, selectors):
         """ Update the table with the given values (dict), and use the columns in

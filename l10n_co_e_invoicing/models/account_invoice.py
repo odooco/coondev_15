@@ -68,7 +68,7 @@ class AccountInvoice(models.Model):
 					warn_pfx = True
 			else:
 				warn_pfx = True
-		
+
 		self.warn_pfx = warn_pfx
 		self.pfx_available_days = days
 
@@ -184,7 +184,7 @@ class AccountInvoice(models.Model):
 					raise ValidationError(_('No está permitido publicar varias facturas electrónicas a la vez.'))
 				if record._get_warn_pfx_state():
 					raise ValidationError(_('Factura electrónica bloqueada. \n\n El Certificado .pfx de la compañia %s está vencido.') % record.company_id.name)
-	
+
 				if record.move_type in ("out_invoice", "out_refund"):
 					company_currency = record.company_id.currency_id
 					self.approve_token = self.approve_token if self.approve_token else str(uuid.uuid4())
@@ -347,11 +347,14 @@ class AccountInvoice(models.Model):
 	def _get_payment_exchange_rate(self):
 		company_currency = self.company_id.currency_id
 		rate = 1
-		#date = self._get_currency_rate_date() or fields.Date.context_today(self)
 		date =  fields.Date.context_today(self)
 		if self.currency_id.id != company_currency.id:
 			currency =self.currency_id
-			rate = currency._convert(rate, company_currency,self.company_id,date)
+			if self.move_type == 'out_refund':
+				rate = self.reversed_entry_id.trm
+			else:
+				rate = currency._convert(rate, company_currency,self.company_id,date)
+
 
 		return {
 			'SourceCurrencyCode': self.currency_id.name,
@@ -367,7 +370,7 @@ class AccountInvoice(models.Model):
 				raise UserError(_('No puede cancelar una factura procesada en la DIAN'))
 
 		return res
-	
+
 	def button_draft(self):
 		res = super(AccountInvoice, self).button_draft()
 
@@ -446,7 +449,6 @@ class AccountInvoice(models.Model):
 		company_currency = self.company_id.currency_id
 
 		for tax in self.line_ids:
-
 			if tax.tax_line_id.tax_group_id.is_einvoicing:
 				if not tax.tax_line_id.tax_group_id.tax_group_type_id:
 					raise UserError(msg1 % tax.name)
@@ -484,21 +486,13 @@ class AccountInvoice(models.Model):
 					if self.currency_id.id != company_currency.id:
 						currency = self.currency_id
 						rate = currency._convert(rate, company_currency, self.company_id, date)
-						withholding_taxes[tax_code]['total'] += (((
-																			  tax.tax_base_amount / rate) * tax.tax_line_id.amount) / 100) * (
-																	-1)
+						withholding_taxes[tax_code]['total'] += (((tax.tax_base_amount / rate) * tax.tax_line_id.amount) / 100) * (-1)
 						withholding_taxes[tax_code]['taxes'][tax_percent]['base'] += tax.tax_base_amount / rate
-						withholding_taxes[tax_code]['taxes'][tax_percent]['amount'] += (((
-																									 tax.tax_base_amount / rate) * tax.tax_line_id.amount) / 100) * (
-																						   -1)
+						withholding_taxes[tax_code]['taxes'][tax_percent]['amount'] += (((tax.tax_base_amount / rate) * tax.tax_line_id.amount) / 100) * (-1)
 					else:
-						withholding_taxes[tax_code]['total'] += ((
-																			 tax.tax_base_amount * tax.tax_line_id.amount) / 100) * (
-																	-1)
+						withholding_taxes[tax_code]['total'] += ((tax.tax_base_amount * tax.tax_line_id.amount) / 100) * (-1)
 						withholding_taxes[tax_code]['taxes'][tax_percent]['base'] += tax.tax_base_amount
-						withholding_taxes[tax_code]['taxes'][tax_percent]['amount'] += ((
-																									tax.tax_base_amount * tax.tax_line_id.amount) / 100) * (
-																						   -1)
+						withholding_taxes[tax_code]['taxes'][tax_percent]['amount'] += ((tax.tax_base_amount * tax.tax_line_id.amount) / 100) * (-1)
 
 				elif tax_type == 'withholding_tax' and tax.tax_line_id.amount > 0:
 					# TODO 3.0 Las retenciones se recomienda no enviarlas a la DIAN
@@ -519,17 +513,17 @@ class AccountInvoice(models.Model):
 
 					# date = self._get_currency_rate_date() or fields.Date.context_today(self)
 					if self.currency_id.id != company_currency.id:
-						currency = self.currency_id
-						rate = currency._convert(rate, company_currency, self.company_id, date)
-						taxes[tax_code]['total'] += (((tax.tax_base_amount / rate) * tax.tax_line_id.amount) / 100)
-						taxes[tax_code]['taxes'][tax_percent]['base'] += tax.tax_base_amount / rate
-						taxes[tax_code]['taxes'][tax_percent]['amount'] += (
-									((tax.tax_base_amount / rate) * tax.tax_line_id.amount) / 100)
+						if tax.tax_base_amount:
+							currency = self.currency_id
+							rate = currency._convert(rate, company_currency, self.company_id, date)
+							taxes[tax_code]['total'] += tax.price_total
+							taxes[tax_code]['taxes'][tax_percent]['base'] += tax.price_total / tax.tax_line_id.amount * 100
+							taxes[tax_code]['taxes'][tax_percent]['amount'] += tax.price_total
+
 					else:
 						taxes[tax_code]['total'] += ((tax.tax_base_amount * tax.tax_line_id.amount) / 100)
 						taxes[tax_code]['taxes'][tax_percent]['base'] += tax.tax_base_amount
-						taxes[tax_code]['taxes'][tax_percent]['amount'] += (
-									(tax.tax_base_amount * tax.tax_line_id.amount) / 100)
+						taxes[tax_code]['taxes'][tax_percent]['amount'] += ((tax.tax_base_amount * tax.tax_line_id.amount) / 100)
 
 		# if '01' not in taxes:
 		# 	taxes['01'] = {}
@@ -901,8 +895,10 @@ class AccountInvoice(models.Model):
 			invoice_lines[count]['ItemDescription'] = str(invoice_line.name) if invoice_line.name != invoice_line.product_id.display_name else invoice_line.product_id.name or ''
 			invoice_lines[count]['InformationContentProviderParty'] = (
 				invoice_line._get_information_content_provider_party_values())
-			invoice_lines[count]['PriceAmount'] = '{:.2f}'.format(
-				invoice_line.price_unit)
-
+			if self.currency_id.name != 'COP':
+				invoice_lines[count]['PriceAmount'] = '{:.3f}'.format(
+					invoice_line.price_subtotal / invoice_line.quantity)
+			else:
+				invoice_lines[count]['PriceAmount'] = '{:.2f}'.format(invoice_line.price_unit)
 			count += 1
 		return invoice_lines
