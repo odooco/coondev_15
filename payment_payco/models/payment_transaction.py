@@ -128,11 +128,8 @@ class PaymentTransaction(models.Model):
     def _cron_finalize_post_processing(self):
         txs_to_post_process = self
         if not txs_to_post_process:
-            # Let the client post-process transactions so that they remain available in the portal
             client_handling_limit_date = datetime.now() - relativedelta.relativedelta(minutes=10)
-            # Don't try forever to post-process a transaction that doesn't go through
             retry_limit_date = datetime.now() - relativedelta.relativedelta(days=2)
-            # Retrieve all transactions matching the criteria for post-processing
             txs_to_post_process = self.search([
                 ('state', '=', 'done'),
                 ('is_post_processed', '=', False),
@@ -141,13 +138,14 @@ class PaymentTransaction(models.Model):
                 ('last_state_change', '>=', retry_limit_date),
             ])
             txs_to_pending_process = self.search([
-                ('state', '=', 'done'),
+                ('state', 'in', ('draft','pending')),
                 ('is_post_processed', '=', False),
                 '|', ('last_state_change', '<=', client_handling_limit_date),
                 ('operation', '=', 'refund'),
                 ('last_state_change', '>=', retry_limit_date),
             ])
         for tx in txs_to_post_process:
+            _logger.error(tx._log_received_message())
             try:
                 tx._finalize_post_processing()
                 self.env.cr.commit()
@@ -159,7 +157,8 @@ class PaymentTransaction(models.Model):
                     tx.id, e
                 )
                 self.env.cr.rollback()
-            _logger.error(tx._log_received_message)
+        for tz in txs_to_pending_process:
+            tz.state = 'cancel'
 
     def _process_feedback_data(self, data):
         """ Override of payment to process the transaction based on Payco data.
@@ -204,14 +203,15 @@ class PaymentTransaction(models.Model):
                         self._finalize_post_processing()
                     elif cod_response == 2:
                         self.payco_payment_ref = data.get('x_extra2')
-                        self.state = 'error'
-                        self._set_error()
+                        self._set_canceled()
+                        self.state = 'cancel'
                     elif cod_response == 3:
                         self._set_pending()
                     else:
+                        self.payco_payment_ref = data.get('x_extra2')
                         self.manage_status_order(data.get('x_extra3'), model_name)
-                        self._set_canceled()
-                        self.state = 'cancel'
+                        self.state = 'error'
+                        self._set_error(data.get('x_transaction_state'))
 
             else:
                 if cod_response == 1:
@@ -221,14 +221,15 @@ class PaymentTransaction(models.Model):
                     self.state = 'done'
                 elif cod_response == 2:
                     self.payco_payment_ref = data.get('x_extra2')
-                    self.state = 'error'
-                    self._set_error()
+                    self._set_canceled()
+                    self.state = 'cancel'
                 elif cod_response == 3:
                     self._set_pending()
                 else:
+                    self.payco_payment_ref = data.get('x_extra2')
                     self.manage_status_order(data.get('x_extra3'), model_name)
-                    self.state = 'cancel'
-                    self._set_canceled()
+                    self.state = 'error'
+                    self._set_error(data.get('x_transaction_state'))
 
     def query_update_status(self, table, values, selectors):
         """ Update the table with the given values (dict), and use the columns in

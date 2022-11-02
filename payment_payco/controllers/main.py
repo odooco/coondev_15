@@ -25,11 +25,11 @@ class PaymentPortal(payment_portal.PaymentPortal):
 
     @http.route('/payment_epayco/<string:invoice_id>/<string:token_id>', type='http', auth='none')
     def payment_epayco(self, invoice_id, token_id, **kwargs):
-        tx = request.env['payment.transaction'].sudo().search([('token_id', '=', token_id), ('state', 'not in', ('cancel','error'))])
+        invoice = request.env['account.move'].sudo().search([('id', '=', invoice_id)])
+        tx = request.env['payment.transaction'].sudo().search([('company_id', '=', invoice.company_id.id),('reference', '=', invoice.name), ('state', 'not in', ('cancel','error'))])
         if tx:
             raise ValidationError(_("La Factura tiene un proceso de Pago %s, Espere a que la Tansaccion Termine el proceso para continuar.") % (tx.state))
         else:
-            invoice = request.env['account.move'].sudo().search([('id', '=', invoice_id)])
             payment = request.env['payment.link.wizard'].sudo().create([{
                 'res_model':'account.move',
                 'res_id':invoice.id,

@@ -9,7 +9,7 @@
     'description': """ePayco Payment Acquirer""",
     'author': "ePayco",
     'website': "http://epayco.com",
-    'depends': ['payment','sale'],
+    'depends': ['payment','sale','website'],
     'data': [
         'views/payment_views.xml',
         'views/payment_payco_templates.xml',
