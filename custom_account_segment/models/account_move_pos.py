@@ -15,6 +15,13 @@ class AccountMovePos(models.Model):
     _check_company_auto = True
     _sequence_index = "journal_id"
 
+    print = fields.Integer(default=0)
+
+    def action_print_pos(self):
+        self.ensure_one()
+        self.print += 1
+        return self.env.ref('custom_account_segment.id_template_pos_co_invoice_report').report_action(self)
+
     def button_cancel(self):
         self.write({'state': 'cancel'})
 

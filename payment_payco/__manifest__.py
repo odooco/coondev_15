@@ -13,6 +13,7 @@
     'data': [
         'views/payment_views.xml',
         'views/payment_payco_templates.xml',
+        'views/account_invoice_views.xml',
         'data/payment_acquirer_data.xml',
     ],
     'images': ['static/images/screen_image.png'],

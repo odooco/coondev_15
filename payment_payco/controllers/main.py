@@ -10,19 +10,28 @@ from requests.exceptions import ConnectionError, HTTPError
 from werkzeug import urls
 import requests
 from odoo import _, http
-from odoo.exceptions import ValidationError
+from odoo.exceptions import ValidationError, MissingError, AccessError
 from odoo.http import request, Response
+from odoo.addons.payment import utils as payment_utils
 from odoo.addons.payment.controllers import portal as payment_portal
 from odoo.addons.payment.controllers.post_processing import PaymentPostProcessing
 
 import json
+
 _logger = logging.getLogger(__name__)
+
 
 class PaymentPortal(payment_portal.PaymentPortal):
 
-    @http.route(
-        '/payco/payment/transaction/<int:invoice_id>', type='json', auth='public', website=True
-    )
+    @http.route('/payment_epayco/<string:invoice_id>/<string:token_id>', type='http', auth='none')
+    def payment_epayco(self, invoice_id, token_id, **kwargs):
+        record_id = request.env['account.move'].sudo().search([('id', '=', invoice_id),('access_token', '=', token_id)])
+        if record_id:
+            return request.redirect('/my/invoices/%s?access_token=%s' % (invoice_id,token_id))
+        else:
+            return request.redirect('/my/orders/%s?access_token=%s' % (invoice_id,token_id))
+
+    @http.route('/payco/payment/transaction/<int:invoice_id>/<string:access_token>', type='json', auth='public', website=True)
     def payco_payment_transaction(self, invoice_id, access_token, **kwargs):
         """ Create a draft transaction and return its processing values.
 
@@ -76,13 +85,13 @@ class PaymentPortal(payment_portal.PaymentPortal):
         else:
             return request.redirect('/shop/payment')
 
-
     @http.route(
-            '/payco/confirmation/backend', type='http', auth='public', website=True, csrf=False, save_session=False
-        )
+        '/payco/confirmation/backend', type='http', auth='public', website=True, csrf=False, save_session=False
+    )
     def payco_confirmation_redirec(self, **post):
         request.env['payment.transaction'].sudo()._handle_feedback_data('payco', post)
         return request.redirect('/payment/status')
+
 
 class PaycoController(http.Controller):
     _return_url = '/payment/payco/response/'
@@ -103,7 +112,7 @@ class PaycoController(http.Controller):
             tx_sudo = request.env['payment.transaction'].sudo().search([('reference', '=', data.get('reference'))])
             acquirer_sudo = request.env['payment.acquirer'].sudo().search([('id', '=', int(data.get('acquirer_id')))])
 
-            res = self.payco_create_indention(tx_sudo, acquirer_sudo , **data)
+            res = self.payco_create_indention(tx_sudo, acquirer_sudo, **data)
             if not res:
                 raise ValidationError("Payco: " + _("Transaction not Created"))
             datas = json.dumps(res)
@@ -121,7 +130,7 @@ class PaycoController(http.Controller):
             (name) = resultCurrency[0]
         for currencyName in name:
             currency = currencyName
-        
+
         sqlTestMethod = """select state from payment_acquirer where provider = '%s'
                         """ % ('payco')
         http.request.cr.execute(sqlTestMethod)
@@ -142,7 +151,7 @@ class PaycoController(http.Controller):
             (amount_tax) = result[0]
         for tax_amount in amount_tax:
             tax = tax_amount
-        base_tax = float(float(data.get('amount'))-float(tax))
+        base_tax = float(float(data.get('amount')) - float(tax))
         base_url = request.env['ir.config_parameter'].sudo().get_param('web.base.url')
         response_url = urls.url_join(base_url, '/payco/redirect/backend')
         confirmation_url = urls.url_join(base_url, '/payco/confirmation/backend')

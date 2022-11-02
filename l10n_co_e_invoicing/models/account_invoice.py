@@ -5,6 +5,7 @@ from pytz import timezone
 import zipfile
 from io import BytesIO
 
+import datetime as dt
 from odoo import api, models, fields, _
 from odoo.exceptions import UserError, ValidationError
 from odoo.tools.misc import formatLang, format_date, get_lang
@@ -67,7 +68,7 @@ class AccountInvoice(models.Model):
 					warn_pfx = True
 			else:
 				warn_pfx = True
-		
+
 		self.warn_pfx = warn_pfx
 		self.pfx_available_days = days
 
@@ -133,19 +134,22 @@ class AccountInvoice(models.Model):
 			inv.credit_note_count = data_map.get(inv.id, 0.0)
 
 	def tacit_acceptation(self):
-		if self.invoice_rating == 'not_rating' and self.dian_document_lines:
-			cufe_cude_cuds = self.env['account.invoice.dian.document'].search([('invoice_id', '=', self.id)], order='invoice_id desc', limit=1)
-			hora_comparar = cufe_cude_cuds.create_date + datetime.timedelta(hours=72)
-			hora = hora_comparar - datetime.datetime.now()
-			horas = int(hora.total_seconds())
-			if horas <= 0 and cufe_cude_cuds.get_status_zip_status_code == '00':
-				dian_obj = cufe_cude_cuds
-				accepted_xml_without_signature = global_functions.get_template_xml(dian_obj._get_accepted_values(), 'AceptacionTacita')
-				accepted_xml_with_signature = global_functions.get_xml_with_signature( accepted_xml_without_signature, self.company_id.signature_policy_url, self.company_id.signature_policy_description, self.company_id.certificate_file, self.company_id.certificate_password)
-				dian_obj.write({'exp_accepted_file': b64encode(dian_obj._get_acp_zipped_file(accepted_xml_with_signature)).decode("utf-8", "ignore")})
-				dian_obj.action_sent_accepted_file(dian_obj.exp_accepted_file)
-				self.invoice_rating = 'auto_approve'
-				dian_obj.bs_acceptation()
+		invoice = self.search([('invoice_rating', '=', 'not_rating'), ('move_type', 'in', ('out_invoice', 'in_invoice'))], limit=50)
+		for record in invoice:
+			if record.invoice_rating == 'not_rating' and record.dian_document_lines:
+				cufe_cude_cuds = self.env['account.invoice.dian.document'].search([('invoice_id', '=', record.id)], order='invoice_id desc', limit=1)
+				hora_comparar = cufe_cude_cuds.create_date + dt.timedelta(hours=72)
+				hora = hora_comparar - dt.datetime.now()
+				horas = int(hora.total_seconds())
+
+				if horas <= 0 and cufe_cude_cuds.get_status_zip_status_code == '00':
+					dian_obj = cufe_cude_cuds
+					accepted_xml_without_signature = global_functions.get_template_xml(dian_obj._get_accepted_values(), 'AceptacionTacita')
+					accepted_xml_with_signature = global_functions.get_xml_with_signature(accepted_xml_without_signature, record.company_id.signature_policy_url, record.company_id.signature_policy_description, record.company_id.certificate_file, record.company_id.certificate_password)
+					dian_obj.write({'exp_accepted_file': b64encode(dian_obj._get_acp_zipped_file(accepted_xml_with_signature)).decode("utf-8", "ignore")})
+					dian_obj.action_sent_accepted_file(dian_obj.exp_accepted_file)
+					record.invoice_rating = 'auto_approve'
+					dian_obj.bs_acceptation()
 
 	def action_view_credit_notes(self):
 		self.ensure_one()
@@ -180,7 +184,7 @@ class AccountInvoice(models.Model):
 					raise ValidationError(_('No está permitido publicar varias facturas electrónicas a la vez.'))
 				if record._get_warn_pfx_state():
 					raise ValidationError(_('Factura electrónica bloqueada. \n\n El Certificado .pfx de la compañia %s está vencido.') % record.company_id.name)
-	
+
 				if record.move_type in ("out_invoice", "out_refund"):
 					company_currency = record.company_id.currency_id
 					self.approve_token = self.approve_token if self.approve_token else str(uuid.uuid4())
@@ -343,11 +347,14 @@ class AccountInvoice(models.Model):
 	def _get_payment_exchange_rate(self):
 		company_currency = self.company_id.currency_id
 		rate = 1
-		#date = self._get_currency_rate_date() or fields.Date.context_today(self)
 		date =  fields.Date.context_today(self)
 		if self.currency_id.id != company_currency.id:
 			currency =self.currency_id
-			rate = currency._convert(rate, company_currency,self.company_id,date)
+			if self.move_type == 'out_refund':
+				rate = self.reversed_entry_id.trm
+			else:
+				rate = currency._convert(rate, company_currency,self.company_id,date)
+
 
 		return {
 			'SourceCurrencyCode': self.currency_id.name,
@@ -363,7 +370,7 @@ class AccountInvoice(models.Model):
 				raise UserError(_('No puede cancelar una factura procesada en la DIAN'))
 
 		return res
-	
+
 	def button_draft(self):
 		res = super(AccountInvoice, self).button_draft()
 
@@ -442,7 +449,6 @@ class AccountInvoice(models.Model):
 		company_currency = self.company_id.currency_id
 
 		for tax in self.line_ids:
-
 			if tax.tax_line_id.tax_group_id.is_einvoicing:
 				if not tax.tax_line_id.tax_group_id.tax_group_type_id:
 					raise UserError(msg1 % tax.name)
@@ -480,21 +486,13 @@ class AccountInvoice(models.Model):
 					if self.currency_id.id != company_currency.id:
 						currency = self.currency_id
 						rate = currency._convert(rate, company_currency, self.company_id, date)
-						withholding_taxes[tax_code]['total'] += (((
-																			  tax.tax_base_amount / rate) * tax.tax_line_id.amount) / 100) * (
-																	-1)
+						withholding_taxes[tax_code]['total'] += (((tax.tax_base_amount / rate) * tax.tax_line_id.amount) / 100) * (-1)
 						withholding_taxes[tax_code]['taxes'][tax_percent]['base'] += tax.tax_base_amount / rate
-						withholding_taxes[tax_code]['taxes'][tax_percent]['amount'] += (((
-																									 tax.tax_base_amount / rate) * tax.tax_line_id.amount) / 100) * (
-																						   -1)
+						withholding_taxes[tax_code]['taxes'][tax_percent]['amount'] += (((tax.tax_base_amount / rate) * tax.tax_line_id.amount) / 100) * (-1)
 					else:
-						withholding_taxes[tax_code]['total'] += ((
-																			 tax.tax_base_amount * tax.tax_line_id.amount) / 100) * (
-																	-1)
+						withholding_taxes[tax_code]['total'] += ((tax.tax_base_amount * tax.tax_line_id.amount) / 100) * (-1)
 						withholding_taxes[tax_code]['taxes'][tax_percent]['base'] += tax.tax_base_amount
-						withholding_taxes[tax_code]['taxes'][tax_percent]['amount'] += ((
-																									tax.tax_base_amount * tax.tax_line_id.amount) / 100) * (
-																						   -1)
+						withholding_taxes[tax_code]['taxes'][tax_percent]['amount'] += ((tax.tax_base_amount * tax.tax_line_id.amount) / 100) * (-1)
 
 				elif tax_type == 'withholding_tax' and tax.tax_line_id.amount > 0:
 					# TODO 3.0 Las retenciones se recomienda no enviarlas a la DIAN
@@ -515,17 +513,17 @@ class AccountInvoice(models.Model):
 
 					# date = self._get_currency_rate_date() or fields.Date.context_today(self)
 					if self.currency_id.id != company_currency.id:
-						currency = self.currency_id
-						rate = currency._convert(rate, company_currency, self.company_id, date)
-						taxes[tax_code]['total'] += (((tax.tax_base_amount / rate) * tax.tax_line_id.amount) / 100)
-						taxes[tax_code]['taxes'][tax_percent]['base'] += tax.tax_base_amount / rate
-						taxes[tax_code]['taxes'][tax_percent]['amount'] += (
-									((tax.tax_base_amount / rate) * tax.tax_line_id.amount) / 100)
+						if tax.tax_base_amount:
+							currency = self.currency_id
+							rate = currency._convert(rate, company_currency, self.company_id, date)
+							taxes[tax_code]['total'] += tax.price_total
+							taxes[tax_code]['taxes'][tax_percent]['base'] += tax.price_total / tax.tax_line_id.amount * 100
+							taxes[tax_code]['taxes'][tax_percent]['amount'] += tax.price_total
+
 					else:
 						taxes[tax_code]['total'] += ((tax.tax_base_amount * tax.tax_line_id.amount) / 100)
 						taxes[tax_code]['taxes'][tax_percent]['base'] += tax.tax_base_amount
-						taxes[tax_code]['taxes'][tax_percent]['amount'] += (
-									(tax.tax_base_amount * tax.tax_line_id.amount) / 100)
+						taxes[tax_code]['taxes'][tax_percent]['amount'] += ((tax.tax_base_amount * tax.tax_line_id.amount) / 100)
 
 		# if '01' not in taxes:
 		# 	taxes['01'] = {}
@@ -897,8 +895,10 @@ class AccountInvoice(models.Model):
 			invoice_lines[count]['ItemDescription'] = str(invoice_line.name) if invoice_line.name != invoice_line.product_id.display_name else invoice_line.product_id.name or ''
 			invoice_lines[count]['InformationContentProviderParty'] = (
 				invoice_line._get_information_content_provider_party_values())
-			invoice_lines[count]['PriceAmount'] = '{:.2f}'.format(
-				invoice_line.price_unit)
-
+			if self.currency_id.name != 'COP':
+				invoice_lines[count]['PriceAmount'] = '{:.3f}'.format(
+					invoice_line.price_subtotal / invoice_line.quantity)
+			else:
+				invoice_lines[count]['PriceAmount'] = '{:.2f}'.format(invoice_line.price_unit)
 			count += 1
 		return invoice_lines

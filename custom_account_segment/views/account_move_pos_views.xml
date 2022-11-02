@@ -284,6 +284,7 @@
                                 attrs="{'invisible' : ['|', ('id', '=', False), ('state', '!=', 'draft')]}"/>
                         <button name="button_draft" string="Reset to Draft" type="object" groups="account.group_account_invoice"
                                 attrs="{'invisible' : [('state', '=', 'draft')]}"/>
+                        <button name="action_print_pos" type="object" string="Imprimir Pos"/>
                         <field name="state" widget="statusbar" statusbar_visible="draft,posted"/>
                     </header>
                     <!-- Invoice outstanding credits -->
