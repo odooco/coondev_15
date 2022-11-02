@@ -3,8 +3,10 @@
 import logging
 import sys
 from werkzeug import urls
-from pprint import pprint
+from datetime import datetime
 
+import psycopg2
+from dateutil import relativedelta
 from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
 from odoo import http
@@ -122,6 +124,42 @@ class PaymentTransaction(models.Model):
                 "ePayco: " + _("No transaction found")
             )
         return tx
+
+    def _cron_finalize_post_processing(self):
+        txs_to_post_process = self
+        if not txs_to_post_process:
+            # Let the client post-process transactions so that they remain available in the portal
+            client_handling_limit_date = datetime.now() - relativedelta.relativedelta(minutes=10)
+            # Don't try forever to post-process a transaction that doesn't go through
+            retry_limit_date = datetime.now() - relativedelta.relativedelta(days=2)
+            # Retrieve all transactions matching the criteria for post-processing
+            txs_to_post_process = self.search([
+                ('state', '=', 'done'),
+                ('is_post_processed', '=', False),
+                '|', ('last_state_change', '<=', client_handling_limit_date),
+                ('operation', '=', 'refund'),
+                ('last_state_change', '>=', retry_limit_date),
+            ])
+            txs_to_pending_process = self.search([
+                ('state', '=', 'done'),
+                ('is_post_processed', '=', False),
+                '|', ('last_state_change', '<=', client_handling_limit_date),
+                ('operation', '=', 'refund'),
+                ('last_state_change', '>=', retry_limit_date),
+            ])
+        for tx in txs_to_post_process:
+            try:
+                tx._finalize_post_processing()
+                self.env.cr.commit()
+            except psycopg2.OperationalError:  # A collision of accounting sequences occurred
+                self.env.cr.rollback()  # Rollback and try later
+            except Exception as e:
+                _logger.exception(
+                    "encountered an error while post-processing transaction with id %s:\n%s",
+                    tx.id, e
+                )
+                self.env.cr.rollback()
+            _logger.error(tx._log_received_message)
 
     def _process_feedback_data(self, data):
         """ Override of payment to process the transaction based on Payco data.

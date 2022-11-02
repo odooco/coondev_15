@@ -25,11 +25,37 @@ class PaymentPortal(payment_portal.PaymentPortal):
 
     @http.route('/payment_epayco/<string:invoice_id>/<string:token_id>', type='http', auth='none')
     def payment_epayco(self, invoice_id, token_id, **kwargs):
-        record_id = request.env['account.move'].sudo().search([('id', '=', invoice_id),('access_token', '=', token_id)])
-        if record_id:
-            return request.redirect('/my/invoices/%s?access_token=%s' % (invoice_id,token_id))
+        tx = request.env['payment.transaction'].sudo().search([('token_id', '=', token_id), ('state', 'not in', ('cancel','error'))])
+        if tx:
+            raise ValidationError(_("La Factura tiene un proceso de Pago %s, Espere a que la Tansaccion Termine el proceso para continuar.") % (tx.state))
         else:
-            return request.redirect('/my/orders/%s?access_token=%s' % (invoice_id,token_id))
+            invoice = request.env['account.move'].sudo().search([('id', '=', invoice_id)])
+            payment = request.env['payment.link.wizard'].sudo().create([{
+                'res_model':'account.move',
+                'res_id':invoice.id,
+                'amount':invoice.amount_total,
+                'amount_max':invoice.amount_total,
+                'currency_id':invoice.currency_id.id,
+                'partner_id':invoice.partner_id.id,
+                'partner_email':invoice.partner_id.email,
+                'description':invoice.name,
+                'company_id':invoice.company_id.id
+            }])
+            payment.access_token = payment_utils.generate_access_token(
+                payment.partner_id.id, payment.amount, payment.currency_id.id
+            )
+            payment._generate_link()
+            link = payment.link
+            """f'{base_url}/payment/pay' \
+            f'?reference={invoice.name}' \
+            f'&amount={invoice.amount_total}' \
+            f'&currency_id={invoice.currency_id.id}' \
+            f'&partner_id={invoice.partner_id.id}' \
+            f'&company_id={invoice.company_id.id}' \
+            f'&invoice_id={invoice.id}' \
+            f'&access_token={token_id}'"""
+            return request.redirect(link)
+
 
     @http.route('/payco/payment/transaction/<int:invoice_id>/<string:access_token>', type='json', auth='public', website=True)
     def payco_payment_transaction(self, invoice_id, access_token, **kwargs):
