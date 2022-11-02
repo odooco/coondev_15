@@ -138,14 +138,14 @@ class PaymentTransaction(models.Model):
         tx = ''
         if data:
             sql = """select state from sale_order where name = '%s'
-                                        """ % (data.get('x_extra3'))
+                                        """ % (data.get('x_extra3').split('-')[0])
             http.request.cr.execute(sql)
             result = http.request.cr.fetchall() or []
             if result:
                 (state) = result[0]
                 model_name = 'sale_order'
             else:
-                sql = """select state from account_move where name = '%s'""" % (data.get('x_extra3'))
+                sql = """select state from account_move where name = '%s'""" % (data.get('x_extra3').split('-')[0])
                 http.request.cr.execute(sql)
                 result = http.request.cr.fetchall() or []
                 (state) = result[0]
@@ -153,30 +153,43 @@ class PaymentTransaction(models.Model):
 
             for testMethod in state:
                 tx = testMethod
-            cod_response = int(data.get('x_cod_response')) if int(data.get('x_cod_response')) else int(data.get('x_cod_respuesta'))
+            cod_response = int(data.get('x_cod_response')) if int(data.get('x_cod_response')) else int(
+                data.get('x_cod_respuesta'))
             if tx not in ['draft']:
                 if cod_response not in [1, 3]:
                     self.manage_status_order(data.get('x_extra3'), model_name)
                 else:
                     if cod_response == 1:
                         self.payco_payment_ref = data.get('x_extra2')
+                        self.state = 'done'
                         self._set_done()
                         self._finalize_post_processing()
+                    elif cod_response == 2:
+                        self.payco_payment_ref = data.get('x_extra2')
+                        self.state = 'error'
+                        self._set_error()
                     elif cod_response == 3:
                         self._set_pending()
                     else:
                         self.manage_status_order(data.get('x_extra3'), model_name)
                         self._set_canceled()
+                        self.state = 'cancel'
 
             else:
                 if cod_response == 1:
                     self.payco_payment_ref = data.get('x_extra2')
                     self._set_done()
-                    # self._finalize_post_processing()
+                    self._finalize_post_processing()
+                    self.state = 'done'
+                elif cod_response == 2:
+                    self.payco_payment_ref = data.get('x_extra2')
+                    self.state = 'error'
+                    self._set_error()
                 elif cod_response == 3:
                     self._set_pending()
                 else:
                     self.manage_status_order(data.get('x_extra3'), model_name)
+                    self.state = 'cancel'
                     self._set_canceled()
 
     def query_update_status(self, table, values, selectors):
@@ -206,5 +219,4 @@ class PaymentTransaction(models.Model):
         condition = self.reflect_params(order_name, confirmation)
         params = {'state': 'draft'}
         self.query_update_status(model_name, params, condition)
-        self.query_update_status(model_name, {'state': 'cancel'}, condition)
 

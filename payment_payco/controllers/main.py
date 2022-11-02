@@ -24,65 +24,27 @@ _logger = logging.getLogger(__name__)
 class PaymentPortal(payment_portal.PaymentPortal):
 
     @http.route('/payment_epayco/<string:invoice_id>/<string:token_id>', type='http', auth='none')
-    def payment_epayco(self, token_id, **kwargs):
-        """invoice_id = request.env['account.move'].sudo().search([('access_token', '=', token_id), ], limit=1)
-        if not invoice_id:
-            return request.not_found()
-        acquirer_id = request.env['payment.acquirer'].sudo().search([('provider', '=', 'payco')], limit=1)
-        partner_first_name, partner_last_name = payment_utils.split_partner_name(invoice_id.partner_id.name)
-        base_url = request.env['ir.config_parameter'].sudo().sudo().get_param('web.base.url')
-        external = 'true' if acquirer_id.payco_checkout_type == 'standard' else 'false'
-        testPayment = 'true'
-
-        tx = request.env['payment.transaction'].sudo().search(
-            [('token_id', '=', invoice_id.access_token), ('state', '!=', 'done'), ('state', '!=', 'cancel')])
-        tx_paid = request.env['payment.transaction'].sudo().search(
-            [('token_id', '=', invoice_id.access_token), ('state', '=', 'done')])
-        if not tx:
-            tx = request.env['payment.transaction'].sudo().create({
-                'amount': invoice_id.amount_total,
-                'acquirer_id': acquirer_id.id,
-                # 'token_id': token_id.id,
-                'currency_id': invoice_id.currency_id.id,
-                'reference': invoice_id.invoice_origin,
-                'partner_id': invoice_id.partner_id.id,
-                'partner_name': invoice_id.partner_id.name,
-                'partner_lang': invoice_id.partner_id.lang,
-                'partner_email': invoice_id.partner_id.email,
-                'partner_address': invoice_id.partner_id.street,
-                'partner_zip': invoice_id.partner_id.zip,
-                'partner_city': invoice_id.partner_id.city,
-                'partner_state_id': invoice_id.partner_id.state_id.id,
-                'partner_country_id': invoice_id.partner_id.country_id.id,
-                'partner_phone': invoice_id.partner_id.phone,
-            })
-            return {
-                'public_key': acquirer_id.payco_public_key,
-                'address1': invoice_id.partner_id.street,
-                'amount': invoice_id.amount_total,
-                'tax': invoice_id.amount_tax,
-                'base_tax': invoice_id.amount_untaxed,
-                'city': invoice_id.partner_id.city,
-                'country': invoice_id.partner_id.country_id.code,
-                'currency_code': invoice_id.currency_id.name,
-                'email': invoice_id.partner_id.email,
-                'first_name': partner_first_name,
-                'last_name': partner_last_name,
-                "phone_number": invoice_id.partner_id.phone,
-                'lang': invoice_id.partner_id.lang,
-                'checkout_external': external,
-                "test": testPayment,
-                'confirmation_url': urls.url_join(base_url, '/payco/confirmation/backend'),
-                'response_url': urls.url_join(base_url, '/payco/redirect/backend'),
-                'api_url': urls.url_join(base_url, '/payment/payco/checkout'),
-                'extra1': str(tx.id),
-                'extra2': invoice_id.partner_id.vat,
-                'reference': str(invoice_id.name)
-            }
-        elif tx_paid:
-            raise ValidationError('Ya hay Una Transaccion de Pago aprobada para esta factura')
+    def payment_epayco(self, invoice_id, token_id, **kwargs):
+        tx = request.env['payment.transaction'].sudo().search([('token_id', '=', token_id), ('state', 'not in', ('cancel','error'))])
+        if tx:
+            raise ValidationError(_("La Factura tiene un proceso de Pago %s, Espere a que la Tansaccion Termine el proceso para continuar.") % (tx.state))
         else:
-            raise ValidationError('Hay Una Transaccion de Pago por Epayco en Proceso')"""
+            invoice = request.env['account.move'].sudo().search([('id', '=', invoice_id)])
+            payment = request.env['payment.link.wizard'].sudo().create([{'res_model':'account.move','res_id':invoice.id,'amount':invoice.amount_total,'amount_max':invoice.amount_total,'currency_id':invoice.currency_id.id,'partner_id':invoice.partner_id.id,'partner_email':invoice.partner_id.email,'description':invoice.name,'company_id':invoice.company_id.id}])
+            payment.access_token = payment_utils.generate_access_token(
+                payment.partner_id.id, payment.amount, payment.currency_id.id
+            )
+            payment._generate_link()
+            link = payment.link
+            """f'{base_url}/payment/pay' \
+            f'?reference={invoice.name}' \
+            f'&amount={invoice.amount_total}' \
+            f'&currency_id={invoice.currency_id.id}' \
+            f'&partner_id={invoice.partner_id.id}' \
+            f'&company_id={invoice.company_id.id}' \
+            f'&invoice_id={invoice.id}' \
+            f'&access_token={token_id}'"""
+            return request.redirect(link)
 
     @http.route('/payco/payment/transaction/<int:invoice_id>/<string:access_token>', type='json', auth='public', website=True)
     def payco_payment_transaction(self, invoice_id, access_token, **kwargs):
