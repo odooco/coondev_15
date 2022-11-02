@@ -28,7 +28,7 @@ class PaymentPortal(payment_portal.PaymentPortal):
         invoice = request.env['account.move'].sudo().search([('id', '=', invoice_id)])
         tx = request.env['payment.transaction'].sudo().search([('company_id', '=', invoice.company_id.id),('reference', '=', invoice.name), ('state', 'not in', ('cancel','error'))])
         if tx:
-            raise ValidationError(_("La Factura tiene un proceso de Pago %s, Espere a que la Tansaccion Termine el proceso para continuar.") % (tx.state))
+            return request.redirect('/my/invoices/%s?token_id=%s' % (invoice_id,token_id))
         else:
             payment = request.env['payment.link.wizard'].sudo().create([{
                 'res_model':'account.move',

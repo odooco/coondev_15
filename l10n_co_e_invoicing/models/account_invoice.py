@@ -134,7 +134,7 @@ class AccountInvoice(models.Model):
 			inv.credit_note_count = data_map.get(inv.id, 0.0)
 
 	def tacit_acceptation(self):
-		invoice = self.search([('invoice_rating', '=', 'not_rating'), ('move_type', 'in', ('out_invoice', 'in_invoice'))], limit=50)
+		invoice = self.search([('invoice_rating', '=', 'not_rating'), ('move_type', 'in', ('out_invoice', 'in_invoice'))], order='id asc', limit=50)
 		for record in invoice:
 			if record.invoice_rating == 'not_rating' and record.dian_document_lines:
 				cufe_cude_cuds = self.env['account.invoice.dian.document'].search([('invoice_id', '=', record.id)], order='invoice_id desc', limit=1)
