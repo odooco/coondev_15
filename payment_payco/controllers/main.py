@@ -127,6 +127,13 @@ class PaycoController(http.Controller):
     @http.route(['/payment/payco/checkout'], type='http', auth='public', website=True, csrf=False, save_session=False)
     def epayco_checkout(self, **post):
         """ Epayco."""
+        ref = post.get('reference')
+        tx = request.env['payment.transaction'].sudo().search(
+            [('reference', '=', ref),
+             ('state', 'not in', ('cancel', 'error'))])
+        if tx:
+            return request.redirect('/payment/payco/transction/process')
+
         return request.render('payment_payco.proccess', post)
 
     @http.route('/payment/payco/transction/process', type='http', auth='public', methods=['GET', 'POST'], csrf=False)

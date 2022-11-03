@@ -19,7 +19,22 @@ _logger = logging.getLogger(__name__)
 class PaymentTransaction(models.Model):
     _inherit = 'payment.transaction'
 
-    payco_payment_ref = fields.Char(string="ePayco Payment Reference")
+    payco_payment_ref = fields.Char(string="ePayco Payment Reference")\
+
+    @api.model
+    def create(self, vals):
+        _logger.error(vals)
+        tx = self.env['payment.transaction'].search([('reference', 'ilike', vals['reference'].split('-')[0] + '%'),
+                                                     ('state', 'not in', ('cancel', 'error', 'done'))])
+        tx_done = self.env['payment.transaction'].search(
+            [('reference', 'ilike', vals['reference'].split('-')[0] + '%'), ('state', 'in', ('done'))])
+        if not tx:
+            new_record = super(PaymentTransaction, self).create(vals)
+        elif tx_done:
+            raise ValidationError('Transaccion de pago en Realizada y Aprobada Anteriormente')
+        else:
+            raise ValidationError('Transaccion de pago en Proceso')
+        return new_record
 
     def _get_specific_rendering_values(self, processing_values):
         """ Override of payment to return ePayco-specific rendering values.
@@ -138,7 +153,7 @@ class PaymentTransaction(models.Model):
                 ('last_state_change', '>=', retry_limit_date),
             ])
             txs_to_pending_process = self.search([
-                ('state', 'in', ('draft','pending')),
+                ('state', 'in', ('draft', 'pending')),
                 ('is_post_processed', '=', False),
                 '|', ('last_state_change', '<=', client_handling_limit_date),
                 ('operation', '=', 'refund'),
