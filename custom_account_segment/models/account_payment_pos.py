@@ -62,3 +62,4 @@ class AccountPaymentPos(models.Model):
     currency_id = fields.Many2one('res.currency', string='Currency', store=True, readonly=False, compute='_compute_currency_id', help="The payment's currency.")
     company_id = fields.Many2one('res.company', 'Compañia',default=lambda s: s.env.company, required=True, index=True, states={'done': [('readonly', True)]})
     available_payment_method_line_ids = fields.Many2many('account.payment.method.line', compute='_compute_payment_method_line_fields')
+    state = fields.Selection(selection=[('draft', 'Draft'),('posted', 'Posted'),('cancel', 'Cancelled')], string='Status', required=True, readonly=True, copy=False, tracking=True,default='draft')
