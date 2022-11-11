@@ -33,7 +33,7 @@ class AccountPaymentPos(models.Model):
     date = fields.Date(string='Fecha')
     ref = fields.Char('Memo')
     journal_id = fields.Many2one('account.journal', string='Diario', required=True, readonly=True, states={'draft': [('readonly', False)]}, check_company=True, domain="[('type', '=', 'sale')]", default=_get_default_journal)
-    payment_method_line_id = fields.Many2one('account.payment.method.line', string='Metodo de Pago', readonly=False, store=True, copy=False)
+    payment_method_line_id = fields.Many2one('account.payment.method.line', string='Metodo de Pago', readonly=False, store=True, copy=False, domain="[('id', '!=', 0)]")
     partner_bank_id = fields.Many2one('res.partner.bank', string="Cuenta del Banco", readonly=False, store=True, tracking=True, domain="[('id', 'in', available_partner_bank_ids)]")
     currency_id = fields.Many2one('res.currency', string='Currency', store=True, readonly=False, compute='_compute_currency_id', help="The payment's currency.")
     company_id = fields.Many2one('res.company', 'Compañia',default=lambda s: s.env.company, required=True, index=True, states={'done': [('readonly', True)]})
