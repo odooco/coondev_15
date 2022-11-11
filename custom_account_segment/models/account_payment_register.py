@@ -20,10 +20,6 @@ class AccountPaymentPosRegister(models.TransientModel):
     def _get_batches(self):
         self.ensure_one()
         lines = self.line_ids._origin
-        if len(lines.company_id) > 1:
-            raise UserError(_("You can't create payments for entries belonging to different companies."))
-        if not lines:
-            raise UserError(_("You can't open the register payment wizard without at least one receivable/payable line."))
 
         batches = defaultdict(lambda: {'lines': self.env['account.move.line']})
         for line in lines:
