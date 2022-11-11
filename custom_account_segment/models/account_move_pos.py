@@ -29,8 +29,7 @@ class AccountMovePos(models.Model):
         self.write({'state': 'draft'})
 
     def action_post(self):
-        self.move_id.action_post()
-        self.write({'state': 'posted','name': self.move_id.name})
+        self.write({'state': 'post','name': self.move_id.name})
 
     def preview_invoice(self):
         self.ensure_one()
@@ -93,15 +92,22 @@ class AccountMovePos(models.Model):
     ], string='Tipo de Movimiento', required=True, store=True, index=True, readonly=True, tracking=True,
         default="entry", change_default=True)
 
-    @api.onchange('account_payment_ids')
-    def _onchange_account_payment(self):
+    def calculate_account_payment(self):
         for record in self:
             total = 0
             for item in record.account_payment_ids:
                 total = total + item.amount
-            record.amount_residual = record.amount_total - total
-            if total >= record.amount_total:
-                state = 'posted'
+            if record.amount_residual != record.amount_total - total:
+                record.amount_residual = record.amount_total - total
+            if total >= record.amount_total and record.state != 'posted':
+                record.state = 'posted'
+                record.move_id.action_post()
+
+    def write(self, vals):
+        res = super(AccountMovePos, self).write(vals)
+        if self.state != 'posted' and self.account_payment_ids:
+            self.calculate_account_payment()
+        return res
 
     name = fields.Char(string='Numero', copy=False, compute='_compute_name', readonly=False, store=True, index=True,
                        tracking=True)

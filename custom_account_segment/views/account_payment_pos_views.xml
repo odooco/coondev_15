@@ -110,6 +110,12 @@
             <field name="model">account.payment.pos</field>
             <field name="arch" type="xml">
                 <form string="Register Payment">
+                    <header>
+                        <button name="action_post" string="Confirmar" type="object" class="oe_highlight" attrs="{'invisible': [('state', '!=', 'draft')]}"/>
+                        <button name="action_draft" string="Pasar a Borrador" type="object" class="btn btn-secondary" attrs="{'invisible': [('state', 'not in', ('post', 'posted', 'cancel'))]}"/>
+                        <button name="action_cancel" string="Cancelar" type="object" attrs="{'invisible': [('state', '!=', 'draft')]}"/>
+                        <field name="state" widget="statusbar" statusbar_visible="draft,posted"/>
+                    </header>
                     <sheet>
                         <field name="id" invisible="1"/>
                         <field name="available_payment_method_line_ids" invisible="1"/>

@@ -17,6 +17,15 @@ class AccountPaymentPos(models.Model):
     def _get_default_journal(self):
         return self.env['account.move']._search_default_journal(('bank', 'cash'))
 
+    def button_cancel(self):
+        self.write({'state': 'cancel'})
+
+    def button_draft(self):
+        self.write({'state': 'draft'})
+
+    def action_post(self):
+        self.write({'state': 'posted'})
+
     @api.depends('partner_id', 'company_id', 'payment_type', 'is_internal_transfer')
     def _compute_available_partner_bank_ids(self):
         for pay in self:
