@@ -17,6 +17,16 @@ class AccountPaymentPos(models.Model):
     def _get_default_journal(self):
         return self.env['account.move']._search_default_journal(('bank', 'cash'))
 
+    @api.depends('partner_id', 'company_id', 'payment_type', 'is_internal_transfer')
+    def _compute_available_partner_bank_ids(self):
+        for pay in self:
+            if pay.payment_type == 'inbound':
+                pay.available_partner_bank_ids = pay.journal_id.bank_account_id
+            elif pay.is_internal_transfer:
+                pay.available_partner_bank_ids = pay.journal_id.bank_account_id
+            else:
+                pay.available_partner_bank_ids = pay.partner_id.bank_ids.filtered(lambda x: x.company_id.id in (False, pay.company_id.id))._origin
+
     @api.depends('company_id')
     def _compute_currency_id(self):
         main_company = self.env['res.company']._get_main_company()
@@ -34,6 +44,7 @@ class AccountPaymentPos(models.Model):
     ref = fields.Char('Memo')
     journal_id = fields.Many2one('account.journal', string='Diario', required=True, readonly=True, states={'draft': [('readonly', False)]}, check_company=True, domain="[('type', '=', 'sale')]", default=_get_default_journal)
     payment_method_line_id = fields.Many2one('account.payment.method.line', string='Metodo de Pago', readonly=False, store=True, copy=False, domain="[('id', '!=', 0)]")
+    available_partner_bank_ids = fields.Many2many(comodel_name='res.partner.bank', compute='_compute_available_partner_bank_ids')
     partner_bank_id = fields.Many2one('res.partner.bank', string="Cuenta del Banco", readonly=False, store=True, tracking=True, domain="[('id', 'in', available_partner_bank_ids)]")
     currency_id = fields.Many2one('res.currency', string='Currency', store=True, readonly=False, compute='_compute_currency_id', help="The payment's currency.")
     company_id = fields.Many2one('res.company', 'Compañia',default=lambda s: s.env.company, required=True, index=True, states={'done': [('readonly', True)]})
