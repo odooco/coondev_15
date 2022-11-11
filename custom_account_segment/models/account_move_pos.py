@@ -81,6 +81,7 @@ class AccountMovePos(models.Model):
         journal = self._get_default_journal()
         return journal.currency_id or journal.company_id.currency_id
 
+    account_payment_ids = fields.One2many('account.payment.pos', 'move_pos_id', string='Lineas de Pagos', copy=False, readonly=True, states={'draft': [('readonly', False)]})
     move_type = fields.Selection(selection=[
         ('entry', 'Journal Entry'),
         ('out_invoice', 'Customer Invoice'),
@@ -101,7 +102,7 @@ class AccountMovePos(models.Model):
                        states={'draft': [('readonly', False)]}, copy=False, default=fields.Date.context_today)
     ref = fields.Char(string='Referencia', copy=False, tracking=True)
     narration = fields.Text(string='Terminos y Condiciones')
-    state = fields.Selection(selection=[('draft', 'Borrador'), ('posted', 'Publicado'), ('cancel', 'Cancelado')],
+    state = fields.Selection(selection=[('draft', 'Borrador'), ('post', 'Confirmado'),('posted', 'Publicado'), ('cancel', 'Cancelado')],
                              string='Estado', required=True, readonly=True, copy=False, tracking=True, default='draft')
     journal_id = fields.Many2one('account.journal', string='Journal', required=True, readonly=True,
                                  states={'draft': [('readonly', False)]}, check_company=True,
