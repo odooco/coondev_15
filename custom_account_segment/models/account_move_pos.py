@@ -22,6 +22,19 @@ class AccountMovePos(models.Model):
         self.print += 1
         return self.env.ref('custom_account_segment.id_template_pos_co_invoice_report').report_action(self)
 
+    def register_paid(self):
+        return {
+            'name': _('Registrar Pago'),
+            'res_model': 'account.payment.pos.register',
+            'view_mode': 'form',
+            'context': {
+                'active_model': 'account.move.pos',
+                'active_ids': self.ids,
+            },
+            'target': 'new',
+            'type': 'ir.actions.act_window',
+        }
+
     def button_cancel(self):
         self.write({'state': 'cancel'})
 

@@ -16,6 +16,7 @@
         'views/account_journal.xml',
         'views/account_move_pos_views.xml',
         'views/account_payment_pos_views.xml',
+        'views/account_payment_pos_register.xml',
         'views/res_company.xml',
         'views/sale_order.xml',
         'views/account_payment_term.xml',

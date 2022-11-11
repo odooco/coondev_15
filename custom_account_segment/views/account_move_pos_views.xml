@@ -277,14 +277,13 @@
                         <button name="action_post" string="Post" class="oe_highlight"
                                 type="object"
                                 attrs="{'invisible': [('state', '!=', 'post')]}"/>
-                        <button name="preview_invoice" type="object" string="Preview"
-                                attrs="{'invisible': [('move_type', 'not in', ('out_invoice', 'out_refund'))]}"/>
                         <!-- Reverse -->
                         <button name="button_cancel" string="Cancel Entry" type="object" groups="account.group_account_invoice"
                                 attrs="{'invisible' : ['|', ('id', '=', False), ('state', '!=', 'draft')]}"/>
                         <button name="button_draft" string="Reset to Draft" type="object" groups="account.group_account_invoice"
                                 attrs="{'invisible' : [('state', '=', 'draft')]}"/>
                         <button name="action_print_pos" type="object" string="Imprimir Pos"/>
+                        <button name="register_paid" type="object" string="Registrar Pago"/>
                         <field name="state" widget="statusbar" statusbar_visible="draft,posted"/>
                     </header>
                     <!-- Invoice outstanding credits -->
