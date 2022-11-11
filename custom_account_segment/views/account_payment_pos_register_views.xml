@@ -21,7 +21,7 @@
                             <field name="partner_bank_id"/>
                         </group>
                         <group name="group2">
-                            <label for="amount"/>
+                            <label for="amount" string="Total"/>
                             <div name="amount_div" class="o_row">
                                 <field name="amount"/>
                                 <field name="currency_id"
