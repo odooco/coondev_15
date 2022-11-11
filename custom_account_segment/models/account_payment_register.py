@@ -31,13 +31,8 @@ class AccountPaymentPosRegister(models.TransientModel):
             for line in lines:
                 if line.move_id.state != 'posted' and line.move_id.state != 'post':
                     raise UserError(_("You can only register payment for posted journal entries."))
-                if line.account_internal_type not in ('receivable', 'payable'):
-                    continue
                 if line.currency_id:
                     if line.currency_id.is_zero(line.amount_residual_currency):
-                        continue
-                else:
-                    if line.company_currency_id.is_zero(line.amount_residual):
                         continue
                 available_lines |= line
             res['line_ids'] = [(6, 0, available_lines.ids)]
