@@ -15,19 +15,19 @@ class AccountPaymentPosRegister(models.TransientModel):
         res = super().default_get(fields_list)
         if 'line_ids' in fields_list and 'line_ids' not in res:
             if self._context.get('active_model') == 'account.move.pos':
-                lines = self.env['account.move'].browse(self._context.get('active_ids', [])).line_ids
+                lines = self.env['account.move.pos'].browse(self._context.get('active_ids', [])).line_ids
             elif self._context.get('active_model') == 'account.move.pos.line':
-                lines = self.env['account.move.line'].browse(self._context.get('active_ids', []))
+                lines = self.env['account.move.pos.line'].browse(self._context.get('active_ids', []))
             else:
                 raise UserError(_(
-                    "The register payment wizard should only be called on account.move or account.move.line records."
+                    "The register payment wizard should only be called on account.move.pos or account.move.pos.line records."
                 ))
 
             if 'journal_id' in res and not self.env['account.journal'].browse(res['journal_id'])\
                     .filtered_domain([('company_id', '=', lines.company_id.id), ('type', 'in', ('bank', 'cash'))]):
                 del res['journal_id']
 
-            available_lines = self.env['account.move.line']
+            available_lines = self.env['account.move.pos.line']
             for line in lines:
                 if line.move_id.state != 'posted':
                     raise UserError(_("You can only register payment for posted journal entries."))
@@ -54,7 +54,7 @@ class AccountPaymentPosRegister(models.TransientModel):
         self.ensure_one()
         lines = self.line_ids
 
-        batches = defaultdict(lambda: {'lines': self.env['account.move.line']})
+        batches = defaultdict(lambda: {'lines': self.env['account.move.pos.line']})
         for line in lines:
             batch_key = self._get_line_batch_key(line)
             serialized_key = '-'.join(str(v) for v in batch_key.values())
