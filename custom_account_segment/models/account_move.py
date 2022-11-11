@@ -75,6 +75,8 @@ class AccountMove(models.Model):
                     res = super(AccountMove, self).action_post()
             else:
                 res = super(AccountMove, self).action_post()
+        if not self:
+            res = super(AccountMove, self).action_post()
         return res
 
     def create_pos(self, sale_id=False):
