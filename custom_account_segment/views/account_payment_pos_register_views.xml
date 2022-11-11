@@ -10,7 +10,7 @@
                     <field name="partner_type" invisible="1" force_save="1"/>
                     <field name="company_id" invisible="1" force_save="1"/>
                     <field name="partner_id" invisible="1" force_save="1"/>
-
+                    <field name="state" invisible="1"/>
                     <group>
                         <group name="group1">
                             <field name="available_payment_method_line_ids" invisible="1"/>

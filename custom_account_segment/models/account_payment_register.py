@@ -43,7 +43,8 @@ class AccountPaymentPosRegister(models.TransientModel):
             if to_exclude:
                 pay.available_payment_method_line_ids = pay.available_payment_method_line_ids.filtered(
                     lambda x: x.code not in to_exclude)
-
+    state = fields.Selection(selection=[('draft', 'Draft'), ('posted', 'Posted'), ('cancel', 'Cancelled')],
+                             string='Status', required=True, readonly=True, copy=False, tracking=True, default='draft')
     move_pos_id = fields.Many2one(comodel_name='account.move.pos', string='Journal Entry', readonly=True,
                                   ondelete='cascade')
     name = fields.Char(string='Numero', copy=False, compute='_compute_name', readonly=False, store=True, index=True,
@@ -60,7 +61,7 @@ class AccountPaymentPosRegister(models.TransientModel):
     payment_date = fields.Date(string='Fecha')
     communication = fields.Char('Memo')
     journal_id = fields.Many2one('account.journal', string='Diario', required=True, readonly=True,
-                                 states={'draft': [('readonly', False)]}, check_company=True,
+                                 states={'draft': [('readonly', False)]},
                                  domain="[('type', '=', 'sale')]", default=_get_default_journal)
     payment_method_line_id = fields.Many2one('account.payment.method.line', string='Metodo de Pago', readonly=False,
                                              store=True, copy=False, domain="[('id', '!=', 0)]")
@@ -74,8 +75,6 @@ class AccountPaymentPosRegister(models.TransientModel):
                                  states={'done': [('readonly', True)]})
     available_payment_method_line_ids = fields.Many2many('account.payment.method.line',
                                                          compute='_compute_payment_method_line_fields')
-    state = fields.Selection(selection=[('draft', 'Draft'), ('posted', 'Posted'), ('cancel', 'Cancelled')],
-                             string='Status', required=True, readonly=True, copy=False, tracking=True, default='draft')
 
     def _create_payment_vals_from_wizard(self):
         payment_vals = {
