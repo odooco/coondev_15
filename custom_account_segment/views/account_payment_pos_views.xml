@@ -5,7 +5,7 @@
         <!-- account.move.line (Journal items) -->
         <record id="view_account_payment_tree" model="ir.ui.view">
             <field name="name">account.payment.tree</field>
-            <field name="model">account.payment</field>
+            <field name="model">account.payment.pos</field>
             <field name="arch" type="xml">
                 <tree edit="false" sample="1">
                     <field name="date"/>
@@ -25,7 +25,7 @@
 
         <record id="view_account_payment_kanban" model="ir.ui.view">
             <field name="name">account.payment.kanban</field>
-            <field name="model">account.payment</field>
+            <field name="model">account.payment.pos</field>
             <field name="arch" type="xml">
                 <kanban class="o_kanban_mobile" create="0" group_create="0" sample="1">
                     <field name="name"/>
@@ -68,7 +68,7 @@
 
         <record id="view_account_payment_search" model="ir.ui.view">
             <field name="name">account.payment.search</field>
-            <field name="model">account.payment</field>
+            <field name="model">account.payment.pos</field>
             <field name="arch" type="xml">
                 <search string="Payments">
                     <field name="name" string="Payment" filter_domain="['|', '|', ('name', 'ilike', self), ('partner_id', 'ilike', self), ('ref', 'ilike', self)]"/>
@@ -107,7 +107,7 @@
 
         <record id="view_account_payment_form" model="ir.ui.view">
             <field name="name">account.payment.form</field>
-            <field name="model">account.payment</field>
+            <field name="model">account.payment.pos</field>
             <field name="arch" type="xml">
                 <form string="Register Payment">
                     <sheet>
@@ -168,7 +168,7 @@
 
         <record id="view_account_payment_graph" model="ir.ui.view">
             <field name="name">account.payment.graph</field>
-            <field name="model">account.payment</field>
+            <field name="model">account.payment.pos</field>
             <field name="arch" type="xml">
                 <graph string="Invoices" sample="1">
                     <field name="payment_type"/>
@@ -182,7 +182,7 @@
 
         <record id="action_account_payments" model="ir.actions.act_window">
             <field name="name">Pagos</field>
-            <field name="res_model">account.payment</field>
+            <field name="res_model">account.payment.pos</field>
             <field name="view_mode">tree,kanban,form,graph</field>
             <field name="context">{
                 'default_payment_type': 'inbound',
