@@ -112,7 +112,6 @@
                         <field name="payment_type" invisible="1"/>
                         <field name="partner_id" invisible="1"/>
                         <field name="amount" invisible="1"/>
-                        <field name="payment_method_line_id" invisible="1"/>
                         <field name="company_id" invisible="1"/>
                         <field name="partner_bank_id" invisible="1"/>
 
