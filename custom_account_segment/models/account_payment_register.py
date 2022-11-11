@@ -29,7 +29,7 @@ class AccountPaymentPosRegister(models.TransientModel):
 
             available_lines = self.env['account.move.pos.line']
             for line in lines:
-                if line.move_id.state != 'posted':
+                if line.move_id.state != 'posted' and line.move_id.state != 'post':
                     raise UserError(_("You can only register payment for posted journal entries."))
                 if line.account_internal_type not in ('receivable', 'payable'):
                     continue
