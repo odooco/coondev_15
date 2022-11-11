@@ -83,7 +83,7 @@ class AccountMovePos(models.Model):
                     journal_type=journal.type,
                 ))
         else:
-            journal = self._search_default_journal(journal_types)
+            journal = self.move_id._search_default_journal(journal_types)
 
         return journal
 
