@@ -16,6 +16,7 @@
                     <field name="partner_id" string="Contacto"/>
                     <field name="amount" widget="monetary" sum="Total" optional="hide"/>
                     <field name="currency_id" string="Payment Currency" optional="hide"/>
+                    <field name="available_partner_bank_ids" invisible="1"/>
                     <field name="partner_bank_id" string="Cuenta"/>
                 </tree>
             </field>
@@ -116,6 +117,7 @@
                         <field name="amount" invisible="1"/>
                         <field name="company_id" invisible="1"/>
                         <field name="payment_method_line_id" invisible="1"/>
+                        <field name="available_partner_bank_ids" invisible="1"/>
                         <field name="partner_bank_id" invisible="1"/>
                         <widget name="web_ribbon"
                                 bg_color="bg-info"
