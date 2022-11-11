@@ -33,6 +33,19 @@ class AccountPaymentPos(models.Model):
         for template in self:
             template.currency_id = template.company_id.sudo().currency_id.id or main_company.currency_id.id
 
+    def _get_payment_method_codes_to_exclude(self):
+        # can be overriden to exclude payment methods based on the payment characteristics
+        self.ensure_one()
+        return []
+
+    @api.depends('payment_type', 'journal_id')
+    def _compute_payment_method_line_fields(self):
+        for pay in self:
+            pay.available_payment_method_line_ids = pay.journal_id._get_available_payment_method_lines(pay.payment_type)
+            to_exclude = pay._get_payment_method_codes_to_exclude()
+            if to_exclude:
+                pay.available_payment_method_line_ids = pay.available_payment_method_line_ids.filtered(lambda x: x.code not in to_exclude)
+
     move_pos_id = fields.Many2one(comodel_name='account.move.pos', string='Journal Entry', readonly=True, ondelete='cascade')
     name = fields.Char(string='Numero', copy=False, compute='_compute_name', readonly=False, store=True, index=True, tracking=True)
     is_internal_transfer = fields.Boolean(string="Transferencia Interna", readonly=False, store=True, tracking=True)
@@ -48,3 +61,4 @@ class AccountPaymentPos(models.Model):
     partner_bank_id = fields.Many2one('res.partner.bank', string="Cuenta del Banco", readonly=False, store=True, tracking=True, domain="[('id', 'in', available_partner_bank_ids)]")
     currency_id = fields.Many2one('res.currency', string='Currency', store=True, readonly=False, compute='_compute_currency_id', help="The payment's currency.")
     company_id = fields.Many2one('res.company', 'Compañia',default=lambda s: s.env.company, required=True, index=True, states={'done': [('readonly', True)]})
+    available_payment_method_line_ids = fields.Many2many('account.payment.method.line', compute='_compute_payment_method_line_fields')
