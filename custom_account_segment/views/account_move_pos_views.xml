@@ -558,8 +558,18 @@
                                 </group>
                                 <field name="narration" placeholder="Terms and Conditions" class="oe_inline" nolabel="1"/>
                             </page>
-                            <page id="other_tab" string="Other Info" name="other_info"
-                                  attrs="{'invisible': [('move_type', 'not in', ('out_invoice', 'out_refund', 'in_invoice', 'in_refund'))]}">
+                            <page id="account_payment_ids"
+                                  string="Pagos">
+                                <field name="account_payment_ids"/>
+                                <group class="oe_subtotal_footer oe_right" attrs="{'readonly': True}">
+                                    <field name="amount_tax" invisible="1"/>
+                                    <field name="amount_untaxed" attrs="{'invisible': [('amount_tax', '=', 0)]}"/>
+                                    <field name="amount_total" attrs="{'invisible': [('amount_tax', '!=', 0)]}"/>
+                                    <field name="amount_total" class="oe_subtotal_footer_separator" attrs="{'invisible': [('amount_tax', '=', 0)]}"/>
+                                    <field name="amount_residual" class="oe_subtotal_footer_separator"/>
+                                </group>
+                            </page>
+                            <page id="other_tab" string="Other Info" name="other_info" attrs="{'invisible': [('move_type', 'not in', ('out_invoice', 'out_refund', 'in_invoice', 'in_refund'))]}">
                                 <group id="other_tab_group">
                                     <group string="Invoice"
                                            name="sale_info_group"

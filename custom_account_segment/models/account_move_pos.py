@@ -93,6 +93,16 @@ class AccountMovePos(models.Model):
     ], string='Tipo de Movimiento', required=True, store=True, index=True, readonly=True, tracking=True,
         default="entry", change_default=True)
 
+    @api.onchange('account_payment_ids')
+    def _onchange_account_payment(self):
+        for record in self:
+            total = 0
+            for item in record.account_payment_ids:
+                total = total + item.amount
+            record.amount_residual = record.amount_total - total
+            if total >= record.amount_total:
+                state = 'posted'
+
     name = fields.Char(string='Numero', copy=False, compute='_compute_name', readonly=False, store=True, index=True,
                        tracking=True)
     move_id = fields.Many2one('account.move', string='Asiento Contable', index=True, required=True, readonly=True,
