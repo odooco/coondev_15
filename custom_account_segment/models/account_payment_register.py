@@ -100,7 +100,7 @@ class AccountPaymentPosRegister(models.TransientModel):
     @api.depends('journal_id')
     def _compute_available_partner_bank_ids(self):
         for wizard in self:
-            batch = wizard._get_batches()[0]
+            batch = wizard._get_batches()[0] if wizard._get_batches() else False
             wizard.available_partner_bank_ids = wizard._get_batch_available_partner_banks(batch, wizard.journal_id)
 
     @api.depends('payment_type', 'journal_id')
