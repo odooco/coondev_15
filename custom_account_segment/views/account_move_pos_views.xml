@@ -557,8 +557,7 @@
                                 </group>
                                 <field name="narration" placeholder="Terms and Conditions" class="oe_inline" nolabel="1"/>
                             </page>
-                            <page id="account_payment_ids"
-                                  string="Pagos">
+                            <page id="account_payment_ids" string="Pagos">
                                 <field name="account_payment_ids"/>
                                 <group class="oe_subtotal_footer oe_right" attrs="{'readonly': True}">
                                     <field name="amount_tax" invisible="1"/>
