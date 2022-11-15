@@ -31,7 +31,6 @@ class AccountPaymentPosRegister(models.TransientModel):
             template.currency_id = template.company_id.sudo().currency_id.id or main_company.currency_id.id
 
     def _get_payment_method_codes_to_exclude(self):
-        # can be overriden to exclude payment methods based on the payment characteristics
         self.ensure_one()
         return []
 
@@ -80,6 +79,7 @@ class AccountPaymentPosRegister(models.TransientModel):
         payment_vals = {
             'date': self.payment_date,
             'amount': self.amount,
+            'move_pos_id': self.move_pos_id.id,
             'payment_type': self.payment_type,
             'partner_type': self.partner_type,
             'ref': self.communication,

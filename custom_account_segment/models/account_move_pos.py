@@ -29,6 +29,7 @@ class AccountMovePos(models.Model):
             'view_mode': 'form',
             'context': {
                 'active_model': 'account.move.pos',
+                'default_move_pos_id': self.id,
                 'active_ids': self.ids,
             },
             'target': 'new',
