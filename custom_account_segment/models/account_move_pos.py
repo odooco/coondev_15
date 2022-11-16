@@ -128,13 +128,13 @@ class AccountMovePos(models.Model):
     move_id = fields.Many2one('account.move', string='Asiento Contable', index=True, required=True, readonly=True,
                               auto_join=True, ondelete="cascade", check_company=True,
                               help="The move of this entry line.")
-    date = fields.Date(string='Fecha', required=True, index=True, readonly=True,
+    date = fields.Date(string='Fecha de Factura', required=True, index=True, readonly=True,
                        states={'draft': [('readonly', False)]}, copy=False, default=fields.Date.context_today)
     ref = fields.Char(string='Referencia', copy=False, tracking=True)
     narration = fields.Text(string='Terminos y Condiciones')
     state = fields.Selection(selection=[('draft', 'Borrador'), ('post', 'Confirmado'),('posted', 'Publicado'), ('cancel', 'Cancelado')],
                              string='Estado', required=True, readonly=True, copy=False, tracking=True, default='draft')
-    journal_id = fields.Many2one('account.journal', string='Journal', required=True, readonly=True,
+    journal_id = fields.Many2one('account.journal', string='Diario', required=True, readonly=True,
                                  states={'draft': [('readonly', False)]}, check_company=True,
                                  domain="[('type', '=', 'sale')]", default=_get_default_journal)
     company_id = fields.Many2one(comodel_name='res.company', string='Compañia', store=True, readonly=True,
