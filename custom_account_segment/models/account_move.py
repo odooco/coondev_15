@@ -75,6 +75,7 @@ class AccountMove(models.Model):
     def create_pos(self, sale_id=False):
         invoice_pos = self.env['account.move.pos']
         for record in self:
+            record.state = 'draft'
             pos_lines = []
             for line in record.line_ids:
                 pos_lines.append({
@@ -127,4 +128,5 @@ class AccountMove(models.Model):
                 'line_ids': pos_lines_new.ids
             })
             record.move_type = 'entry'
+            record.state = 'posted'
         return invoice_pos
