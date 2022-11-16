@@ -43,13 +43,15 @@ class AccountMovePos(models.Model):
 
     def button_cancel(self):
         self.write({'state': 'cancel'})
+        self.move_id.state = 'cancel'
 
     def button_draft(self):
         self.write({'state': 'draft'})
+        self.move_id.state = 'draft'
 
     def action_post(self):
-        self.write({'state': 'post','name': self.move_id.name})
         self.move_id.action_post()
+        self.write({'state': 'post','name': self.move_id.name})
 
     def preview_invoice(self):
         self.ensure_one()
