@@ -93,7 +93,7 @@ class AccountPaymentPosRegister(models.TransientModel):
 
     def action_create_payments(self):
         payments = self._create_payments()
-        action = {
+        """action = {
             'name': _('Pagos'),
             'type': 'ir.actions.act_window',
             'res_model': 'account.payment.pos',
@@ -109,12 +109,12 @@ class AccountPaymentPosRegister(models.TransientModel):
                 'view_mode': 'tree,form',
                 'domain': [('id', 'in', payments.ids)],
             })
-        return action
+        return action"""
 
 
     def _create_payments(self):
         self.ensure_one()
         payment_vals = self._create_payment_vals_from_wizard()
         payments = self.env['account.payment.pos'].create(payment_vals)
-        payments.action_post()
+        payments.calculate_account_payment()
         return payments

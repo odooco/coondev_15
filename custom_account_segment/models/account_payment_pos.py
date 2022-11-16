@@ -27,6 +27,7 @@ class AccountPaymentPos(models.Model):
             self.name = str(self.journal_id.code) + str(self.journal_id.sequence)
             self.journal_id.sequence += 1
         self.write({'state': 'posted'})
+        self.move_pos_id.
 
     @api.depends('partner_id', 'company_id', 'payment_type', 'is_internal_transfer')
     def _compute_available_partner_bank_ids(self):

@@ -110,7 +110,6 @@ class AccountMovePos(models.Model):
     ], string='Tipo de Movimiento', required=True, store=True, index=True, readonly=True, tracking=True,
         default="entry", change_default=True)
 
-    @api.onchange('state','account_payment_ids')
     def calculate_account_payment(self):
         for record in self:
             total = 0
@@ -121,12 +120,6 @@ class AccountMovePos(models.Model):
             if total >= record.amount_total and record.state != 'posted':
                 record.state = 'posted'
                 record.move_id.action_re_post()
-
-    def write(self, vals):
-        res = super(AccountMovePos, self).write(vals)
-        if self.state != 'posted' and self.account_payment_ids:
-            self.calculate_account_payment()
-        return res
 
     name = fields.Char(string='Numero', copy=False, compute='_compute_name', readonly=False, store=True, index=True,
                        tracking=True)
