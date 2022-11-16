@@ -67,7 +67,7 @@ class AccountPaymentPos(models.Model):
     amount = fields.Monetary(currency_field='currency_id')
     date = fields.Date(string='Fecha')
     ref = fields.Char('Memo')
-    journal_id = fields.Many2one('account.journal', string='Diario', required=True, readonly=True, states={'draft': [('readonly', False)]}, check_company=True, domain="[('type', '=', 'sale')]", default=_get_default_journal)
+    journal_id = fields.Many2one('account.journal', string='Diario', required=True, readonly=True, states={'draft': [('readonly', False)]}, check_company=True, domain="[('type', 'in', ('bank', 'cash'))]", default=_get_default_journal)
     payment_method_line_id = fields.Many2one('account.payment.method.line', string='Metodo de Pago', readonly=False, store=True, copy=False, domain="[('id', '!=', 0)]")
     available_partner_bank_ids = fields.Many2many(comodel_name='res.partner.bank', compute='_compute_available_partner_bank_ids')
     partner_bank_id = fields.Many2one('res.partner.bank', string="Cuenta del Banco", readonly=False, store=True, tracking=True, domain="[('id', 'in', available_partner_bank_ids)]")

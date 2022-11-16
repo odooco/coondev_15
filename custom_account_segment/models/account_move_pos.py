@@ -33,6 +33,8 @@ class AccountMovePos(models.Model):
                 'default_partner_id': self.partner_id.id,
                 'default_partner_type': 'customer',
                 'default_payment_type': 'inbound',
+                'default_amount': self.amount_residual,
+                'default_payment_date': fields.Date.today(),
                 'active_ids': self.ids,
             },
             'target': 'new',
