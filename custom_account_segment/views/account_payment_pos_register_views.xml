@@ -34,6 +34,7 @@
                         </group>
                     </group>
                     <footer>
+                        <button string="Crear Y Ver Pago" name="action_create_view_payments" type="object" class="oe_highlight" data-hotkey="q"/>
                         <button string="Crear Pago" name="action_create_payments" type="object" class="oe_highlight" data-hotkey="q"/>
                         <button string="Cancelar" class="btn btn-secondary" special="cancel" data-hotkey="z"/>
                     </footer>
