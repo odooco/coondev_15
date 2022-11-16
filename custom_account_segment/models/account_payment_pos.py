@@ -24,7 +24,7 @@ class AccountPaymentPos(models.Model):
 
     def action_post(self):
         if not self.name:
-            self.name = str(self.journal_id.code) + (self.journal_id.sequence)
+            self.name = str(self.journal_id.code) + str(self.journal_id.sequence)
             self.journal_id.sequence += 1
         self.write({'state': 'posted'})
 
