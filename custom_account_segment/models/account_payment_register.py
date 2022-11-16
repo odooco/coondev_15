@@ -116,5 +116,5 @@ class AccountPaymentPosRegister(models.TransientModel):
         self.ensure_one()
         payment_vals = self._create_payment_vals_from_wizard()
         payments = self.env['account.payment.pos'].create(payment_vals)
-        payments.calculate_account_payment()
+        payments.action_post()
         return payments
