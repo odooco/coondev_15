@@ -73,6 +73,7 @@ class AccountMove(models.Model):
         return True
 
     def create_pos(self, sale_id=False):
+        invoice_pos = self.env['account.move.pos']
         for record in self:
             pos_lines = []
             for line in record.line_ids:
@@ -98,7 +99,7 @@ class AccountMove(models.Model):
                     'quantity': line.quantity,
                 })
             pos_lines_new = self.env['account.move.pos.line'].sudo().create(pos_lines)
-            self.env['account.move.pos'].sudo().create({
+            invoice_pos = self.env['account.move.pos'].sudo().create({
                 'name': record.name,
                 'sale_id': sale_id,
                 'move_id': record.id,
@@ -126,3 +127,4 @@ class AccountMove(models.Model):
                 'line_ids': pos_lines_new.ids
             })
             record.move_type = 'entry'
+        return invoice_pos
