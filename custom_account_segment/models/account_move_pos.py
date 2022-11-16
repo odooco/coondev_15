@@ -30,6 +30,9 @@ class AccountMovePos(models.Model):
             'context': {
                 'active_model': 'account.move.pos',
                 'default_move_pos_id': self.id,
+                'default_partner_id': self.partner_id.id,
+                'default_partner_type': 'customer',
+                'default_payment_type': 'inbound',
                 'active_ids': self.ids,
             },
             'target': 'new',
@@ -44,6 +47,7 @@ class AccountMovePos(models.Model):
 
     def action_post(self):
         self.write({'state': 'post','name': self.move_id.name})
+        self.move_id.action_post()
 
     def preview_invoice(self):
         self.ensure_one()
@@ -106,6 +110,7 @@ class AccountMovePos(models.Model):
     ], string='Tipo de Movimiento', required=True, store=True, index=True, readonly=True, tracking=True,
         default="entry", change_default=True)
 
+    @api.onchange('state','account_payment_ids')
     def calculate_account_payment(self):
         for record in self:
             total = 0
@@ -115,7 +120,7 @@ class AccountMovePos(models.Model):
                 record.amount_residual = record.amount_total - total
             if total >= record.amount_total and record.state != 'posted':
                 record.state = 'posted'
-                record.move_id.action_post()
+                record.move_id.action_re_post()
 
     def write(self, vals):
         res = super(AccountMovePos, self).write(vals)

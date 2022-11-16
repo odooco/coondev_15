@@ -115,6 +115,6 @@ class AccountPaymentPosRegister(models.TransientModel):
     def _create_payments(self):
         self.ensure_one()
         payment_vals = self._create_payment_vals_from_wizard()
-        payments = self.env['account.payment'].create(payment_vals)
+        payments = self.env['account.payment.pos'].create(payment_vals)
         payments.action_post()
         return payments

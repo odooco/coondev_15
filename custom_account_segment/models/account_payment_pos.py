@@ -6,7 +6,6 @@ import logging
 
 _logger = logging.getLogger(__name__)
 
-
 class AccountPaymentPos(models.Model):
     _name = 'account.payment.pos'
     _inherit = ['mail.thread', 'mail.activity.mixin']
@@ -24,6 +23,9 @@ class AccountPaymentPos(models.Model):
         self.write({'state': 'draft'})
 
     def action_post(self):
+        if not self.name:
+            self.name = str(self.journal_id.code) + (self.journal_id.sequence)
+            self.journal_id.sequence += 1
         self.write({'state': 'posted'})
 
     @api.depends('partner_id', 'company_id', 'payment_type', 'is_internal_transfer')

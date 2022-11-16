@@ -9,7 +9,7 @@ _logger = logging.getLogger(__name__)
 class AccountMove(models.Model):
     _inherit = 'account.move'
 
-    def action_post(self):
+    def action_re_post(self):
         for record in self:
             if record.journal_id.st_dt and record.partner_id.property_payment_term_id.st_dt:
                 rc_lines = record.line_ids.filtered(lambda line: line.st_dt)
@@ -60,7 +60,6 @@ class AccountMove(models.Model):
                     self.env['account.move.line'].sudo().create(new_lines)
                     lines_new_move = self.env['account.move.line'].sudo().create(lines)
                     record.move_type = 'entry'
-                    res = super(AccountMove, self).action_post()
                     invoice = self.sudo().create({
                         'move_type': 'entry',
                         'partner_id': self.env.user.company_id.partner_rec.id,
