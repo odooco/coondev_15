@@ -42,23 +42,23 @@ class AccountPaymentPosRegister(models.TransientModel):
             if to_exclude:
                 pay.available_payment_method_line_ids = pay.available_payment_method_line_ids.filtered(
                     lambda x: x.code not in to_exclude)
-    state = fields.Selection(selection=[('draft', 'Draft'), ('posted', 'Posted'), ('cancel', 'Cancelled')],
+    state = fields.Selection(selection=[('draft', 'Borrador'), ('posted', 'Publicado'), ('cancel', 'Cancelado')],
                              string='Status', required=True, readonly=True, copy=False, tracking=True, default='draft')
-    move_pos_id = fields.Many2one(comodel_name='account.move.pos', string='Journal Entry', readonly=True,
+    move_pos_id = fields.Many2one(comodel_name='account.move.pos', string='Factura', readonly=True,
                                   ondelete='cascade')
     name = fields.Char(string='Numero', copy=False, compute='_compute_name', readonly=False, store=True, index=True,
                        tracking=True)
     is_internal_transfer = fields.Boolean(string="Transferencia Interna", readonly=False, store=True, tracking=True)
-    payment_type = fields.Selection([('outbound', 'Send'), ('inbound', 'Receive'), ], string='Payment Type',
+    payment_type = fields.Selection([('outbound', 'Enviada'), ('inbound', 'Recibido'), ], string='Payment Type',
                                     default='inbound', required=True, tracking=True)
-    partner_type = fields.Selection([('customer', 'Customer'), ('supplier', 'Vendor'), ], default='customer',
+    partner_type = fields.Selection([('customer', 'Cliente'), ('supplier', 'Vendedor'), ], default='customer',
                                     tracking=True, required=True)
-    partner_id = fields.Many2one(comodel_name='res.partner', string="Customer/Vendor", store=True, readonly=False,
+    partner_id = fields.Many2one(comodel_name='res.partner', string="Cliente", store=True, readonly=False,
                                  ondelete='restrict',
                                  domain="['|', ('parent_id','=', False), ('is_company','=', True)]", tracking=True)
     amount = fields.Monetary(currency_field='currency_id')
     payment_date = fields.Date(string='Fecha')
-    communication = fields.Char('Memo')
+    communication = fields.Char('Referencia / Memo')
     journal_id = fields.Many2one('account.journal', string='Diario', required=True, readonly=True,
                                  states={'draft': [('readonly', False)]},
                                  domain="[('type', '=', 'sale')]", default=_get_default_journal)
@@ -68,7 +68,7 @@ class AccountPaymentPosRegister(models.TransientModel):
                                                   compute='_compute_available_partner_bank_ids')
     partner_bank_id = fields.Many2one('res.partner.bank', string="Cuenta del Banco", readonly=False, store=True,
                                       tracking=True, domain="[('id', 'in', available_partner_bank_ids)]")
-    currency_id = fields.Many2one('res.currency', string='Currency', store=True, readonly=False,
+    currency_id = fields.Many2one('res.currency', string='Moneda', store=True, readonly=False,
                                   compute='_compute_currency_id', help="The payment's currency.")
     company_id = fields.Many2one('res.company', 'Compañia', default=lambda s: s.env.company, required=True, index=True,
                                  states={'done': [('readonly', True)]})

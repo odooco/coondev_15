@@ -274,17 +274,17 @@
                 <form string="Account Entry">
                     <header>
                         <!-- Post -->
-                        <button name="action_post" string="Post" class="oe_highlight"
+                        <button name="action_post" string="Publicar" class="oe_highlight"
                                 type="object"
                                 attrs="{'invisible': [('state', '!=', 'draft')]}"/>
                         <!-- Reverse -->
-                        <button name="button_cancel" string="Cancel Entry" type="object" groups="account.group_account_invoice"
+                        <button name="button_cancel" string="Cancelar Factura" type="object" groups="account.group_account_invoice"
                                 attrs="{'invisible' : ['|', ('id', '=', False), ('state', '!=', 'draft')]}"/>
-                        <button name="button_draft" string="Reset to Draft" type="object" groups="account.group_account_invoice"
+                        <button name="button_draft" string="Pasar a Borrador" type="object" groups="account.group_account_invoice"
                                 attrs="{'invisible' : [('state', '=', 'draft')]}"/>
                         <button name="action_print_pos" type="object" string="Imprimir Pos"/>
                         <button name="register_paid" type="object" string="Registrar Pago" attrs="{'invisible': ['|', ('amount_residual', '=', 0),('state', '=', 'draft')]}"/>
-                        <field name="state" widget="statusbar" statusbar_visible="draft,posted"/>
+                        <field name="state" widget="statusbar"/>
                     </header>
                     <!-- Invoice outstanding credits -->
                     <div groups="account.group_account_invoice,account.group_account_readonly"
@@ -378,7 +378,7 @@
                         </group>
                         <notebook>
                             <page id="invoice_tab"
-                                  string="Invoice Lines"
+                                  string="Lineas de Factura"
                                   attrs="{'invisible': [('move_type', '=', 'entry')]}">
                                 <field name="invoice_line_ids"
                                        widget="section_and_note_one2many"
@@ -402,26 +402,26 @@
                                                     or [('purchase_ok', '=', True), '|', ('company_id', '=', False), ('company_id', '=', parent.company_id)]
                                                "/>
                                         <field name="name" widget="section_and_note_text" attrs="{'required': [('parent.move_type', 'not in', ('in_invoice', 'in_refund','in_receipt'))]}"/>
-                                        <field name="account_id"
+                                        <field name="account_id" string="Cuenta"
                                                groups="account.group_account_readonly"
                                                options="{'no_create': True}"
                                                domain="[('deprecated', '=', False), ('user_type_id.type', 'not in', ('receivable', 'payable')), ('company_id', '=', parent.company_id), ('is_off_balance', '=', False)]"
                                                attrs="{'required': [('display_type', '=', False)]}"/>
-                                        <field name="analytic_account_id"
+                                        <field name="analytic_account_id" string="Cuenta Analitica"
                                                domain="['|', ('company_id', '=', False), ('company_id', '=', parent.company_id)]"
                                                groups="analytic.group_analytic_accounting"
                                                optional="show"/>
-                                        <field name="analytic_tag_ids"
+                                        <field name="analytic_tag_ids" string="Etiquetas Analiticas"
                                                domain="['|', ('company_id', '=', False), ('company_id', '=', parent.company_id)]"
                                                groups="analytic.group_analytic_tags"
                                                optional="show"
                                                widget="many2many_tags"/>
-                                        <field name="quantity"/>
+                                        <field name="quantity" string="Cantidad"/>
                                         <field name="product_uom_category_id" invisible="1"/>
                                         <field name="product_uom_id" string="UoM" groups="uom.group_uom" optional="show"/>
-                                        <field name="price_unit" string="Price"/>
+                                        <field name="price_unit" string="Precio Unitario"/>
                                         <field name="discount" string="Disc.%" optional="hide"/>
-                                        <field name="tax_ids" widget="many2many_tags"
+                                        <field name="tax_ids" widget="many2many_tags" string="Impu."
                                                options="{'no_create': True}"
                                                optional="show"/>
                                         <field name="price_subtotal"
@@ -567,17 +567,17 @@
                                     <field name="amount_residual" class="oe_subtotal_footer_separator"/>
                                 </group>
                             </page>
-                            <page id="other_tab" string="Other Info" name="other_info" attrs="{'invisible': [('move_type', 'not in', ('out_invoice', 'out_refund', 'in_invoice', 'in_refund'))]}">
+                            <page id="other_tab" string="Otra Informacion" name="other_info" attrs="{'invisible': [('move_type', 'not in', ('out_invoice', 'out_refund', 'in_invoice', 'in_refund'))]}">
                                 <group id="other_tab_group">
-                                    <group string="Invoice"
+                                    <group string="Facturacion"
                                            name="sale_info_group"
                                            attrs="{'invisible': [('move_type', 'not in', ('out_invoice', 'out_refund'))]}">
-                                        <label for="ref" string="Customer Reference" />
+                                        <label for="ref" string="Referencia de cliente" />
                                         <field name="ref" nolabel="1"/>
                                         <field name="invoice_user_id" domain="[('share', '=', False)]" widget="many2one_avatar_user"/>
                                         <field name="invoice_origin" string="Source Document" force_save="1" invisible="1"/>
                                     </group>
-                                    <group string="Accounting"
+                                    <group string="Contabilidad"
                                            name="accounting_info_group"
                                            attrs="{'invisible': [('move_type', 'not in', ('out_invoice', 'out_refund', 'in_invoice', 'in_refund'))]}">
                                         <field name="company_id" groups="base.group_multi_company"/>
