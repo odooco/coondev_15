@@ -70,13 +70,7 @@ class AccountMove(models.Model):
                         'line_ids': lines_new_move.ids
                     })
                     invoice.sudo().action_post()
-                else:
-                    res = super(AccountMove, self).action_post()
-            else:
-                res = super(AccountMove, self).action_post()
-        if not self:
-            res = super(AccountMove, self).action_post()
-        return res
+        return True
 
     def create_pos(self, sale_id=False):
         for record in self:
