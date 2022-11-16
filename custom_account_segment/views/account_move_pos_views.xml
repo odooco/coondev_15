@@ -594,7 +594,7 @@
                                     </group>
                                 </group>
                                 <!-- Internal note -->
-                                <field name="narration" placeholder="Add an internal note..." nolabel="1" height="50"/>
+                                <field name="narration" placeholder="Agrega una nota interna..." nolabel="1" height="50"/>
                             </page>
                         </notebook>
                     </sheet>
