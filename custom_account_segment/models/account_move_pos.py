@@ -100,6 +100,9 @@ class AccountMovePos(models.Model):
                     'quantity': line.quantity,
                 })
             lines_new = self.env['account.move.line'].sudo().create(lines)
+            invoice.name = invoice.name.replace(invoice.name.split('/')[-1],str(invoice.journal_id.refund_sequence_number))
+            invoice.journal_id.refund_sequence_number += 1
+            invoice.sequence_number = invoice.journal_id.refund_sequence_number
             invoice.create_pos()
             record.reversal = True
             action = self.env["ir.actions.actions"]._for_xml_id("custom_account_segment.action_move_out_invoice_type")

@@ -6,6 +6,11 @@ import logging
 
 _logger = logging.getLogger(__name__)
 
+class AccountJournal(models.Model):
+    _inherit = 'account.journal'
+
+    refund_sequence_number = fields.Integer(default=1)
+
 class AccountMove(models.Model):
     _inherit = 'account.move'
 
@@ -72,6 +77,7 @@ class AccountMove(models.Model):
                         'line_ids': lines_new_move.ids
                     })
                     invoice.sudo().action_post()
+            record.partner_id = record.company_id.partner_rec,
             record.state = 'posted'
         return True
 
