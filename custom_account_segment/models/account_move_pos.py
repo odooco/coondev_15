@@ -290,8 +290,8 @@ class AccountMoveReversalPos(models.TransientModel):
     @api.model
     def default_get(self, fields):
         res = super(AccountMoveReversalPos, self).default_get(fields)
-        move_ids = self.env['account.move'].browse(self.env.context['active_ids']) if self.env.context.get(
-            'active_model') == 'account.move' else self.env['account.move']
+        move_ids = self.env['account.move.pos'].browse(self.env.context['active_ids']) if self.env.context.get(
+            'active_model') == 'account.move.pos' else self.env['account.move.pos']
 
         if any(move.state != "posted" for move in move_ids):
             raise UserError(_('You can only reverse posted moves.'))
@@ -339,8 +339,8 @@ class AccountMoveReversalPos(models.TransientModel):
             default_values_list.append(self._prepare_default_reversal(move))
 
         batches = [
-            [self.env['account.move'], [], True],  # Moves to be cancelled by the reverses.
-            [self.env['account.move'], [], False],  # Others.
+            [self.env['account.move.pos'], [], True],  # Moves to be cancelled by the reverses.
+            [self.env['account.move.pos'], [], False],  # Others.
         ]
         for move, default_vals in zip(moves, default_values_list):
             is_auto_post = bool(default_vals.get('auto_post'))
@@ -350,7 +350,7 @@ class AccountMoveReversalPos(models.TransientModel):
             batches[batch_index][1].append(default_vals)
 
         # Handle reverse method.
-        moves_to_redirect = self.env['account.move']
+        moves_to_redirect = self.env['account.move.pos']
         for moves, default_values_list, is_cancel_needed in batches:
             new_moves = moves._reverse_moves(default_values_list, cancel=is_cancel_needed)
 
@@ -359,7 +359,7 @@ class AccountMoveReversalPos(models.TransientModel):
                 for move in moves.with_context(include_business_fields=True):
                     moves_vals_list.append(
                         move.copy_data({'date': self.date if self.date_mode == 'custom' else move.date})[0])
-                new_moves = self.env['account.move'].create(moves_vals_list)
+                new_moves = self.env['account.move.pos'].create(moves_vals_list)
 
             moves_to_redirect |= new_moves
 
@@ -369,7 +369,7 @@ class AccountMoveReversalPos(models.TransientModel):
         action = {
             'name': _('Reverse Moves'),
             'type': 'ir.actions.act_window',
-            'res_model': 'account.move',
+            'res_model': 'account.move.pos',
         }
         if len(moves_to_redirect) == 1:
             action.update({
