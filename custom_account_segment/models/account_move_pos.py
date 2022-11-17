@@ -16,6 +16,7 @@ class AccountMovePos(models.Model):
     _sequence_index = "journal_id"
 
     print = fields.Integer(default=0)
+    reversal = fields.Boolean(default=False)
 
     def action_print_pos(self):
         self.ensure_one()
@@ -98,8 +99,9 @@ class AccountMovePos(models.Model):
                     'price_subtotal': line.price_subtotal,
                     'quantity': line.quantity,
                 })
-            pos_lines_new = self.env['account.move.line'].sudo().create(lines)
+            lines_new = self.env['account.move.line'].sudo().create(lines)
             invoice.create_pos()
+            record.reversal = True
             action = self.env["ir.actions.actions"]._for_xml_id("custom_account_segment.action_move_out_invoice_type")
             form_view = [(self.env.ref('custom_account_segment.view_move_pos_form').id, 'form')]
             if 'views' in action:

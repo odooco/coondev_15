@@ -285,7 +285,7 @@
                         <button name="action_print_pos" type="object" string="Imprimir Pos"/>
                         <button name="action_reverse" string='Agregar Nota Credito'
                                 type='object' groups="account.group_account_invoice"
-                                attrs="{'invisible': ['|', ('move_type', 'not in', ('out_invoice', 'in_invoice')), ('state', '!=', 'posted')]}"/>
+                                attrs="{'invisible': ['|','|', ('move_type', 'not in', ('out_invoice', 'in_invoice')), ('state', '!=', 'posted'), ('reversal', '=', True)]}"/>
                         <button name="register_paid" type="object" string="Registrar Pago" attrs="{'invisible': ['|', ('amount_residual', '=', 0),('state', '=', 'draft')]}"/>
                         <field name="state" widget="statusbar"/>
                     </header>
@@ -310,6 +310,7 @@
 
                         <!-- Invisible fields -->
                         <field name="id" invisible="1"/>
+                        <field name="reversal" invisible="1"/>
                         <field name="move_type" invisible="1"/>
                         <div class="oe_title">
                             <!-- Invoice draft header -->
