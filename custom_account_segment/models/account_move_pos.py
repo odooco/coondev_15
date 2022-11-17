@@ -51,8 +51,7 @@ class AccountMovePos(models.Model):
 
     def action_reverse(self):
         action = self.env["ir.actions.actions"]._for_xml_id("custom_account_segment.action_view_account_move_reversal")
-        if self.is_invoice():
-            action['name'] = _('Credit Note')
+        action['name'] = _('Credit Note')
         return action
 
     def action_post(self):
@@ -320,7 +319,7 @@ class AccountMoveReversalPos(models.TransientModel):
             if self.reason
             else _('Reversal of: %s', move.name),
             'date': reverse_date,
-            'invoice_date': move.is_invoice(include_receipts=True) and (self.date or move.date) or False,
+            'invoice_date': self.date or move.date or False,
             'journal_id': self.journal_id and self.journal_id.id or move.journal_id.id,
             'invoice_payment_term_id': None,
             'invoice_user_id': move.invoice_user_id.id,
