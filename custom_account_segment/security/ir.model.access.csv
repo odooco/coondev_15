@@ -3,3 +3,4 @@ access_account_move_pos,account_move_pos,model_account_move_pos,,1,1,1,1
 access_account_move_pos_line,account_move_pos_line,model_account_move_pos_line,,1,1,1,1
 access_account_payment_pos,account_payment_pos,model_account_payment_pos,,1,1,1,1
 access_account_payment_pos_register,account_payment_pos_register,model_account_payment_pos_register,,1,1,1,1
+access_account_move_reversal_pos,account_move_reversal_pos,model_account_move_reversal_pos,,1,1,1,1
