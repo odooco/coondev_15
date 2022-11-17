@@ -19,7 +19,7 @@ class SaleOrder(models.Model):
 
     journal_id = fields.Many2one('account.journal', string='Journal', domain="[('type', '=', 'sale')]")
     invoice_pos_count = fields.Integer(string='Invoice Count', compute='_get_pos_invoiced', readonly=True)
-    invoice_pos_ids = fields.Many2many("account.move.pos", string='Invoices', compute="_get_pos_invoiced",
+    invoice_pos_ids = fields.Many2many("account.move.pos", 'sale_move_pos_rel', 'sale_id', 'move_pos_id', string='Invoices', compute="_get_pos_invoiced",
                                        readonly=True, copy=False)
 
     def action_pos_view_invoice(self):

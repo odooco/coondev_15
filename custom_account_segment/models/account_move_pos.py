@@ -51,6 +51,8 @@ class AccountMovePos(models.Model):
 
     def action_post(self):
         self.move_id.action_post()
+        sale = self.env['sale.order'].search([('name','ilike',self.move_id.invoice_origin)], limit=1)
+        sale.invoice_status = 'invoiced'
         self.write({'state': 'post','name': self.move_id.name})
 
     def preview_invoice(self):
@@ -124,6 +126,8 @@ class AccountMovePos(models.Model):
             if total >= record.amount_total and record.state != 'posted':
                 record.state = 'posted'
                 record.move_id.action_re_post()
+            sale = self.env['sale.order'].search([('name','ilike',record.move_id.invoice_origin)], limit=1)
+            sale.invoice_status = 'invoiced'
 
     name = fields.Char(string='Numero', copy=False, compute='_compute_name', readonly=False, store=True, index=True,
                        tracking=True)

@@ -24,18 +24,18 @@ class AccountMove(models.Model):
                         else:
                             name = 'Reclacificacion'
                         if line.name and 'IVA' in line.name:
-                            account = self.env.user.company_id.tax_account_id.id
+                            account = record.company_id.tax_account_id.id
                         elif line.credit:
-                            account = self.env.user.company_id.end_account_id.id
+                            account = record.company_id.end_account_id.id
                         else:
-                            account = self.env.user.company_id.general_account_id.id
+                            account = record.company_id.general_account_id.id
                         lines.append({
                             'name': name,
                             'account_id': account,
                             'move_id': line.move_id.id,
-                            'debit': line.debit * self.env.user.company_id.percent_rec / 100,
-                            'credit': line.credit * self.env.user.company_id.percent_rec / 100,
-                            'tax_base_amount': line.tax_base_amount * self.env.user.company_id.percent_rec / 100,
+                            'debit': line.debit * record.company_id.percent_rec / 100,
+                            'credit': line.credit * record.company_id.percent_rec / 100,
+                            'tax_base_amount': line.tax_base_amount * record.company_id.percent_rec / 100,
                             'exclude_from_invoice_tab': True,
                             'st_dt': True,
                             'quantity': line.quantity,
@@ -45,15 +45,15 @@ class AccountMove(models.Model):
                             'account_id': line.account_id.id,
                             'product_id': line.product_id.id,
                             'move_id': line.move_id.id,
-                            'debit': line.debit * (100 - self.env.user.company_id.percent_rec) / 100,
-                            'credit': line.credit * (100 - self.env.user.company_id.percent_rec) / 100,
+                            'debit': line.debit * (100 - record.company_id.percent_rec) / 100,
+                            'credit': line.credit * (100 - record.company_id.percent_rec) / 100,
                             'exclude_from_invoice_tab': line.exclude_from_invoice_tab,
                             'tax_ids': line.tax_ids.ids,
                             'discount': line.discount,
                             'price_unit': line.price_unit,
                             'tax_repartition_line_id': line.tax_repartition_line_id.id,
                             'tax_tag_ids': line.tax_tag_ids.ids,
-                            'tax_base_amount': line.tax_base_amount * (100 - self.env.user.company_id.percent_rec) / 100,
+                            'tax_base_amount': line.tax_base_amount * (100 - record.company_id.percent_rec) / 100,
                             'amount_residual': line.amount_residual,
                             'price_subtotal': line.price_subtotal,
                             'quantity': line.quantity,
@@ -64,10 +64,10 @@ class AccountMove(models.Model):
                     record.move_type = 'entry'
                     invoice = self.sudo().create({
                         'move_type': 'entry',
-                        'partner_id': self.env.user.company_id.partner_rec.id,
+                        'partner_id': record.company_id.partner_rec.id,
                         'currency_id': self.currency_id.id,
                         'invoice_date': self.invoice_date,
-                        'journal_id': self.env.user.company_id.journal_id.id,
+                        'journal_id': record.company_id.journal_id.id,
                         'date': self.date,
                         'line_ids': lines_new_move.ids
                     })
