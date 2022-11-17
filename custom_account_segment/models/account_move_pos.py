@@ -50,9 +50,7 @@ class AccountMovePos(models.Model):
         self.move_id.state = 'draft'
 
     def action_reverse(self):
-        action = self.env["ir.actions.actions"]._for_xml_id("custom_account_segment.action_view_account_move_reversal")
-        action['name'] = _('Credit Note')
-        return action
+        return self.move_id.action_reverse()
 
     def action_post(self):
         self.move_id.action_post()
@@ -183,7 +181,6 @@ class AccountMovePos(models.Model):
     amount_residual_signed = fields.Monetary(string='Amount Due Signed', store=True)
     sale_id = fields.Many2one(string="Sales Order", store=True, readonly=False)
 
-
 class AccountMovePosLine(models.Model):
     _name = 'account.move.pos.line'
     _description = "Linea Facturas Pos"
@@ -253,132 +250,3 @@ class AccountMovePosLine(models.Model):
                                         compute="_compute_analytic_account", store=True, readonly=False, copy=True)
     exclude_from_invoice_tab = fields.Boolean(
         help="Technical field used to exclude some lines from the invoice_line_ids tab in the form view.")
-
-
-from odoo import models, fields, api
-from odoo.tools.translate import _
-
-class AccountMoveReversalPos(models.TransientModel):
-    _name = 'account.move.reversal.pos'
-    _description = 'Account Move Reversal Pos'
-    _check_company_auto = True
-
-    date = fields.Date(string='Fecha de Reversion', default=fields.Date.context_today, required=True)
-    journal_id = fields.Many2one('account.journal', string='Usar Diario Especifico', help='If empty, uses the journal of the journal entry to be reversed.')
-    move_ids = fields.Many2many('account.move.pos', 'account_move_reversal_move_pos_rel', 'reversal_id', 'move_pos_id',
-                                domain=[('state', '=', 'posted')])
-    new_move_ids = fields.Many2many('account.move.pos', 'account_move_reversal_new_move_pos', 'reversal_id', 'new_move_id')
-    date_mode = fields.Selection(selection=[
-        ('custom', 'Especifica'),
-        ('entry', 'Fecha de Entrada de Diario')
-    ], required=True, default='custom')
-    date = fields.Date(string='Fechas de reversion', default=fields.Date.context_today)
-    reason = fields.Char(string='Razon')
-    refund_method = fields.Selection(selection=[
-        ('refund', 'Reversion Parcial'),
-        ('cancel', 'Reversion Total'),
-        ('modify', 'Reversion Total y nueva Factura en Borrador')
-    ], string='Credit Method', required=True,
-        help='Choose how you want to credit this invoice. You cannot "modify" nor "cancel" if the invoice is already reconciled.')
-    company_id = fields.Many2one('res.company', required=True, readonly=True)
-
-    # computed fields
-    residual = fields.Monetary(compute="_compute_from_moves")
-    currency_id = fields.Many2one('res.currency', compute="_compute_from_moves")
-    move_type = fields.Char(compute="_compute_from_moves")
-
-    @api.model
-    def default_get(self, fields):
-        res = super(AccountMoveReversalPos, self).default_get(fields)
-        move_ids = self.env['account.move.pos'].browse(self.env.context['active_ids']) if self.env.context.get(
-            'active_model') == 'account.move.pos' else self.env['account.move.pos']
-
-        if any(move.state != "posted" for move in move_ids):
-            raise UserError(_('You can only reverse posted moves.'))
-        if 'company_id' in fields:
-            res['company_id'] = move_ids.company_id.id or self.env.company.id
-        if 'move_ids' in fields:
-            res['move_ids'] = [(6, 0, move_ids.ids)]
-        if 'refund_method' in fields:
-            res['refund_method'] = (len(move_ids) > 1 or move_ids.move_type == 'entry') and 'cancel' or 'refund'
-        return res
-
-    @api.depends('move_ids')
-    def _compute_from_moves(self):
-        for record in self:
-            move_ids = record.move_ids._origin
-            record.residual = len(move_ids) == 1 and move_ids.amount_residual or 0
-            record.currency_id = len(move_ids.currency_id) == 1 and move_ids.currency_id or False
-            record.move_type = move_ids.move_type if len(move_ids) == 1 else (any(
-                move.move_type in ('in_invoice', 'out_invoice') for move in move_ids) and 'some_invoice' or False)
-
-    def _prepare_default_reversal(self, move):
-        reverse_date = self.date if self.date_mode == 'custom' else move.date
-        return {
-            'ref': _('Reversal of: %(move_name)s, %(reason)s', move_name=move.name, reason=self.reason)
-            if self.reason
-            else _('Reversal of: %s', move.name),
-            'date': reverse_date,
-            'invoice_date': self.date or move.date or False,
-            'journal_id': self.journal_id and self.journal_id.id or move.journal_id.id,
-            'invoice_payment_term_id': None,
-            'invoice_user_id': move.invoice_user_id.id,
-            'auto_post': True if reverse_date > fields.Date.context_today(self) else False,
-        }
-
-    def _reverse_moves_post_hook(self, moves):
-        # DEPRECATED: TO REMOVE IN MASTER
-        return
-
-    def reverse_moves(self):
-        self.ensure_one()
-        moves = self.move_ids
-        # Create default values.
-        default_values_list = []
-        for move in moves:
-            default_values_list.append(self._prepare_default_reversal(move))
-
-        batches = [
-            [self.env['account.move.pos'], [], True],  # Moves to be cancelled by the reverses.
-            [self.env['account.move.pos'], [], False],  # Others.
-        ]
-        for move, default_vals in zip(moves, default_values_list):
-            is_auto_post = bool(default_vals.get('auto_post'))
-            is_cancel_needed = not is_auto_post and self.refund_method in ('cancel', 'modify')
-            batch_index = 0 if is_cancel_needed else 1
-            batches[batch_index][0] |= move
-            batches[batch_index][1].append(default_vals)
-
-        # Handle reverse method.
-        moves_to_redirect = self.env['account.move.pos']
-        for moves, default_values_list, is_cancel_needed in batches:
-            new_moves = moves._reverse_moves(default_values_list, cancel=is_cancel_needed)
-
-            if self.refund_method == 'modify':
-                moves_vals_list = []
-                for move in moves.with_context(include_business_fields=True):
-                    moves_vals_list.append(
-                        move.copy_data({'date': self.date if self.date_mode == 'custom' else move.date})[0])
-                new_moves = self.env['account.move.pos'].create(moves_vals_list)
-
-            moves_to_redirect |= new_moves
-
-        self.new_move_ids = moves_to_redirect
-
-        # Create action.
-        action = {
-            'name': _('Reverse Moves'),
-            'type': 'ir.actions.act_window',
-            'res_model': 'account.move.pos',
-        }
-        if len(moves_to_redirect) == 1:
-            action.update({
-                'view_mode': 'form',
-                'res_id': moves_to_redirect.id,
-            })
-        else:
-            action.update({
-                'view_mode': 'tree,form',
-                'domain': [('id', 'in', moves_to_redirect.ids)],
-            })
-        return action
