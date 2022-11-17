@@ -50,7 +50,74 @@ class AccountMovePos(models.Model):
         self.move_id.state = 'draft'
 
     def action_reverse(self):
-        return self.move_id.action_reverse()
+        for record in self:
+            lines = []
+            invoice = self.env['account.move'].sudo().create({
+                'move_type': 'out_refund',
+                'ref': record.ref,
+                'narration': record.ref,
+                'partner_id': record.partner_id.id,
+                'partner_shipping_id': record.partner_shipping_id.id,
+                'invoice_user_id': record.invoice_user_id.id,
+                'state': 'draft',
+                'company_id': record.company_id.id,
+                'invoice_origin': record.invoice_origin,
+                'currency_id': record.currency_id.id,
+                'invoice_date': record.invoice_date,
+                'amount_untaxed': record.amount_untaxed,
+                'amount_tax': record.amount_tax,
+                'amount_total': record.amount_total,
+                'amount_residual': record.amount_residual,
+                'amount_untaxed_signed': record.amount_untaxed_signed,
+                'amount_tax_signed': record.amount_tax_signed,
+                'amount_total_signed': record.amount_total_signed,
+                'amount_residual_signed': record.amount_residual_signed,
+                'journal_id': record.journal_id.id,
+                'date': record.date,
+            })
+            for line in record.line_ids:
+                lines.append({
+                    'name': line.name,
+                    'move_id': invoice.id,
+                    'account_id': line.account_id.id,
+                    'product_id': line.product_id.id,
+                    'currency_id': record.currency_id.id,
+                    'company_id': record.company_id.id,
+                    'debit': line.debit,
+                    'credit': line.credit,
+                    'exclude_from_invoice_tab': line.exclude_from_invoice_tab,
+                    'tax_ids': line.tax_ids.ids,
+                    'tax_line_id': line.tax_line_id.id,
+                    'discount': line.discount,
+                    'display_type': line.display_type,
+                    'price_unit': line.price_unit,
+                    'tax_repartition_line_id': line.tax_repartition_line_id.id,
+                    'tax_tag_ids': line.tax_tag_ids.ids,
+                    'tax_base_amount': line.tax_base_amount,
+                    'amount_residual': line.amount_residual,
+                    'price_subtotal': line.price_subtotal,
+                    'quantity': line.quantity,
+                })
+            pos_lines_new = self.env['account.move.line'].sudo().create(lines)
+            invoice.create_pos()
+            action = self.env["ir.actions.actions"]._for_xml_id("custom_account_segment.action_move_out_invoice_type")
+            form_view = [(self.env.ref('custom_account_segment.view_move_pos_form').id, 'form')]
+            if 'views' in action:
+                action['views'] = form_view + [(state, view) for state, view in action['views'] if view != 'form']
+            else:
+                action['views'] = form_view
+            action['res_id'] = invoice.id
+            context = {
+                'default_move_type': 'out_refund',
+            }
+            if len(self) == 1:
+                context.update({
+                    'default_partner_id': self.partner_id.id,
+                    'default_partner_shipping_id': self.partner_shipping_id.id,
+                    'default_invoice_origin': self.mapped('name'),
+                })
+            action['context'] = context
+        return action
 
     def action_post(self):
         self.move_id.action_post()
