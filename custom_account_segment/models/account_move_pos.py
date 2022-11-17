@@ -49,6 +49,12 @@ class AccountMovePos(models.Model):
         self.write({'state': 'draft'})
         self.move_id.state = 'draft'
 
+    def action_reverse(self):
+        action = self.env["ir.actions.actions"]._for_xml_id("custom_account_segment.action_view_account_move_reversal")
+        if self.is_invoice():
+            action['name'] = _('Credit Note')
+        return action
+
     def action_post(self):
         self.move_id.action_post()
         sale = self.env['sale.order'].search([('name','ilike',self.move_id.invoice_origin)], limit=1)
@@ -248,3 +254,29 @@ class AccountMovePosLine(models.Model):
                                         compute="_compute_analytic_account", store=True, readonly=False, copy=True)
     exclude_from_invoice_tab = fields.Boolean(
         help="Technical field used to exclude some lines from the invoice_line_ids tab in the form view.")
+
+
+from odoo import models, fields, api
+from odoo.tools.translate import _
+
+class AccountMoveReversalPos(models.TransientModel):
+    _name = 'account.move.reversal.pos'
+    _description = 'Account Move Reversal Pos'
+
+    date = fields.Date(string='Fecha de Reversion', default=fields.Date.context_today, required=True)
+    journal_id = fields.Many2one('account.journal', string='Usar Diario Especifico', help='If empty, uses the journal of the journal entry to be reversed.')
+
+    @api.multi
+    def reverse_moves(self):
+        ac_move_ids = self._context.get('active_ids', False)
+        res = self.env['account.move.pos'].browse(ac_move_ids).reverse_moves(self.date, self.journal_id or False)
+        if res:
+            return {
+                'name': _('Reverse Moves'),
+                'type': 'ir.actions.act_window',
+                'view_type': 'form',
+                'view_mode': 'tree,form',
+                'res_model': 'account.move.pos',
+                'domain': [('id', 'in', res)],
+            }
+        return {'type': 'ir.actions.act_window_close'}
