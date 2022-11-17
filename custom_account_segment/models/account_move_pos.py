@@ -266,7 +266,6 @@ class AccountMoveReversalPos(models.TransientModel):
     date = fields.Date(string='Fecha de Reversion', default=fields.Date.context_today, required=True)
     journal_id = fields.Many2one('account.journal', string='Usar Diario Especifico', help='If empty, uses the journal of the journal entry to be reversed.')
 
-    @api.multi
     def reverse_moves(self):
         ac_move_ids = self._context.get('active_ids', False)
         res = self.env['account.move.pos'].browse(ac_move_ids).reverse_moves(self.date, self.journal_id or False)
