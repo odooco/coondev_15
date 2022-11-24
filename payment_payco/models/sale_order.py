@@ -9,7 +9,7 @@ class SaleOrder(models.Model):
 
     def email_payment(self):
         self.access_token = self.access_token if self.access_token else str(uuid.uuid4())
-        template = self.env.ref('payment_payco.email_template_for_epayco')
+        template = self.env.ref('payment_payco.email_template_for_epayco_order')
         if template:
             template.email_from = str(self.env.user.partner_id.email)
             template.attachment_ids = [(5, 0, [])]

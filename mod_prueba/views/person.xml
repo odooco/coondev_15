@@ -1,0 +1,67 @@
+<odoo>
+    <data>
+        <!-- start:views -->
+        <record model="ir.ui.view" id="mod_prueba_person_tree_view">
+            <field name="name">mod_prueba_person_tree</field>
+            <field name="model">mod_prueba_person</field>
+            <field name="arch" type="xml">
+                <tree string="Persona">
+                    <field name="sequence" widget="handle"/>
+                    <field name="firstname" string="Nombre">
+                    <field name="lastname" string="Apellido">
+                    <field name="birthday" string="Fecha Nacimiento">
+                    <field name="create_date" string="Fecha Creacion"/>
+                    <field name="status"/>
+                    <field name="friend_id" widget="many2one_tags"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- person view form -->
+        <record model="ir.ui.view" id="mod_prueba_person_form_view">
+            <field name="name">mod_prueba_person_form</field>
+            <field name="model">mod_prueba_person</field>
+            <field name="arch" type="xml">
+                <form string="Person">
+                    <sheet>
+                        <group>
+                            <field name="create_uid" string="Usuario Creador"/>
+                            <field name="firstname">
+                             <field name="lastname">
+                            <field name="birthday">
+                            <field name="create_date"/>
+                            <field name="status"/>
+                            <field name="friend_id" widget="many2one_tags"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- start:actions -->
+
+        <!-- crear persona -->
+        <record model="ir.actions.act_window"
+            id="mod_prueba_person_list_action">
+            <field name="name">Person</field>
+            <field name="res_model">mod.prueba.person</field>
+            <field name="view_mode">form</field>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">Create a new person
+                </p>
+            </field>
+        </record>
+
+        <!-- item de menu -->
+        <menuitem id="mod_prueba.mod_prueba_parent_config_submenu"
+            name="Person"
+            web_icon="mod_prueba,static/description/icon.png"
+            action="mod_prueba_person_list_action"
+            active="True"
+            sequence="50"
+        />
+
+        <!-- end:actions -->
+
+    </data>
+</odoo>

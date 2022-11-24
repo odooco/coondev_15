@@ -3,8 +3,10 @@
 import logging
 import sys
 from werkzeug import urls
-from pprint import pprint
+from datetime import datetime
 
+import psycopg2
+from dateutil import relativedelta
 from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
 from odoo import http
@@ -17,7 +19,22 @@ _logger = logging.getLogger(__name__)
 class PaymentTransaction(models.Model):
     _inherit = 'payment.transaction'
 
-    payco_payment_ref = fields.Char(string="ePayco Payment Reference")
+    payco_payment_ref = fields.Char(string="ePayco Payment Reference")\
+
+    @api.model
+    def create(self, vals):
+        _logger.error(vals)
+        tx = self.env['payment.transaction'].search([('reference', 'ilike', vals['reference'].split('-')[0] + '%'),
+                                                     ('state', 'not in', ('cancel', 'error', 'done'))])
+        tx_done = self.env['payment.transaction'].search(
+            [('reference', 'ilike', vals['reference'].split('-')[0] + '%'), ('state', 'in', ('done'))])
+        if not tx:
+            new_record = super(PaymentTransaction, self).create(vals)
+        elif tx_done:
+            raise ValidationError('Transaccion de pago en Realizada y Aprobada Anteriormente')
+        else:
+            raise ValidationError('Transaccion de pago en Proceso')
+        return new_record
 
     def _get_specific_rendering_values(self, processing_values):
         """ Override of payment to return ePayco-specific rendering values.
@@ -123,6 +140,41 @@ class PaymentTransaction(models.Model):
             )
         return tx
 
+    def _cron_finalize_post_processing(self):
+        txs_to_post_process = self
+        if not txs_to_post_process:
+            client_handling_limit_date = datetime.now() - relativedelta.relativedelta(minutes=10)
+            retry_limit_date = datetime.now() - relativedelta.relativedelta(days=2)
+            txs_to_post_process = self.search([
+                ('state', '=', 'done'),
+                ('is_post_processed', '=', False),
+                '|', ('last_state_change', '<=', client_handling_limit_date),
+                ('operation', '=', 'refund'),
+                ('last_state_change', '>=', retry_limit_date),
+            ])
+            txs_to_pending_process = self.search([
+                ('state', 'in', ('draft', 'pending')),
+                ('is_post_processed', '=', False),
+                '|', ('last_state_change', '<=', client_handling_limit_date),
+                ('operation', '=', 'refund'),
+                ('last_state_change', '>=', retry_limit_date),
+            ])
+        for tx in txs_to_post_process:
+            _logger.error(tx._log_received_message())
+            try:
+                tx._finalize_post_processing()
+                self.env.cr.commit()
+            except psycopg2.OperationalError:  # A collision of accounting sequences occurred
+                self.env.cr.rollback()  # Rollback and try later
+            except Exception as e:
+                _logger.exception(
+                    "encountered an error while post-processing transaction with id %s:\n%s",
+                    tx.id, e
+                )
+                self.env.cr.rollback()
+        for tz in txs_to_pending_process:
+            tz.state = 'cancel'
+
     def _process_feedback_data(self, data):
         """ Override of payment to process the transaction based on Payco data.
 
@@ -166,14 +218,15 @@ class PaymentTransaction(models.Model):
                         self._finalize_post_processing()
                     elif cod_response == 2:
                         self.payco_payment_ref = data.get('x_extra2')
-                        self.state = 'error'
-                        self._set_error()
+                        self._set_canceled()
+                        self.state = 'cancel'
                     elif cod_response == 3:
                         self._set_pending()
                     else:
+                        self.payco_payment_ref = data.get('x_extra2')
                         self.manage_status_order(data.get('x_extra3'), model_name)
-                        self._set_canceled()
-                        self.state = 'cancel'
+                        self.state = 'error'
+                        self._set_error(data.get('x_transaction_state'))
 
             else:
                 if cod_response == 1:
@@ -183,14 +236,15 @@ class PaymentTransaction(models.Model):
                     self.state = 'done'
                 elif cod_response == 2:
                     self.payco_payment_ref = data.get('x_extra2')
-                    self.state = 'error'
-                    self._set_error()
+                    self._set_canceled()
+                    self.state = 'cancel'
                 elif cod_response == 3:
                     self._set_pending()
                 else:
+                    self.payco_payment_ref = data.get('x_extra2')
                     self.manage_status_order(data.get('x_extra3'), model_name)
-                    self.state = 'cancel'
-                    self._set_canceled()
+                    self.state = 'error'
+                    self._set_error(data.get('x_transaction_state'))
 
     def query_update_status(self, table, values, selectors):
         """ Update the table with the given values (dict), and use the columns in

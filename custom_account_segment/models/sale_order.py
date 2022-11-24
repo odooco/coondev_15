@@ -19,11 +19,11 @@ class SaleOrder(models.Model):
 
     journal_id = fields.Many2one('account.journal', string='Journal', domain="[('type', '=', 'sale')]")
     invoice_pos_count = fields.Integer(string='Invoice Count', compute='_get_pos_invoiced', readonly=True)
-    invoice_pos_ids = fields.Many2many("account.move.pos", string='Invoices', compute="_get_pos_invoiced",
+    invoice_pos_ids = fields.Many2many("account.move.pos", 'sale_move_pos_rel', 'sale_id', 'move_pos_id', string='Invoices', compute="_get_pos_invoiced",
                                        readonly=True, copy=False)
 
     def action_pos_view_invoice(self):
-        invoices = self.mapped('invoice_pos_ids')
+        invoices = self.invoice_pos_ids
         action = self.env["ir.actions.actions"]._for_xml_id("custom_account_segment.action_move_out_invoice_type")
         if len(invoices) > 1:
             action['domain'] = [('id', 'in', invoices.ids)]
@@ -56,10 +56,11 @@ class SaleOrder(models.Model):
     def action_view_invoice(self):
         self.ensure_one()
         invoices = self.mapped('invoice_pos_ids')
+        if not invoices and self.journal_id.pos_sale:
+            return True
         count = 0
         for record in invoices:
-            if record.journal_id.pos_sale:
-                count += 1
+            count += 1
         if count == 0:
             return super(SaleOrder, self).action_view_invoice()
         else:

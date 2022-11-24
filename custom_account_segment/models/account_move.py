@@ -6,11 +6,17 @@ import logging
 
 _logger = logging.getLogger(__name__)
 
+class AccountJournal(models.Model):
+    _inherit = 'account.journal'
+
+    refund_sequence_number = fields.Integer(default=1)
+
 class AccountMove(models.Model):
     _inherit = 'account.move'
 
-    def action_post(self):
+    def action_re_post(self):
         for record in self:
+            record.state = 'draft'
             if record.journal_id.st_dt and record.partner_id.property_payment_term_id.st_dt:
                 rc_lines = record.line_ids.filtered(lambda line: line.st_dt)
                 if not rc_lines:
@@ -23,17 +29,18 @@ class AccountMove(models.Model):
                         else:
                             name = 'Reclacificacion'
                         if line.name and 'IVA' in line.name:
-                            account = self.env.user.company_id.tax_account_id.id
+                            account = record.company_id.tax_account_id.id
                         elif line.credit:
-                            account = self.env.user.company_id.end_account_id.id
+                            account = record.company_id.end_account_id.id
                         else:
-                            account = self.env.user.company_id.general_account_id.id
+                            account = record.company_id.general_account_id.id
                         lines.append({
                             'name': name,
                             'account_id': account,
                             'move_id': line.move_id.id,
-                            'debit': line.debit * self.env.user.company_id.percent_rec / 100,
-                            'credit': line.credit * self.env.user.company_id.percent_rec / 100,
+                            'debit': line.debit * record.company_id.percent_rec / 100,
+                            'credit': line.credit * record.company_id.percent_rec / 100,
+                            'tax_base_amount': line.tax_base_amount * record.company_id.percent_rec / 100,
                             'exclude_from_invoice_tab': True,
                             'st_dt': True,
                             'quantity': line.quantity,
@@ -43,15 +50,15 @@ class AccountMove(models.Model):
                             'account_id': line.account_id.id,
                             'product_id': line.product_id.id,
                             'move_id': line.move_id.id,
-                            'debit': line.debit * (100 - self.env.user.company_id.percent_rec) / 100,
-                            'credit': line.credit * (100 - self.env.user.company_id.percent_rec) / 100,
+                            'debit': line.debit * (100 - record.company_id.percent_rec) / 100,
+                            'credit': line.credit * (100 - record.company_id.percent_rec) / 100,
                             'exclude_from_invoice_tab': line.exclude_from_invoice_tab,
                             'tax_ids': line.tax_ids.ids,
                             'discount': line.discount,
                             'price_unit': line.price_unit,
                             'tax_repartition_line_id': line.tax_repartition_line_id.id,
                             'tax_tag_ids': line.tax_tag_ids.ids,
-                            'tax_base_amount': line.tax_base_amount,
+                            'tax_base_amount': line.tax_base_amount * (100 - record.company_id.percent_rec) / 100,
                             'amount_residual': line.amount_residual,
                             'price_subtotal': line.price_subtotal,
                             'quantity': line.quantity,
@@ -60,24 +67,22 @@ class AccountMove(models.Model):
                     self.env['account.move.line'].sudo().create(new_lines)
                     lines_new_move = self.env['account.move.line'].sudo().create(lines)
                     record.move_type = 'entry'
-                    res = super(AccountMove, self).action_post()
                     invoice = self.sudo().create({
                         'move_type': 'entry',
-                        'partner_id': self.env.user.company_id.partner_rec.id,
+                        'partner_id': record.company_id.partner_rec.id,
                         'currency_id': self.currency_id.id,
                         'invoice_date': self.invoice_date,
-                        'journal_id': self.env.user.company_id.journal_id.id,
+                        'journal_id': record.company_id.journal_id.id,
                         'date': self.date,
                         'line_ids': lines_new_move.ids
                     })
                     invoice.sudo().action_post()
-                else:
-                    res = super(AccountMove, self).action_post()
-            else:
-                res = super(AccountMove, self).action_post()
-        return res
+            record.partner_id = record.company_id.partner_rec,
+            record.state = 'posted'
+        return True
 
     def create_pos(self, sale_id=False):
+        invoice_pos = self.env['account.move.pos']
         for record in self:
             pos_lines = []
             for line in record.line_ids:
@@ -103,7 +108,7 @@ class AccountMove(models.Model):
                     'quantity': line.quantity,
                 })
             pos_lines_new = self.env['account.move.pos.line'].sudo().create(pos_lines)
-            self.env['account.move.pos'].sudo().create({
+            invoice_pos = self.env['account.move.pos'].sudo().create({
                 'name': record.name,
                 'sale_id': sale_id,
                 'move_id': record.id,
@@ -131,3 +136,4 @@ class AccountMove(models.Model):
                 'line_ids': pos_lines_new.ids
             })
             record.move_type = 'entry'
+        return invoice_pos
