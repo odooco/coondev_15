@@ -65,3 +65,9 @@ class SaleOrder(models.Model):
             return super(SaleOrder, self).action_view_invoice()
         else:
             return self.action_pos_view_invoice()
+
+    @api.onchange('partner_id')
+    def onchange_journal_partner_id(self):
+        for record in self:
+            if record.partner_id.journal_id:
+                record.journal_id = record.partner_id.journal_id

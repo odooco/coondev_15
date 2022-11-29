@@ -23,11 +23,10 @@ class PaymentTransaction(models.Model):
 
     @api.model
     def create(self, vals):
-        _logger.error(vals)
         tx = self.env['payment.transaction'].search([('reference', 'ilike', vals['reference'].split('-')[0] + '%'),
                                                      ('state', 'not in', ('cancel', 'error', 'done'))])
         tx_done = self.env['payment.transaction'].search(
-            [('reference', 'ilike', vals['reference'].split('-')[0] + '%'), ('state', 'in', ('done'))])
+            [('reference', 'ilike', vals['reference'].split('-')[0] + '%'), ('state', '=', 'done')])
         if not tx:
             new_record = super(PaymentTransaction, self).create(vals)
         elif tx_done:

@@ -11,7 +11,7 @@ class AccountPaymentPosRegister(models.TransientModel):
     _description = 'Register Payment Pos'
 
     def _get_default_journal(self):
-        return self.env['account.move']._search_default_journal(('bank', 'cash'))
+        return self.env['account.move']._search_default_journal(('cash','cash'))
 
     @api.depends('partner_id', 'company_id', 'payment_type', 'is_internal_transfer')
     def _compute_available_partner_bank_ids(self):
@@ -61,7 +61,7 @@ class AccountPaymentPosRegister(models.TransientModel):
     communication = fields.Char('Referencia / Memo')
     journal_id = fields.Many2one('account.journal', string='Diario', required=True, readonly=True,
                                  states={'draft': [('readonly', False)]},
-                                 domain="[('type', 'in', ('bank', 'cash'))]", default=_get_default_journal)
+                                 domain="[('type', '=', 'cash')]", default=_get_default_journal)
     payment_method_line_id = fields.Many2one('account.payment.method.line', string='Metodo de Pago', readonly=False,
                                              store=True, copy=False, domain="[('id', '!=', 0)]")
     available_partner_bank_ids = fields.Many2many(comodel_name='res.partner.bank',
