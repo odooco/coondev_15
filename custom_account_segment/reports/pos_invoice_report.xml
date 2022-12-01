@@ -170,21 +170,6 @@
                                         </div>
                                     </div>
 
-                                    <p t-if="o.journal_id.is_einvoicing" style="font-size:12px;" class="text-center">
-                                        <br/>
-                                        <strong>
-                                            <span><b>Representación gráfica de la </b></span>
-                                            <span t-if="o.move_type == 'out_invoice'"><b>factura </b></span>
-                                            <span t-if="o.move_type == 'out_refund'"><b>nota crédito </b></span>
-                                            <span><b>electrónica de Venta</b></span>
-                                        </strong>
-                                        <!-- CUFE -->
-                                        <br/>
-                                        <span t-if="o.move_type == 'out_refund'">CUDE: </span>
-                                        <span t-if="o.move_type == 'out_invoice'">CUFE: </span>
-                                        <span t-field="o.dian_document_lines[0].cufe_cude"/>
-                                    </p>
-
                                     <div class="row" style="margin-top:5px; page-break-inside: avoid;">
                                         <table t-attf-class="table-sm" style="border-bottom: 1px solid black; width:100%; page-break-inside: avoid;">
                                             <t t-set="discount_total" t-value="0"/>
@@ -397,21 +382,6 @@
                                             </tr>
                                         </table>
                                     </div>
-
-                                    <br/>
-                                    <div>
-                                      <div class="col-12 text-center">
-                                        <t t-if="o.company_id.einvoicing_enabled == True">
-                                          <t t-foreach="o.dian_document_lines" t-as="dd">
-                                            <t t-if="dd.state == 'done' or dd.state == 'sent'">
-                                              <img class="image" t-attf-src="data:image/png;base64,{{dd.qr_image}}" style="width:150px;height:150px;margin-bottom:1px"/>
-                                            </t>
-                                          </t>
-                                        </t>
-                                      </div>
-                                    </div>
-                                    <br/>
-
                                     <div class="row mb-4" style="margin-top: 5px; page-break-inside: avoid;">
                                         <div class="col">
                                             <div class="row">

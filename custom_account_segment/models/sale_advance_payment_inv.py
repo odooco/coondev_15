@@ -13,6 +13,7 @@ class SaleAdvancePaymentInv(models.TransientModel):
     def create_invoices(self):
         res = super(SaleAdvancePaymentInv, self).create_invoices()
         sale_orders = self.env['sale.order'].browse(self._context.get('active_ids', []))
+        invoice_pos = False
         for record in sale_orders:
             invoices = record.mapped('invoice_ids')
             for invoice in invoices:

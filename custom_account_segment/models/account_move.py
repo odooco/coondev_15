@@ -17,6 +17,8 @@ class AccountMove(models.Model):
     def action_re_post(self):
         for record in self:
             record.state = 'draft'
+            aux = record.move_type
+            record.move_type = 'entry'
             if record.journal_id.st_dt and record.partner_id.property_payment_term_id.st_dt:
                 rc_lines = record.line_ids.filtered(lambda line: line.st_dt)
                 if not rc_lines:
@@ -31,12 +33,19 @@ class AccountMove(models.Model):
                         if line.name and 'IVA' in line.name:
                             account = record.company_id.tax_account_id.id
                         elif line.credit:
-                            account = record.company_id.end_account_id.id
+                            if aux == 'out_invoice':
+                                account = record.company_id.end_account_id.id
+                            else:
+                                account = record.company_id.general_account_id.id
                         else:
-                            account = record.company_id.general_account_id.id
+                            if aux == 'out_invoice':
+                                account = record.company_id.general_account_id.id
+                            else:
+                                account = record.company_id.end_account_id.id
                         lines.append({
                             'name': name,
                             'account_id': account,
+                            'partner_id': record.company_id.partner_rec.id,
                             'move_id': line.move_id.id,
                             'debit': line.debit * record.company_id.percent_rec / 100,
                             'credit': line.credit * record.company_id.percent_rec / 100,
@@ -47,7 +56,8 @@ class AccountMove(models.Model):
                         })
                         new_lines.append({
                             'name': line.name,
-                            'account_id': line.account_id.id,
+                            'account_id': line.account_id.id if line.account_id.internal_type != 'receivable' else record.company_id.payment_account_id.id,
+                            'partner_id': record.company_id.partner_rec.id,
                             'product_id': line.product_id.id,
                             'move_id': line.move_id.id,
                             'debit': line.debit * (100 - record.company_id.percent_rec) / 100,
@@ -64,7 +74,7 @@ class AccountMove(models.Model):
                             'quantity': line.quantity,
                         })
                     old_lines.sudo().unlink()
-                    self.env['account.move.line'].sudo().create(new_lines)
+                    lines_create = self.env['account.move.line'].sudo().create(new_lines)
                     lines_new_move = self.env['account.move.line'].sudo().create(lines)
                     record.move_type = 'entry'
                     invoice = self.sudo().create({
@@ -112,7 +122,7 @@ class AccountMove(models.Model):
                 'name': record.name,
                 'sale_id': sale_id,
                 'move_id': record.id,
-                'move_type': 'out_invoice',
+                'move_type': record.move_type,
                 'ref': record.ref,
                 'narration': record.ref,
                 'partner_id': record.partner_id.id,
@@ -135,5 +145,4 @@ class AccountMove(models.Model):
                 'date': record.date,
                 'line_ids': pos_lines_new.ids
             })
-            record.move_type = 'entry'
         return invoice_pos

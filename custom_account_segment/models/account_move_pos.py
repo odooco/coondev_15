@@ -15,8 +15,28 @@ class AccountMovePos(models.Model):
     _check_company_auto = True
     _sequence_index = "journal_id"
 
+    @api.depends('reversal')
+    def _get_pos_invoiced(self):
+        for invoice in self:
+            invoices = self.env['account.move.pos'].search([('invoice_origin', '=', invoice.name)])
+            invoice.credit_note_ids = invoices
+            invoice.credit_note_count = len(invoices)
+
     print = fields.Integer(default=0)
     reversal = fields.Boolean(default=False)
+    credit_note_count = fields.Integer(string='Contador de notas', compute='_get_pos_invoiced', readonly=True)
+    credit_note_ids = fields.Many2many("account.move.pos", 'account_move_pos_rel', 'invoice_id', 'refund_id',
+                                       string='Notas Credito', compute="_get_pos_invoiced", readonly=True, copy=False)
+
+    def action_view_credit_notes(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Notas Crédito'),
+            'res_model': 'account.move.pos',
+            'view_mode': 'tree,form',
+            'domain': [('invoice_origin', '=', self.name)],
+        }
 
     def action_print_pos(self):
         self.ensure_one()
@@ -42,6 +62,10 @@ class AccountMovePos(models.Model):
             'type': 'ir.actions.act_window',
         }
 
+    @api.onchange('account_payment_ids')
+    def onchange_account_payment_ids(self):
+        self.calculate_account_payment()
+
     def button_cancel(self):
         self.write({'state': 'cancel'})
         self.move_id.state = 'cancel'
@@ -52,6 +76,7 @@ class AccountMovePos(models.Model):
 
     def action_reverse(self):
         for record in self:
+            record.ensure_one()
             lines = []
             invoice = self.env['account.move'].sudo().create({
                 'move_type': 'out_refund',
@@ -62,9 +87,9 @@ class AccountMovePos(models.Model):
                 'invoice_user_id': record.invoice_user_id.id,
                 'state': 'draft',
                 'company_id': record.company_id.id,
-                'invoice_origin': record.invoice_origin,
+                'invoice_origin': record.name,
                 'currency_id': record.currency_id.id,
-                'invoice_date': record.invoice_date,
+                'invoice_date': fields.Date.today(),
                 'amount_untaxed': record.amount_untaxed,
                 'amount_tax': record.amount_tax,
                 'amount_total': record.amount_total,
@@ -74,7 +99,7 @@ class AccountMovePos(models.Model):
                 'amount_total_signed': record.amount_total_signed,
                 'amount_residual_signed': record.amount_residual_signed,
                 'journal_id': record.journal_id.id,
-                'date': record.date,
+                'date': fields.Date.today(),
             })
             for line in record.line_ids:
                 lines.append({
@@ -84,8 +109,8 @@ class AccountMovePos(models.Model):
                     'product_id': line.product_id.id,
                     'currency_id': record.currency_id.id,
                     'company_id': record.company_id.id,
-                    'debit': line.debit,
-                    'credit': line.credit,
+                    'debit': line.credit,
+                    'credit': line.debit,
                     'exclude_from_invoice_tab': line.exclude_from_invoice_tab,
                     'tax_ids': line.tax_ids.ids,
                     'tax_line_id': line.tax_line_id.id,
@@ -100,9 +125,9 @@ class AccountMovePos(models.Model):
                     'quantity': line.quantity,
                 })
             lines_new = self.env['account.move.line'].sudo().create(lines)
-            invoice.name = invoice.name.replace(invoice.name.split('/')[-1],str(invoice.journal_id.refund_sequence_number))
-            invoice.journal_id.refund_sequence_number += 1
-            invoice.sequence_number = invoice.journal_id.refund_sequence_number
+            invoice.name = invoice.journal_id.refund_sequence_id.prefix + str(invoice.journal_id.refund_sequence_number_next)
+            invoice.journal_id.refund_sequence_id.number_next_actual += 1
+            invoice.journal_id.refund_sequence_number_next += 1
             invoice.create_pos()
             record.reversal = True
             action = self.env["ir.actions.actions"]._for_xml_id("custom_account_segment.action_move_out_invoice_type")
@@ -126,9 +151,9 @@ class AccountMovePos(models.Model):
 
     def action_post(self):
         self.move_id.action_post()
-        sale = self.env['sale.order'].search([('name','ilike',self.move_id.invoice_origin)], limit=1)
+        sale = self.env['sale.order'].search([('name', 'ilike', self.move_id.invoice_origin)], limit=1)
         sale.invoice_status = 'invoiced'
-        self.write({'state': 'post','name': self.move_id.name})
+        self.write({'state': 'post', 'name': self.move_id.name})
 
     def preview_invoice(self):
         self.ensure_one()
@@ -179,7 +204,8 @@ class AccountMovePos(models.Model):
         journal = self._get_default_journal()
         return journal.currency_id or journal.company_id.currency_id
 
-    account_payment_ids = fields.One2many('account.payment.pos', 'move_pos_id', string='Lineas de Pagos', copy=False, readonly=True, states={'draft': [('readonly', False)]})
+    account_payment_ids = fields.One2many('account.payment.pos', 'move_pos_id', string='Lineas de Pagos', copy=False,
+                                          readonly=True, states={'draft': [('readonly', False)]})
     move_type = fields.Selection(selection=[
         ('entry', 'Journal Entry'),
         ('out_invoice', 'Customer Invoice'),
@@ -201,7 +227,7 @@ class AccountMovePos(models.Model):
             if total >= record.amount_total and record.state != 'posted':
                 record.state = 'posted'
                 record.move_id.action_re_post()
-            sale = self.env['sale.order'].search([('name','ilike',record.move_id.invoice_origin)], limit=1)
+            sale = self.env['sale.order'].search([('name', 'ilike', record.move_id.invoice_origin)], limit=1)
             sale.invoice_status = 'invoiced'
 
     name = fields.Char(string='Numero', copy=False, compute='_compute_name', readonly=False, store=True, index=True,
@@ -213,8 +239,9 @@ class AccountMovePos(models.Model):
                        states={'draft': [('readonly', False)]}, copy=False, default=fields.Date.context_today)
     ref = fields.Char(string='Referencia', copy=False, tracking=True)
     narration = fields.Text(string='Terminos y Condiciones')
-    state = fields.Selection(selection=[('draft', 'Borrador'), ('post', 'Confirmado'),('posted', 'Publicado'), ('cancel', 'Cancelado')],
-                             string='Estado', required=True, readonly=True, copy=False, tracking=True, default='draft')
+    state = fields.Selection(
+        selection=[('draft', 'Borrador'), ('post', 'Confirmado'), ('posted', 'Publicado'), ('cancel', 'Cancelado')],
+        string='Estado', required=True, readonly=True, copy=False, tracking=True, default='draft')
     journal_id = fields.Many2one('account.journal', string='Diario', required=True, readonly=True,
                                  states={'draft': [('readonly', False)]}, check_company=True,
                                  domain="[('type', '=', 'sale')]", default=_get_default_journal)
@@ -230,18 +257,22 @@ class AccountMovePos(models.Model):
                                        states={'draft': [('readonly', False)]})
     partner_id = fields.Many2one('res.partner', readonly=True, tracking=True, states={'draft': [('readonly', False)]},
                                  check_company=True, string='Cliente', change_default=True)
-    partner_shipping_id = fields.Many2one('res.partner', string='Direccion de Entrega', readonly=True, states={'draft': [('readonly', False)]}, domain="['|', ('company_id', '=', False), ('company_id', '=', company_id)]", help="Delivery address for current invoice.")
+    partner_shipping_id = fields.Many2one('res.partner', string='Direccion de Entrega', readonly=True,
+                                          states={'draft': [('readonly', False)]},
+                                          domain="['|', ('company_id', '=', False), ('company_id', '=', company_id)]",
+                                          help="Delivery address for current invoice.")
     invoice_user_id = fields.Many2one('res.users', string='Vendedor',
-                              help='Technical field used to fit the generic behavior in mail templates.')
+                                      help='Technical field used to fit the generic behavior in mail templates.')
     invoice_date = fields.Date(string='Fecha de Factura', readonly=True, index=True, copy=False,
                                states={'draft': [('readonly', False)]})
     invoice_date_due = fields.Date(string='Fecha de Vencimiento', readonly=True, index=True, copy=False,
                                    states={'draft': [('readonly', False)]})
     invoice_origin = fields.Char(string='Documento Origen', copy=False, readonly=False, store=True, index=True,
                                  tracking=True)
-    payment_mean_id = fields.Many2one(comodel_name='account.payment.mean', string='Payment Method', copy=False, default=False)
+    payment_mean_id = fields.Many2one(comodel_name='account.payment.mean', string='Payment Method', copy=False,
+                                      default=False)
 
-    payment_mean_code_id = fields.Many2one('account.payment.mean.code', string='Mean of Payment',copy=False)
+    payment_mean_code_id = fields.Many2one('account.payment.mean.code', string='Mean of Payment', copy=False)
 
     amount_untaxed = fields.Monetary(string='Total Sin Impuestos', store=True, readonly=True, tracking=True)
     amount_tax = fields.Monetary(string='Impuestos', store=True, readonly=True)
@@ -252,6 +283,7 @@ class AccountMovePos(models.Model):
     amount_total_signed = fields.Monetary(string='Total Signo', store=True, readonly=True)
     amount_residual_signed = fields.Monetary(string='Amount Due Signed', store=True)
     sale_id = fields.Many2one(string="Sales Order", store=True, readonly=False)
+
 
 class AccountMovePosLine(models.Model):
     _name = 'account.move.pos.line'
@@ -302,7 +334,8 @@ class AccountMovePosLine(models.Model):
                                               related='product_id.uom_id.category_id')
     tax_ids = fields.Many2many(comodel_name='account.tax', string="Taxes", context={'active_test': False},
                                help="Taxes that apply on the base amount")
-    tax_line_id = fields.Many2one('account.tax', string='Impuesto Origen', ondelete='restrict', store=True, help="Indicates that this journal item is a tax line")
+    tax_line_id = fields.Many2one('account.tax', string='Impuesto Origen', ondelete='restrict', store=True,
+                                  help="Indicates that this journal item is a tax line")
     tax_base_amount = fields.Monetary(string="Valor Base", store=True, readonly=True,
                                       currency_field='company_currency_id')
     tax_repartition_line_id = fields.Many2one(comodel_name='account.tax.repartition.line',

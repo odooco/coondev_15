@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <odoo>
     <record model="res.groups" id="reclasifiction_users">
-        <field name="name">Reclasificacion</field>
+        <field name="name">Reclasificacion (Ajustes)</field>
     </record>
     <record model="res.groups" id="reclasifiction_superusers">
-        <field name="name">Cuentas de Reclasificacion</field>
+        <field name="name">Reclasificacion (Ver Cuentas)</field>
     </record>
 </odoo>

@@ -17,10 +17,23 @@
                                 <field name="general_account_id"/>
                                 <field name="tax_account_id"/>
                                 <field name="end_account_id"/>
+                                <field name="payment_account_id"/>
                             </group>
                         </group>
                     </page>
                 </xpath>
+            </field>
+        </record>
+        <record id="partner_view_form" model="ir.ui.view">
+            <field name="name">res.partner.form</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.view_partner_form"/>
+            <field name="arch" type="xml">
+                <div name="button_box" position="inside">
+                    <button class="oe_stat_button" name="action_pos_view_invoice"  type="object" icon="fa-pencil-square-o">
+                        <field name="invoice_pos_count" widget="statinfo" string="Facturas POS"/>
+                    </button>
+                </div>
             </field>
         </record>
     </data>
