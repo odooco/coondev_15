@@ -1,2 +1,2 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_calendar_day_megatoner,calendar.day.megatoner,model_calendar_day_megatoner,,1,1,1,1
+access_account_invoice_purchase,account.invoice.purchase,model_account_invoice_purchase,,1,1,1,1
