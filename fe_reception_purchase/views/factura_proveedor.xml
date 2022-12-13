@@ -1,7 +1,7 @@
 <odoo>
     <data>
         <record model="ir.ui.view"
-            id="fe_reception_purchase.reception_purchase_form_view">
+            id="reception_purchase_form_view">
             <field name="name">Factura Proveedor</field>
             <field name="model">account.invoice.purchase</field>
             <field name="type">form</field>
@@ -26,7 +26,7 @@
             <field name="res_model">account.invoice.purchase</field>
             <field name="view_mode">form</field>
             <field name="view_id"
-                ref="fe_reception_purchase.reception_purchase_form_view"
+                ref="reception_purchase_form_view"
             />
             <field name="target">current</field>
         </record>
@@ -34,7 +34,7 @@
         <menuitem id="reception_purchase_menu"
 			name="Cargar Factura Proveedor" sequence="1"
             parent="account.menu_finance_payables"
-			action="fe_reception_purchase.cargar_factura_proveedor_action"
+			action="reception_purchase_action"
         />
     </data>
 </odoo>
