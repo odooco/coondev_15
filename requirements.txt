@@ -4,3 +4,4 @@ xades
 lxml==4.4.2
 pycountry
 qrcode
+xmltodict
