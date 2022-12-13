@@ -3,7 +3,7 @@
         <record model="ir.ui.view"
             id="fe_reception_purchase.reception_purchase_form_view">
             <field name="name">Factura Proveedor</field>
-            <field name="model">l10n_co_cei.factura_proveedor</field>
+            <field name="model">account.invoice.purchase</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
                 <form string="Factura Proveedor">
