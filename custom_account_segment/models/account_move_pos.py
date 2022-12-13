@@ -62,6 +62,21 @@ class AccountMovePos(models.Model):
             'type': 'ir.actions.act_window',
         }
 
+    def register_credit_note(self):
+        return {
+            'name': _('Registrar Nota Credito'),
+            'res_model': 'account.move.reverse',
+            'view_mode': 'form',
+            'context': {
+                'active_model': 'account.move.pos',
+                'default_move_pos_id': self.id,
+                'default_journal_id': self.journal_id.id,
+                'active_ids': self.ids,
+            },
+            'target': 'new',
+            'type': 'ir.actions.act_window',
+        }
+
     @api.onchange('account_payment_ids')
     def onchange_account_payment_ids(self):
         self.calculate_account_payment()
@@ -74,7 +89,7 @@ class AccountMovePos(models.Model):
         self.write({'state': 'draft'})
         self.move_id.state = 'draft'
 
-    def action_reverse(self):
+    def action_reverse(self,journal_id=False):
         for record in self:
             record.ensure_one()
             lines = []
@@ -98,7 +113,7 @@ class AccountMovePos(models.Model):
                 'amount_tax_signed': record.amount_tax_signed,
                 'amount_total_signed': record.amount_total_signed,
                 'amount_residual_signed': record.amount_residual_signed,
-                'journal_id': record.journal_id.id,
+                'journal_id': record.journal_id.id if not journal_id else journal_id,
                 'date': fields.Date.today(),
             })
             for line in record.line_ids:
@@ -130,24 +145,7 @@ class AccountMovePos(models.Model):
             invoice.journal_id.refund_sequence_number_next += 1
             invoice.create_pos()
             record.reversal = True
-            action = self.env["ir.actions.actions"]._for_xml_id("custom_account_segment.action_move_out_invoice_type")
-            form_view = [(self.env.ref('custom_account_segment.view_move_pos_form').id, 'form')]
-            if 'views' in action:
-                action['views'] = form_view + [(state, view) for state, view in action['views'] if view != 'form']
-            else:
-                action['views'] = form_view
-            action['res_id'] = invoice.id
-            context = {
-                'default_move_type': 'out_refund',
-            }
-            if len(self) == 1:
-                context.update({
-                    'default_partner_id': self.partner_id.id,
-                    'default_partner_shipping_id': self.partner_shipping_id.id,
-                    'default_invoice_origin': self.mapped('name'),
-                })
-            action['context'] = context
-        return action
+        return invoice
 
     def action_post(self):
         self.move_id.action_post()

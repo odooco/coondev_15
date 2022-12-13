@@ -15,6 +15,7 @@
         'security/res_groups.xml',
         'views/account_journal.xml',
         'views/account_move_pos_views.xml',
+        'views/account_move_reverse.xml',
         'views/account_payment_pos_views.xml',
         'views/account_payment_pos_register_views.xml',
         'views/res_company.xml',

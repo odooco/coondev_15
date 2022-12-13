@@ -5,6 +5,7 @@ from . import account_journal
 from . import account_move_line
 from . import account_payment_pos
 from . import account_payment_register
+from . import account_move_reverse
 from . import account_move_pos
 from . import account_move
 from . import sale_order

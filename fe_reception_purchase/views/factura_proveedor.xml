@@ -1,0 +1,40 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view"
+            id="fe_reception_purchase.reception_purchase_form_view">
+            <field name="name">Factura Proveedor</field>
+            <field name="model">l10n_co_cei.factura_proveedor</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="Factura Proveedor">
+                    <group name="group_top" col="2">
+                        <group name="group_top" col="2">
+                            <field name="file" filename="file"/>
+                            <button string="Cargar Factura"
+                                name="cargar_factura_proveedor"
+                                type="object" class="oe_highlight"
+                            />
+                        </group>
+                    </group>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window"
+            id="reception_purchase_action">
+            <field name="name">Cargar Factura Proveedor</field>
+            <field name="res_model">account.invoice.purchase</field>
+            <field name="view_mode">form</field>
+            <field name="view_id"
+                ref="fe_reception_purchase.reception_purchase_form_view"
+            />
+            <field name="target">current</field>
+        </record>
+
+        <menuitem id="reception_purchase_menu"
+			name="Cargar Factura Proveedor" sequence="1"
+            parent="account.menu_finance_payables"
+			action="fe_reception_purchase.cargar_factura_proveedor_action"
+        />
+    </data>
+</odoo>

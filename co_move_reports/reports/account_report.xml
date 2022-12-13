@@ -269,91 +269,51 @@
                                             </div>
                                         </div>
                                     </div>
+                                    <br/>
                                     <div class="row all-borders" style="margin-top:5px;">
                                         <t t-set="total_lines" t-value="0"></t>
                                         <table t-attf-class="table table-sm" style="width:100%;">
                                             <thead style="display: table-row-group;">
                                                 <tr style="page-break-inside:avoid;">
-                                                    <th>Nº</th>
-                                                    <th>Descripción</th>
-                                                    <th class="text-right">Cantidad</th>
-                                                    <t t-if="o.invoice_line_ids.product_uom_id">
-                                                    <th width="12%" class="text-right">Unidad de medida</th>
-                                                    </t>
-                                                    <t t-if="not o.invoice_line_ids.product_uom_id">
-                                                    <th width="0%" class="text-right"></th>
-                                                    </t>
-                                                    <th width="12%" class="text-right">Valor Unidad</th>
-                                                    <th width="12%" class="text-right">% IVA</th>
-                                                    <th width="12%" class="text-right">% Desc.</th>
-                                                    <th width="15%" class="text-right">Valor Total</th>
+                                                    <th width="15%">Cuenta</th>
+                                                    <th width="25%">Tercero</th>
+                                                    <th width="25%">Detalle</th>
+                                                    <th width="15%">Cuenta Analitica</th>
+                                                    <th width="10%" class="text-right">Debito</th>
+                                                    <th width="10%" class="text-right">Credito</th>
                                                 </tr>
                                             </thead>
                                             <tbody class="invoice_tbody" style="inline-table; page-break-inside: avoid;">
-                                                <t t-foreach="o.invoice_line_ids" t-as="l">
-                                                    <t t-if="l.product_id">
-                                                        <tr style="page-break-inside:avoid; page-break-after:auto">
-                                                            <t t-set="total_lines" t-value="total_lines+1" />
-                                                            <td>
-                                                                <span t-esc="total_lines"/>
-                                                            </td>
-                                                            <td>
-                                                                <span t-field="l.name"/>
-                                                            </td>
-                                                            <td class="text-right">
-                                                                <t t-esc="'{:,}'.format(float(l.quantity))"/>
-                                                                <span t-field="l.uom_id" groups="product.group_uom"/>
-                                                            </td>
-                                                            <t t-if="l.product_uom_id.name">
-                                                                <td class="text-right">
-                                                                    <span t-field="l.product_uom_id.name"/>
-                                                                </td>
-                                                            </t><t t-if="not l.product_uom_id.name">
-                                                                <td class="text-right">
-                                                                    <span t-field="l.product_uom_id.name"/>
-                                                                </td>
-                                                            </t>
-                                                            <td class="text-right">
-                                                                <t t-if="o.currency_id.name == 'COP'" t-esc="'$'"/>
-                                                                <t t-if="o.currency_id.name != 'COP'" t-esc="o.currency_id.name"/>
-                                                                <t t-esc="'{0:,.2f}'.format(l.price_unit)"/>
-                                                            </td>
-                                                            <td class="text-right">
-                                                                <t t-foreach="l.tax_ids" t-as="tx">
-                                                                    <t t-if="tx.amount&gt;=0"
-                                                                       t-esc="'{:,}'.format(int(tx.amount))"/>
-                                                                </t>
-                                                            </td>
-                                                            <td class="text-right">
-                                                                <t t-esc="'{0:,.2f}'.format(l.discount)"/>
-                                                                <t t-esc="'%'"/>
-                                                            </td>
-                                                            <td class="text-right">
-                                                                <t t-if="o.currency_id.name == 'COP'" t-esc="'$'"/>
-                                                                <t t-if="o.currency_id.name != 'COP'" t-esc="o.currency_id.name"/>
-                                                                <t t-esc="'{0:,.2f}'.format(l.price_subtotal)"/>
-                                                            </td>
-                                                        </tr>
-                                                    </t>
+                                                <t t-foreach="o.line_ids" t-as="l">
+                                                    <tr style="page-break-inside:avoid; page-break-after:auto">
+                                                        <t t-set="total_lines" t-value="total_lines+1" />
+                                                        <td>
+                                                            <span t-esc="l.account_id.code"/> - <span t-esc="l.account_id.code"/>
+                                                        </td>
+                                                        <td>
+                                                            <span t-esc="l.partner_id.name"/>
+                                                        </td>
+                                                        <td>
+                                                            <span t-field="l.name"/>
+                                                        </td>
+                                                        <td>
+                                                            <span t-esc="l.analytic_account_id.name"/>
+                                                        </td>
+                                                        <td class="text-right">
+                                                            <t t-if="o.currency_id.name == 'COP'" t-esc="'$'"/>
+                                                            <t t-if="o.currency_id.name != 'COP'" t-esc="o.currency_id.name"/>
+                                                            <t t-esc="'{0:,.2f}'.format(l.debit)"/>
+                                                        </td>
+                                                        <td class="text-right">
+                                                            <t t-if="o.currency_id.name == 'COP'" t-esc="'$'"/>
+                                                            <t t-if="o.currency_id.name != 'COP'" t-esc="o.currency_id.name"/>
+                                                            <t t-esc="'{0:,.2f}'.format(l.credit)"/>
+                                                        </td>
+                                                    </tr>
                                                 </t>
                                             </tbody>
                                         </table>
                                     </div>
-
-                                    <div class="row" style="margin-top:5px; page-break-inside: avoid;">
-                                        <table t-attf-class="table" style="width:100%; page-break-inside: avoid;">
-                                            <t t-foreach="o.invoice_line_ids" t-as="l">
-                                                <t t-if="not l.product_id">
-                                                    <tr style="page-break-inside:avoid; page-break-after:auto">
-                                                        <td>
-                                                            <span t-field="l.name"/>
-                                                        </td>
-                                                    </tr>
-                                                </t>
-                                            </t>
-                                        </table>
-                                    </div>
-
                                     <div class="row" style="margin-top:5px; page-break-inside: avoid;">
                                         <table t-attf-class="table" style="width:100%; page-break-inside: avoid;">
                                             <tr style="page-break-inside: avoid;">
@@ -379,8 +339,6 @@
                                                        <t t-elif="o.currency_id.name in ('USD','EUR') and 'Cent' in total_letras"><t t-set="total_letras" t-value="total_letras.replace('Cent', 'Centavo')"/></t>
                                                        <p class="text-justify"><strong>Total en letras: </strong> <span t-if="o.currency_id" t-esc="total_letras"/></p>
                                                         <br/>
-                                                        <p class="text-justify" style="font-family: sans-serif; font-size:7px;"><span t-esc="o.company_id.tributary_information"/></p>
-
                                                         <p t-if="o.move_type in ('out_refund','in_refund')">  Asiento de Reversion: <span t-field="o.reversed_entry_id"> </span></p>
                                                     </div>
                                                 </td>
